@@ -10,7 +10,6 @@ relevant equations."""
 # TODO: add thermal and hygral effects
 
 import numpy as np
-import numpy.linalg as la
 import math
 import csv
 
@@ -19,21 +18,26 @@ class Lamina:
     """Individual lamina"""
 
     def __init__(self,
-                 tk,
-                 theta,
-                 E11,
-                 E22, nu12, G12, a11, a22,
-                 b11, b22):
+                 tk=0,
+                 theta=0,
+                 E11=0,
+                 E22=0,
+                 nu12=0,
+                 G12=0,
+                 a11=0,
+                 a22=0,
+                 b11=0,
+                 b22=0):
         self.ID = 0
         self.tk = tk
         self.z = 0
-        self.theta = theta  # theta is assumed to be in degrees
+        self.theta = 0  # theta is assumed to be in degrees
         self.E11 = E11
         self.E22 = E22
         self.nu12 = nu12
         self.G12 = G12
-        self.alpha_k = np.array([[a11], [a22], 0], dtype=float)
-        self.beta_k = np.array([[b11], [b22], 0], dtype=float)
+        self.alpha_k = np.array([[a11], [a22], [0]], dtype=float)
+        self.beta_k = np.array([[b11], [b22], [0]], dtype=float)
 
         self.epsilon_k = np.array((3, 1))  # on-axis ply strains
 
@@ -91,6 +95,20 @@ class Lamina:
                          [0, 0, q66]])
 
     @property
+    def Qk_bar(self):
+        """calculates the transformed reduced stiffness matrix of the lamina
+
+        See Staab section 3.2.2."""
+
+        T = self.T_e
+        T_inv = np.linalg.inv(T)
+        Q = self.Qk
+
+        _ = np.matmul(T_inv, Q)
+
+        return np.matmul(_, T)
+
+    @property
     def T_e(self):
         """The strain transformation matrix of the lamina for a given theta
 
@@ -117,18 +135,6 @@ class Lamina:
                          [-m*n, m*n, m**2 - n**2]])
 
     @property
-    def Qk_bar(self):
-        """calculates the transformed reduced stiffness matrix of the lamina
-
-        See Staab section 3.2.2."""
-
-        T = self.T_e
-        T_inv = la.inv(T)
-        Q = self.Qk
-
-        return la.matmul(la.matmul(T_inv, Q), T)
-
-    @property
     def Ak(self):
         """Calculate the A matrix for the lamina within it's laminate"""
 
@@ -150,18 +156,18 @@ class Lamina:
         """Checks if lamina is fully defined with proper attribute data
         types"""
 
-        if (self.tk == 0 and type(self.tk) != float):
+        if self.tk == 0 or math.isnan(self.tk):
             raise TypeError("lamina.tk must be a non-zero number")
-        elif (type(self.theta) != float):
+        elif math.isnan(self.theta):
             raise TypeError("lamina.theta must be a number (in degrees)")
-        elif (self.E11 == 0 and type(self.E11) != float):
+        elif self.E11 == 0 or math.isnan(self.E11):
             raise TypeError("lamina.E11 must be a non-zero number")
-        elif (self.E22 == 0 and type(self.E22) != float):
+        elif self.E22 == 0 or math.isnan(self.E22):
             raise TypeError("lamina.E22 must be a non-zero number")
-        elif ((self.nu12 <= 0 or self.nu12 > 1) and type(self.nu12) != float):
+        elif (self.nu12 <= 0 or self.nu12 > 1) or math.isnan(self.nu12):
             raise TypeError("""lamina.nu12 must be a non-zero number between
                             zero and 1""")
-        elif (self.G12 == 0 and type(self.G12) != float):
+        elif self.G12 == 0 or math.isnan(self.G12):
             raise TypeError("lamina.G12 must be a non-zero number")
         else:
             return True
@@ -260,30 +266,30 @@ class Laminate(list):
         #                  np.c_[self.B, self.D]]
 
         # calculate intermediate star and prime matrices
-        A_star = la.inv(self.A)
-        B_star = la.matmul(self.A_star, self.B)
-        C_star = la.matmul(self.B, self.A_star)
-        D_star = self.D - la.matmul(la.matmul(self.B, la.matmul(self.A_star,
+        A_star = np.linalg.inv(self.A)
+        B_star = np.matmul(self.A_star, self.B)
+        C_star = np.matmul(self.B, self.A_star)
+        D_star = self.D - np.matmul(np.matmul(self.B, np.matmul(self.A_star,
                                                                 self.B)))
 
-        A_prime = A_star - la.matmul(B_star, la.matmul(la.inv(D_star),
+        A_prime = A_star - np.matmul(B_star, np.matmul(np.linalg.inv(D_star),
                                                        C_star))
-        B_prime = la.matmul(B_star, la.inv(D_star))
-        C_prime = - la.matmul(la.inv(D_star), C_star)
-        D_prime = la.inv(D_star)
+        B_prime = np.matmul(B_star, np.linalg.inv(D_star))
+        C_prime = - np.matmul(np.linalg.inv(D_star), C_star)
+        D_prime = np.linalg.inv(D_star)
 
         return np.r_[np.c_[A_prime, B_prime],
                      np.c_[C_prime, D_prime]]
 
         # calculate thermal and hygral loads
         for ply in self:
-            self._N_T += la.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
+            self._N_T += np.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
                 ply.tk  # See Staab Eq 6.25
-            self._M_T += la.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
+            self._M_T += np.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
                 ply.tk * ply.z  # See Staab Eq 6.26
-            self._N_H += la.matmul(ply.Qk, ply.beta_k) * self.M_bar * \
+            self._N_H += np.matmul(ply.Qk, ply.beta_k) * self.M_bar * \
                 ply.tk  # See Staab Eq 6.29
-            self._M_H += la.matmul(ply.Qk, ply.beta_k) * self.M_bar * \
+            self._M_H += np.matmul(ply.Qk, ply.beta_k) * self.M_bar * \
                 ply.tk * ply.z  # See Staab Eq 6.30
 
         # calculate total load (See Staab Eq 6.32)
@@ -291,17 +297,17 @@ class Laminate(list):
         _M_hat = self.M_M + self._M_T + self._M_H
 
         # calculate laminate midplane strains (See Staab Eq 6.35)
-        self.epsilon_0, self.kappa_0 = np.vsplit(la.matmul(self.ABD_prime,
+        self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(self.ABD_prime,
                                                            np.vstack(_N_hat,
                                                                      _M_hat,
                                                                      2)))
 
         # calculate on-axis ply strains and stresses (See Staab Eq 6.37-6.38)
         for ply in self:
-            ply.epsilon_k = la.matmul(ply.T_e, (self.epsilon_0 + self.z *
+            ply.epsilon_k = np.matmul(ply.T_e, (self.epsilon_0 + self.z *
                                                 self.kappa_0))
 
-            ply.sigma_k = la.matmul(ply.Qk, (ply.epsilon_k -
+            ply.sigma_k = np.matmul(ply.Qk, (ply.epsilon_k -
                                              ply.alpha_k * self.dT -
                                              ply.beta_k * self.M_bar))
 
