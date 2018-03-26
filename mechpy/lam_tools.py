@@ -152,6 +152,7 @@ class Lamina:
 
         return (1 / 3) * self.Qk_bar * (self.zk**3 - self.zk1**3)
 
+    @property
     def isFullyDefined(self):
         """Checks if lamina is fully defined with proper attribute data
         types"""
@@ -239,8 +240,8 @@ class Laminate(list):
         for ply in self:
             if type(ply) != Lamina:
                 raise TypeError("Laminate may only contain Lamina objects")
-            else:
-                ply.isFullyDefined()
+            elif ply.isFullyDefined:
+                pass
 
         self.t = 0  # reset t
         self.layup = []  # reset layup
@@ -323,7 +324,7 @@ class Laminate(list):
         """Determines laminate properties from input CSV file."""
 
         with open(inputFile, 'r') as csvLamina:
-            rawLines = csv.DictReader(csvLamina)  # create dict object from csv
+            rawLines = csv.DictReader(csvLamina)  # create dict from csv
 
             # sort by plyID - assumed order is from the bottom upward
             sortedLines = sorted(rawLines,
