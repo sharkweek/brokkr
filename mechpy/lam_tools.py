@@ -4,11 +4,6 @@
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
-# TODO: change Lamina class to update each time an attribute is changed
-# TODO: add lamina.fromdict() so that the __init__ function doesn't require
-#       so many inputs
-# TODO: add thermal and hygral effects
-
 import numpy as np
 import math
 import csv
@@ -209,7 +204,7 @@ class Laminate(list):
             self.__lamUpdate_()
 
     def append(self, newPly):
-        """Extend list.append() to update laminate properties on addition of
+        """Extended list.append() to update laminate properties on addition of
         new ply.
 
         Note: added plies are assumed to be placed on TOP SURFACE
@@ -221,25 +216,25 @@ class Laminate(list):
         self.__lamUpdate_()
 
     def remove(self, ply):
-        """Extends the list.remove() method to update the laminate when a
+        """Extended the list.remove() method to update the laminate when a
         ply is removed"""
 
         super().remove(ply)
         self.__lamUpdate_()
 
     def insert(self, ply):
-        """Extend list.insert() to update laminate when a ply is inserted"""
+        """Extended list.insert() to update laminate when a ply is inserted"""
 
         super().insert(ply)
         self.__lamUpdate_()
 
     def __lamUpdate_(self):
-        """Updates the ply and laminate properties relative to the laminate"""
+        """Updates the ply and laminate attributes based on laminate stackup"""
 
         # Checks to make sure all plies are fully defined Lamina objects
         for ply in self:
             if type(ply) != Lamina:
-                raise TypeError("Laminate may only contain Lamina objects")
+                raise TypeError("Laminates may only contain Lamina objects")
             elif ply.isFullyDefined:
                 pass
 
@@ -262,10 +257,6 @@ class Laminate(list):
             self.B += ply.Bk
             self.D += ply.Dk
 
-        # rebuild ABD matrix
-        # self.ABD = np.r_[np.c_[self.A, self.B],
-        #                  np.c_[self.B, self.D]]
-
         # calculate intermediate star and prime matrices
         A_star = np.linalg.inv(self.A)
         B_star = np.matmul(self.A_star, self.B)
@@ -279,8 +270,8 @@ class Laminate(list):
         C_prime = - np.matmul(np.linalg.inv(D_star), C_star)
         D_prime = np.linalg.inv(D_star)
 
-        return np.r_[np.c_[A_prime, B_prime],
-                     np.c_[C_prime, D_prime]]
+        ABD_prime = np.r_[np.c_[A_prime, B_prime],
+                          np.c_[C_prime, D_prime]]
 
         # calculate thermal and hygral loads
         for ply in self:
@@ -298,7 +289,7 @@ class Laminate(list):
         _M_hat = self.M_M + self._M_T + self._M_H
 
         # calculate laminate midplane strains (See Staab Eq 6.35)
-        self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(self.ABD_prime,
+        self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(ABD_prime,
                                                            np.vstack(_N_hat,
                                                                      _M_hat,
                                                                      2)))
@@ -323,8 +314,8 @@ class Laminate(list):
     def lamFromCSV(inputFile):
         """Determines laminate properties from input CSV file."""
 
-        with open(inputFile, 'r') as csvLamina:
-            rawLines = csv.DictReader(csvLamina)  # create dict from csv
+        with open(inputFile, 'r') as csvLaminate:
+            rawLines = csv.DictReader(csvLaminate)  # create dict from csv
 
             # sort by plyID - assumed order is from the bottom upward
             sortedLines = sorted(rawLines,
@@ -335,7 +326,7 @@ class Laminate(list):
             for ply in sortedLines:
                 L.append(Lamina(int(ply['plyID']),
                                 float(ply['thick']),
-                                math.radians(float(ply['theta'])),
+                                float(ply['theta']),
                                 float(ply['E11']),
                                 float(ply['E22']),
                                 float(ply['nu12']),
