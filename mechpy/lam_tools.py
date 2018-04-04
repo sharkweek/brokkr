@@ -4,6 +4,8 @@
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
+# TODO: Update Laminate.pop(), reverse(), and sort()
+
 import numpy as np
 import math
 import csv
