@@ -1,13 +1,13 @@
 """All mechanical and thermal properties assume that x- and y-axes are in the
-0- and 90-degree directions, respectively
+0- and 90-degree directions of the lamina, respectively. It is also assumed
+that lamina are generally orthotropic.
 
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
-# TODO: change Lamina class to update each time an attribute is changed
-# TODO: add lamina.fromdict() so that the __init__ function doesn't require
-#       so many inputs
-# TODO: add thermal and hygral effects
+# TODO: create functions to import Lamina and Laminate properties from Nastran
+#       BDF
+# TODO: create function to calculate failure indices for Laminate
 
 import numpy as np
 import math
@@ -100,13 +100,7 @@ class Lamina:
 
         See Staab section 3.2.2."""
 
-        T = self.T_e
-        T_inv = np.linalg.inv(T)
-        Q = self.Qk
-
-        _ = np.matmul(T_inv, Q)
-
-        return np.matmul(_, T)
+        return np.matmul(np.matmul(np.linalg.inv(self.T_s), self.Qk), self.T_e)
 
     @property
     def T_e(self):
@@ -279,8 +273,8 @@ class Laminate(list):
         C_prime = - np.matmul(np.linalg.inv(D_star), C_star)
         D_prime = np.linalg.inv(D_star)
 
-        return np.r_[np.c_[A_prime, B_prime],
-                     np.c_[C_prime, D_prime]]
+        ABD_prime = np.r_[np.c_[A_prime, B_prime],
+                          np.c_[C_prime, D_prime]]
 
         # calculate thermal and hygral loads
         for ply in self:
@@ -298,7 +292,7 @@ class Laminate(list):
         _M_hat = self.M_M + self._M_T + self._M_H
 
         # calculate laminate midplane strains (See Staab Eq 6.35)
-        self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(self.ABD_prime,
+        self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(ABD_prime,
                                                            np.vstack(_N_hat,
                                                                      _M_hat,
                                                                      2)))
