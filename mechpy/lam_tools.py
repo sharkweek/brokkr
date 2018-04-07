@@ -5,6 +5,7 @@ that lamina are generally orthotropic.
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
+# TODO: restructure class containers to not inherit from list class
 # TODO: create functions to import Lamina and Laminate properties from Nastran
 # BDF
 # TODO: create function to calculate failure indices for Laminate
