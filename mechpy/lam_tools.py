@@ -6,8 +6,9 @@ See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
 # TODO: create functions to import Lamina and Laminate properties from Nastran
-#       BDF
+# BDF
 # TODO: create function to calculate failure indices for Laminate
+# TODO: Update Laminate.pop(), reverse(), and sort()
 
 import numpy as np
 import math
@@ -203,7 +204,7 @@ class Laminate(list):
             self.__lamUpdate_()
 
     def append(self, newPly):
-        """Extend list.append() to update laminate properties on addition of
+        """Extended list.append() to update laminate properties on addition of
         new ply.
 
         Note: added plies are assumed to be placed on TOP SURFACE
@@ -215,25 +216,25 @@ class Laminate(list):
         self.__lamUpdate_()
 
     def remove(self, ply):
-        """Extends the list.remove() method to update the laminate when a
+        """Extended the list.remove() method to update the laminate when a
         ply is removed"""
 
         super().remove(ply)
         self.__lamUpdate_()
 
     def insert(self, ply):
-        """Extend list.insert() to update laminate when a ply is inserted"""
+        """Extended list.insert() to update laminate when a ply is inserted"""
 
         super().insert(ply)
         self.__lamUpdate_()
 
     def __lamUpdate_(self):
-        """Updates the ply and laminate properties relative to the laminate"""
+        """Updates the ply and laminate attributes based on laminate stackup"""
 
         # Checks to make sure all plies are fully defined Lamina objects
         for ply in self:
             if type(ply) != Lamina:
-                raise TypeError("Laminate may only contain Lamina objects")
+                raise TypeError("Laminates may only contain Lamina objects")
             elif ply.isFullyDefined:
                 pass
 
@@ -255,10 +256,6 @@ class Laminate(list):
             self.A += ply.Ak
             self.B += ply.Bk
             self.D += ply.Dk
-
-        # rebuild ABD matrix
-        # self.ABD = np.r_[np.c_[self.A, self.B],
-        #                  np.c_[self.B, self.D]]
 
         # calculate intermediate star and prime matrices
         A_star = np.linalg.inv(self.A)
@@ -317,8 +314,8 @@ class Laminate(list):
     def lamFromCSV(inputFile):
         """Determines laminate properties from input CSV file."""
 
-        with open(inputFile, 'r') as csvLamina:
-            rawLines = csv.DictReader(csvLamina)  # create dict from csv
+        with open(inputFile, 'r') as csvLaminate:
+            rawLines = csv.DictReader(csvLaminate)  # create dict from csv
 
             # sort by plyID - assumed order is from the bottom upward
             sortedLines = sorted(rawLines,
@@ -329,7 +326,7 @@ class Laminate(list):
             for ply in sortedLines:
                 L.append(Lamina(int(ply['plyID']),
                                 float(ply['thick']),
-                                math.radians(float(ply['theta'])),
+                                float(ply['theta']),
                                 float(ply['E11']),
                                 float(ply['E22']),
                                 float(ply['nu12']),
