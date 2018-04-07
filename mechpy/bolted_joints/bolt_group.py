@@ -40,9 +40,9 @@ Returns:
         fastener
 
 TODO:
-    - Script currently accepts fastener moduli, but conservatively assumes rigid
-      body mechanics. Functionality needs to be added to calculate loads based
-      on fastener stiffness
+    - Script currently accepts fastener moduli, but conservatively assumes
+      rigid body mechanics. Functionality needs to be added to calculate loads
+      based on fastener stiffness
     - Add 'Totals' row to end of output file
     - report values smaller than 1e-9 as zeros
 
@@ -53,18 +53,29 @@ import numpy as np
 import csv
 
 
-class Fastener(object):
+class Fastener:
     """Fastener class containing an ID, location in space, and load vector"""
 
-    def __init__(self, ID, xyz, diameter, E, G, l):
+    def __init__(self,
+                 ID,
+                 xyz,
+                 diameter,
+                 E,
+                 G,
+                 length,
+                 axis=[0, 0, 0]):
         self.ID = ID
         self.xyz = xyz
         self.diameter = diameter
         self.E = E
         self.G = G
-        self.l = l
-        self.area = (diameter ** 2) * math.pi / 4
+        self.length = length
         self.force = [0, 0, 0]
+        self.axis = axis
+
+    @property
+    def area(self):
+        return (self.diameter ** 2) * math.pi / 4
 
     def __repr__(self):
         return "Fastener ID: %s\nLocation: %s\nForce: %s\nDiameter: %s" \
@@ -74,10 +85,13 @@ class Fastener(object):
                   self.diameter)
 
 
-class Load(object):
+class Load:
     """Load class containing location, force, and moment vectors"""
 
-    def __init__(self, xyz=[0, 0, 0], force=[0, 0, 0], moment=[0, 0, 0]):
+    def __init__(self,
+                 xyz=[0, 0, 0],
+                 force=[0, 0, 0],
+                 moment=[0, 0, 0]):
         self.xyz = xyz
         self.force = force
         self.moment = moment
@@ -90,10 +104,55 @@ class Load(object):
                   self.moment)
 
 
-class LoadSet(list):
+class LoadSet:
     """A set of loads"""
 
-    def __init__(self)
+    def __init__(self, loads):
+        """Initilize the LoadSet"""
+
+        # check that loads are given as a list
+        if type(loads) != list:
+            raise TypeError("Loads must be given in a list")
+        self.__loads = loads
+        self.__counter = 0
+
+        self.__update()
+
+    def __len__(self):
+        return len(self.__loads)
+
+    def __iter__(self):
+        return self.__loads
+
+    def __next__(self):
+        self.__counter += 1
+        if self.__counter < len(self):
+            return self.__loads[self.__counter]
+        else:
+            raise StopIteration
+
+    def __getitem__(self, key):
+        return self.__loads[key]
+
+    def __reversed__(self):
+        return reversed(self.__loads)
+
+    def append(self, newLoad):
+        self.__loads.append(newLoad)
+        self.__update()
+
+    def __delitem__(self, key):
+        del self.__loads[key]
+        self.__update()
+
+    def __setitem__(self, key, newLoad):
+        if type(newLoad) != Load:
+            raise TypeError("Must be a Load")
+        self.__loads[key] = newLoad
+        self.__update()
+
+    def __update(self):
+        pass
 
     def sumLoads(loadList, appLocation):
         """Determine the resultant load applied at the CG"""
