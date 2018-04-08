@@ -75,7 +75,15 @@ class Fastener:
 
     @property
     def area(self):
+        """Cross-sectional area of the fastener"""
+
         return (self.diameter ** 2) * math.pi / 4
+
+    @area.setter()
+    def area(self, a):
+        """Sets the diameter if the area is set by the user"""
+
+        self.diameter = math.sqrt(4 * a / math.pi)
 
     def __repr__(self):
         return "Fastener ID: %s\nLocation: %s\nForce: %s\nDiameter: %s" \
@@ -107,113 +115,193 @@ class Load:
 class LoadSet:
     """A set of loads"""
 
+    def isLoad(load):
+        """Checks if object is a Load type"""
+
+        if type(load) != Load:
+            raise TypeError("LoadSets must be composed of Load objects")
+        else:
+            return True
+
     def __init__(self, loads):
         """Initilize the LoadSet"""
 
         # check that loads are given as a list
         if type(loads) != list:
             raise TypeError("Loads must be given in a list")
+        else:
+            for each in loads:
+                self.isLoad(each)
+
         self.__loads = loads
-        self.__counter = 0
 
         self.__update()
 
     def __len__(self):
+        """Returns the number of loads in LoadSet"""
+
         return len(self.__loads)
 
     def __iter__(self):
-        return self.__loads
+        """Returns the loads as iterator"""
+
+        self.__counter = 0
+        return iter(self.__loads)
 
     def __next__(self):
+        """Iterates to the next load"""
+
         self.__counter += 1
         if self.__counter < len(self):
             return self.__loads[self.__counter]
         else:
             raise StopIteration
 
+    def clear(self):
+        """Clears the load set of loads"""
+
+        self.__loads.clear()
+        self.__update
+
     def __getitem__(self, key):
+        """Returns a load at the specified index"""
+
         return self.__loads[key]
 
-    def __reversed__(self):
-        return reversed(self.__loads)
-
     def append(self, newLoad):
+        """Adds a new load to the load set"""
+
         self.__loads.append(newLoad)
         self.__update()
 
     def __delitem__(self, key):
+        """Deletes a load with the specified index within the load set"""
+
         del self.__loads[key]
         self.__update()
 
     def __setitem__(self, key, newLoad):
-        if type(newLoad) != Load:
-            raise TypeError("Must be a Load")
+        """Overwrites a load at the specified index"""
+
+        self.isLoad(newLoad)  # Checks if new load is a Load type
         self.__loads[key] = newLoad
         self.__update()
 
     def __update(self):
-        pass
+        self.sumLoads():
 
-    def sumLoads(loadList, appLocation):
-        """Determine the resultant load applied at the CG"""
+    def sumLoads(self, point=[0, 0, 0]):
+        """Determine the resultant load applied at specified point"""
+
+        if type(point) != list and len(point) != 3:
+            raise TypeError("Point must be a three-item list of numbers")
+        else:
+            for coord in point:
+                if math.nan(coord):
+                    raise TypeError("""Point must be a three-item list of
+                                    numbers""")
+
         # sum the forces
-        forces = [load.force for load in loadList]
-        sumForce = [sum(f) for f in zip(*forces)]
+        self.totalForce = [0, 0, 0]
+        for load in self:
+            self.totalForce += load.force
 
-        # sum of the applied moments
-        moments = [load.moment for load in loadList]
-        sumMoment = [sum(m) for m in zip(*moments)]
+        # sum of the moments
+        self.totalMoment = [0, 0, 0]
+        for load in self:
+            self.totalMoment += load.moment
 
         # translate and add moments induced by forces
         # Mx = Sum(yFz - (zFy-CGy))
         # My = Sum(zFx - (xFz-CGz))
         # Mz = Sum(xFy - (yFx-CGx))
-        for load in loadList:
-            sumMoment[0] += load.force[1] * (appLocation[2] - load.xyz[2]) - \
-                            load.force[2] * (appLocation[1] - load.xyz[1])
+        for load in self:
+            self.totalMoment[0] += (load.force[1] * (point[2] - load.xyz[2]) -
+                                    load.force[2] * (point[1] - load.xyz[1]))
 
-            sumMoment[1] += load.force[2] * (appLocation[0] - load.xyz[0]) - \
-                            load.force[0] * (appLocation[2] - load.xyz[2])
+            self.totalMoment[1] += (load.force[2] * (point[0] - load.xyz[0]) -
+                                    load.force[0] * (point[2] - load.xyz[2]))
 
-            sumMoment[2] += load.force[0] * (appLocation[1] - load.xyz[1]) - \
-                            load.force[1] * (appLocation[0] - load.xyz[0])
+            self.totalMoment[2] += (load.force[0] * (point[1] - load.xyz[1]) -
+                                    load.force[1] * (point[0] - load.xyz[0]))
 
-        sumLoadID = Load.count * 100 + 1
-
-        return Load(sumLoadID, appLocation, sumForce, sumMoment)
-
-    def fromCSV(loadsPath):
+    def fromCSV(filePath):
         """Import applied loads from a CSV"""
 
-        with open(loadsPath, "r") as inputLoads:
+        with open(filePath, "r") as inputLoads:
             appliedload = csv.DictReader(inputLoads)
 
-            L = []
+            self.clear()
             for ld in appliedload:
-                loadID = int(ld['ID'])
                 loc = [float(ld['x']), float(ld['y']), float(ld['z'])]
                 f = [float(ld['fx']), float(ld['fy']), float(ld['fz'])]
                 m = [float(ld['mx']), float(ld['my']), float(ld['mz'])]
 
-                L.append(Load(loadID, loc, f, m))
+                self.append(Load(loc, f, m))
 
 
-class FastenerGroup(list):
+class FastenerGroup:
     """A fastener group"""
 
-    def __init__(self):
-        """Preserves list.__init__() and extends it"""
+    def isFastener(f):
+        """Checks if object is a Fastener"""
 
-        super().__init__()
+        if type(f) != Fastener:
+            raise TypeError("FastnerGroups may contain only Fasteners")
+        else:
+            return True
+
+    def __init__(self, fasteners):
+        self.__fasteners = []
 
         if len(self) > 0:
             self.__groupUpdate_()
 
-    def append(self, newFastener):
-        """Preserves list.append() and extends it"""
+    def __len__(self):
+        """Returns number of fasteners in FastenerGroup"""
 
-        super().append(newFastener)
+        return len(self.__fasteners)
+
+    def __iter__(self):
+        """Returns self as an iterator"""
+
+        self.__counter = 0
+        return iter(self.__fasteners)
+
+    def __next__(self):
+        """Iterates to the next item"""
+
+        self.__counter += 1
+        if self.__counter < len(self):
+            return self.__fasteners[self.__counter]
+        else:
+            raise StopIteration
+
+    def clear(self):
+        """Clears the FastenerGroup of all Fasteners"""
+
+        self.__fasteners.clear()
         self.__groupUpdate_()
+
+    def append(self, newFastener):
+        """Adds a newFastener to group"""
+
+        self.isFastener(newFastener)
+        self.__fasteners.append(newFastener)
+        self.__groupUpdate_()
+
+    def __getitem__(self, key):
+        """Returns a Fastener at a specified index"""
+
+        return self.__fasteners[key]
+
+    def __delitem__(self, key):
+        """Deletes a fastener at the specified index"""
+
+        del self.__fasteners[key]
+        self.__groupUpdate_()
+
+    def __setitem__(self, key, newLoad)
 
     def fromCSV(self, fastPath):
         """Import list of fasteners from CSV"""
