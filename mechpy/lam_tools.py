@@ -5,7 +5,6 @@ that lamina are generally orthotropic.
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations."""
 
-# TODO: restructure class containers to not inherit from list class
 # TODO: create functions to import Lamina and Laminate properties from Nastran
 # BDF
 # TODO: create function to calculate failure indices for Laminate
@@ -170,18 +169,14 @@ class Lamina:
             return True
 
 
-class Laminate(list):
-    """Laminate list object made up of multiple plies of lamina
+class Laminate:
+    """Laminate object made up of multiple plies of lamina
 
     Note that the stacking sequence is from the bottom of the laminate
     moving upward."""
 
-    def __init__(self):
+    def __init__(self, plies=[]):
         """Initialize with a list of Lamina objects"""
-
-        # preserve list __init__() and append with additional laminate
-        # properties
-        super().__init__()
 
         # create A, B, and D matrices
         self.A = np.zeros((3, 3))
@@ -199,61 +194,73 @@ class Laminate(list):
         self.kappa_0 = np.zeros((3, 1))  # midplane curvatures
         self.dT = 0  # temperature delta
         self.M_bar = 0  # average moisture content
+        self.__plies = plies
+        self.__counter = 0
 
         # determine laminate properties for non-empty Laminate object
         if len(self) > 0:
-            self.__lamUpdate_()
+            self.__update()
 
-    def append(self, newPly):
-        """Extended list.append() to update laminate properties on addition of
-        new ply.
+    def __len__(self):
+        """Return the number of plies in the laminate"""
 
-        Note: added plies are assumed to be placed on TOP SURFACE
-        of existing laminate."""
+        return len(self.__plies)
 
-        # preserve list.append() and extend to update effective laminate
-        # properties when a new ply is added
-        super().append(newPly)
-        self.__lamUpdate_()
+    def __iter__(self):
+        """Returns the plies property as an iterable"""
 
-    def remove(self, ply):
-        """Extended the list.remove() method to update the laminate when a
-        ply is removed"""
+        return iter(self.__plies)
 
-        super().remove(ply)
-        self.__lamUpdate_()
+    def __next__(self):
+        """Iterates to the next ply"""
 
-    def insert(self, ply):
-        """Extended list.insert() to update laminate when a ply is inserted"""
+        self.__counter += 1
+        if self.__counter < len(self):
+            return self.__plies[self.__counter]
+        else
+            raise StopIteration
 
-        super().insert(ply)
-        self.__lamUpdate_()
+    def __getitem__(self, key):
+        """Retrieves a specific item at the requested index"""
 
-    def __lamUpdate_(self):
+        return self.__plies[key]
+
+    def __delitem__(self, key):
+        """Extended the del  method to update the laminate when a ply is
+        removed"""
+
+        del self.__plies[key]
+        self.__update()
+
+    def __setitem__(self, key, newPly):
+        """Sets a specific ply to a new Lamina at the requested index"""
+
+        self.isLamina(newPly)
+        self.__plies[key] = newPly
+        self.__update()
+
+    def __update(self):
         """Updates the ply and laminate attributes based on laminate stackup"""
 
         # Checks to make sure all plies are fully defined Lamina objects
-        for ply in self:
-            if type(ply) != Lamina:
-                raise TypeError("Laminates may only contain Lamina objects")
-            elif ply.isFullyDefined:
-                pass
+        for ply in self.__plies:
+            self.isLamina(ply)
 
         self.t = 0  # reset t
         self.layup = []  # reset layup
 
-        for ply in self:
+        for ply in self.__plies:
             ply.ID += 1  # assign ply.ID
             ply.z = self.t + ply.tk / 2  # calculate ply.z w.r.t bottom
             self.t += ply.tk  # calculate laminate thickness
             self.layup.append(ply.theta)  # add ply orientation to layup
 
         # recalculate z with respect to the laminate mid-plane
-        for ply in self:
+        for ply in self.__plies:
             ply.z -= self.t / 2
 
         # calculate A, B, and D matrices from individual ply matrix terms
-        for ply in self:
+        for ply in self.__plies:
             self.A += ply.Ak
             self.B += ply.Bk
             self.D += ply.Dk
@@ -275,7 +282,7 @@ class Laminate(list):
                           np.c_[C_prime, D_prime]]
 
         # calculate thermal and hygral loads
-        for ply in self:
+        for ply in self.__plies:
             self._N_T += np.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
                 ply.tk  # See Staab Eq 6.25
             self._M_T += np.matmul(ply.Qk_bar, ply.alpha_k) * self.dT * \
@@ -296,7 +303,7 @@ class Laminate(list):
                                                                      2)))
 
         # calculate on-axis ply strains and stresses (See Staab Eq 6.37-6.38)
-        for ply in self:
+        for ply in self.__plies:
             ply.epsilon_k = np.matmul(ply.T_e, (self.epsilon_0 + self.z *
                                                 self.kappa_0))
 
@@ -305,12 +312,46 @@ class Laminate(list):
                                              ply.beta_k * self.M_bar))
 
     def __repr__(self):
-        return "Number of plies: %s\n" \
-               "t: %s\n" \
-               "Layup: %s\n" \
-               % (len(self),
-                  self.t,
-                  self.layup)
+        return self.layup.__repr__()
+
+    def append(self, newPly):
+        """Extended list.append() to update laminate properties on addition of
+        new ply.
+
+        Note: added plies are assumed to be placed on TOP SURFACE
+        of existing laminate."""
+
+        self.isLamina(newPly)
+        self.__plies.append(newPly)
+        self.__update()
+
+    def flip(self, renumber=False):
+        """Flips the stacking sequence of the Lamina. Provides option to
+        renumber the plies from the bottom up"""
+
+        self.__plies = reversed(self.__plies)
+        if renumber:
+            _ = 0
+            for each in self:
+                _ += 1
+                each.ID = _
+            del _
+        self.__update()
+
+    def insert(self, index, ply):
+        """Extended list.insert() to update laminate when a ply is inserted"""
+
+        self.isLamina(ply)
+        self.__plies.insert(index, ply)
+        self.__update()
+
+    def isLamina(ply):
+        """Checks if value is a ply and raises error if not"""
+
+        if type(ply) == Lamina:
+            raise TypeError("Laminates may only contain Lamina objects")
+        else:
+            return True
 
     def lamFromCSV(inputFile):
         """Determines laminate properties from input CSV file."""
@@ -323,16 +364,20 @@ class Laminate(list):
                                  key=lambda sortField:
                                  int(sortField['plyID']))
 
-            L = Laminate()
             for ply in sortedLines:
-                L.append(Lamina(int(ply['plyID']),
-                                float(ply['thick']),
-                                float(ply['theta']),
-                                float(ply['E11']),
-                                float(ply['E22']),
-                                float(ply['nu12']),
-                                float(ply['G12']),
-                                float(ply['a11']),
-                                float(ply['a22']),
-                                float(ply['b11']),
-                                float(ply['b22'])))
+                self.append(Lamina(int(ply['plyID']),
+                                   float(ply['thick']),
+                                   float(ply['theta']),
+                                   float(ply['E11']),
+                                   float(ply['E22']),
+                                   float(ply['nu12']),
+                                   float(ply['G12']),
+                                   float(ply['a11']),
+                                   float(ply['a22']),
+                                   float(ply['b11']),
+                                   float(ply['b22'])))
+
+    def pop(self, key):
+        """Replicates pop() functionality for Laminate"""
+
+        self.__plies.pop(key)
