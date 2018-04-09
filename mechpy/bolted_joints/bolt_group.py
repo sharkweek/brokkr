@@ -123,7 +123,7 @@ class LoadSet:
         # check that loads are Load objects
         for each in loads:
             self.__isLoad(each)
-        self.__loads = loads
+        self.__loads = list(loads)
 
         self.__sumLocation = [0, 0, 0]  # location about which to sum loads
 
@@ -270,9 +270,10 @@ class FastenerGroup:
         if len(self) > 0:
             for each in fasteners:
                 self.__isFastener(each)
-            self.__fasteners = fasteners
+            self.__fasteners = list(fasteners)
 
         self.__CG = [0, 0, 0]
+        self.appliedLoad = None
 
         self.__update()
 
@@ -293,14 +294,24 @@ class FastenerGroup:
         return self.__fasteners[key]
 
     def __update(self):
-        # Begin Calculations
-        groupCG = findCG(F)
-        netLoad = sum_about(L, groupCG)
-        matA = np.zeros((Fastener.count * 3, Fastener.count * 3))  # coeff matrix
-        matB = np.zeros(Fastener.count * 3)  # solution matrix
+        """Update bolt group to distribute loads"""
 
-        cSet = [[i, i+1, i+2] for i in range(0, 3 * Fastener.count, 3)]
-        rSet = [[i+6, i+7, i+8] for i in range(0, 3 * (Fastener.count - 2), 3)]
+        # Make sure loads have been specified
+        if type(self.appliedLoad) == Load:
+            self.appliedLoad = LoadSet(appliedLoad)
+        elif type(self.appliedLoad) != LoadSet:
+            raise TypeError("Applied load must be a Load or LoadSet")
+
+        # Begin Calculations
+        _cg = self.cg  # calculate the cg once to save computation time
+        netLoad = self.appliedLoad.totalForce
+        netMoment =
+
+        matA = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
+        matB = np.zeros(len(self) * 3)  # solution matrix
+
+        cSet = [[i, i+1, i+2] for i in range(0, 3 * len(self), 3)]
+        rSet = [[i+6, i+7, i+8] for i in range(0, 3 * (len(self) - 2), 3)]
 
         for i, j in enumerate(cSet):
             # i = column fastener ID
@@ -319,16 +330,16 @@ class FastenerGroup:
             matA[2][Fz] = 1  # sum of Fz
 
             # fill in fourth row (sum of Mx at CG)
-            matA[3][Fy] = -(F[i].xyz[2] - groupCG[2])  # -zFy
-            matA[3][Fz] = +(F[i].xyz[1] - groupCG[1])  # +yFz
+            matA[3][Fy] = -(F[i].xyz[2] - _cg[2])  # -zFy
+            matA[3][Fz] = +(F[i].xyz[1] - _cg[1])  # +yFz
 
             # fill in fifth row (sum of My at CG)
-            matA[4][Fx] = +(F[i].xyz[2] - groupCG[2])  # +zFx
-            matA[4][Fz] = -(F[i].xyz[0] - groupCG[0])  # -xFz
+            matA[4][Fx] = +(F[i].xyz[2] - _cg[2])  # +zFx
+            matA[4][Fz] = -(F[i].xyz[0] - _cg[0])  # -xFz
 
             # fill in sixth row (sum of Mz at CG)
-            matA[5][Fx] = -(F[i].xyz[1] - groupCG[1])  # -yFx
-            matA[5][Fy] = +(F[i].xyz[0] - groupCG[0])  # +xFy
+            matA[5][Fx] = -(F[i].xyz[1] - _cg[1])  # -yFx
+            matA[5][Fy] = +(F[i].xyz[0] - _cg[0])  # +xFy
 
             for u, w in enumerate(rSet):
                 # u = row fastener ID
@@ -363,17 +374,17 @@ class FastenerGroup:
             rZ = j[2]
 
             # Mx = (y_cg - y_i)F_znet - (z_cg - z_i)F_ynet + M_xnet
-            matB[rX] = - ((groupCG[1] - F[i].xyz[1]) * netLoad.force[2]
+            matB[rX] = - ((_cg[1] - F[i].xyz[1]) * netLoad.force[2]
                           - (groupCG[2] - F[i].xyz[2]) * netLoad.force[1]
                           + netLoad.moment[0])
 
             # My = (z_cg - z_i)F_xnet - (x_cg - x_i)F_znet + M_ynet
-            matB[rY] = -((groupCG[2] - F[i].xyz[2]) * netLoad.force[0]
+            matB[rY] = -((_cg[2] - F[i].xyz[2]) * netLoad.force[0]
                        - (groupCG[0] - F[i].xyz[0]) * netLoad.force[2]
                        + netLoad.moment[1])
 
             # Mz = (x_cg - x_i)F_ynet - (y_cg - y_i)F_xnet + M_znet
-            matB[rZ] = -((groupCG[0] - F[i].xyz[0]) * netLoad.force[1]
+            matB[rZ] = -((_cg[0] - F[i].xyz[0]) * netLoad.force[1]
                        - (groupCG[1] - F[i].xyz[1]) * netLoad.force[0]
                        + netLoad.moment[2])
 
