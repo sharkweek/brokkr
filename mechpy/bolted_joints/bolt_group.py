@@ -63,6 +63,7 @@ class Fastener:
                  E,
                  G,
                  length,
+                 weighting=1,
                  axis=[0, 0, 0]):
         self.ID = ID
         self.xyz = xyz
@@ -71,19 +72,8 @@ class Fastener:
         self.G = G
         self.length = length
         self.force = [0, 0, 0]
+        self.weighting = weighting
         self.axis = axis
-
-    @property
-    def area(self):
-        """Cross-sectional area of the fastener"""
-
-        return (self.diameter ** 2) * math.pi / 4
-
-    @area.setter()
-    def area(self, a):
-        """Sets the diameter if the area is set by the user"""
-
-        self.diameter = math.sqrt(4 * a / math.pi)
 
     def __repr__(self):
         return "Fastener ID: %s\nLocation: %s\nForce: %s\nDiameter: %s" \
@@ -91,6 +81,18 @@ class Fastener:
                   self.xyz,
                   self.force,
                   self.diameter)
+
+    @property
+    def area(self):
+        """Cross-sectional area of the fastener"""
+
+        return (self.diameter ** 2) * math.pi / 4
+
+    @area.setter
+    def area(self, a):
+        """Sets the diameter if the area is set by the user"""
+
+        self.diameter = math.sqrt(4 * a / math.pi)
 
 
 class Load:
@@ -115,7 +117,31 @@ class Load:
 class LoadSet:
     """A set of loads"""
 
-    def isLoad(load):
+    def __init__(self, *loads):
+        """Initilize the LoadSet"""
+
+        # check that loads are Load objects
+        for each in loads:
+            self.__isLoad(each)
+        self.__loads = loads
+
+        self.__sumLocation = [0, 0, 0]  # location about which to sum loads
+
+        if len(self) > 0:
+            self.__update()
+
+    def __delitem__(self, key):
+        """Deletes a load with the specified index within the load set"""
+
+        del self.__loads[key]
+        self.__update()
+
+    def __getitem__(self, key):
+        """Returns a load at the specified index"""
+
+        return self.__loads[key]
+
+    def __isLoad(load):
         """Checks if object is a Load type"""
 
         if type(load) != Load:
@@ -123,30 +149,16 @@ class LoadSet:
         else:
             return True
 
-    def __init__(self, loads):
-        """Initilize the LoadSet"""
-
-        # check that loads are given as a list
-        if type(loads) != list:
-            raise TypeError("Loads must be given in a list")
-        else:
-            for each in loads:
-                self.isLoad(each)
-
-        self.__loads = loads
-
-        self.__update()
-
-    def __len__(self):
-        """Returns the number of loads in LoadSet"""
-
-        return len(self.__loads)
-
     def __iter__(self):
         """Returns the loads as iterator"""
 
         self.__counter = 0
         return iter(self.__loads)
+
+    def __len__(self):
+        """Returns the number of loads in LoadSet"""
+
+        return len(self.__loads)
 
     def __next__(self):
         """Iterates to the next load"""
@@ -157,49 +169,14 @@ class LoadSet:
         else:
             raise StopIteration
 
-    def clear(self):
-        """Clears the load set of loads"""
-
-        self.__loads.clear()
-        self.__update
-
-    def __getitem__(self, key):
-        """Returns a load at the specified index"""
-
-        return self.__loads[key]
-
-    def append(self, newLoad):
-        """Adds a new load to the load set"""
-
-        self.__loads.append(newLoad)
-        self.__update()
-
-    def __delitem__(self, key):
-        """Deletes a load with the specified index within the load set"""
-
-        del self.__loads[key]
-        self.__update()
-
     def __setitem__(self, key, newLoad):
         """Overwrites a load at the specified index"""
 
-        self.isLoad(newLoad)  # Checks if new load is a Load type
+        self.__isLoad(newLoad)  # Checks if new load is a Load type
         self.__loads[key] = newLoad
         self.__update()
 
     def __update(self):
-        self.sumLoads():
-
-    def sumLoads(self, point=[0, 0, 0]):
-        """Determine the resultant load applied at specified point"""
-
-        if type(point) != list and len(point) != 3:
-            raise TypeError("Point must be a three-item list of numbers")
-        else:
-            for coord in point:
-                if math.nan(coord):
-                    raise TypeError("""Point must be a three-item list of
-                                    numbers""")
 
         # sum the forces
         self.totalForce = [0, 0, 0]
@@ -216,16 +193,27 @@ class LoadSet:
         # My = Sum(zFx - (xFz-CGz))
         # Mz = Sum(xFy - (yFx-CGx))
         for load in self:
-            self.totalMoment[0] += (load.force[1] * (point[2] - load.xyz[2]) -
-                                    load.force[2] * (point[1] - load.xyz[1]))
+            self.totalMoment[0] += (load.force[1] * (self.sumLocation[2] -
+                                                     load.xyz[2]) -
+                                    load.force[2] * (self.sumLocation[1] -
+                                                     load.xyz[1]))
+            self.totalMoment[1] += (load.force[2] * (self.sumLocation[0] -
+                                                     load.xyz[0]) -
+                                    load.force[0] * (self.sumLocation[2] -
+                                                     load.xyz[2]))
+            self.totalMoment[2] += (load.force[0] * (self.sumLocation[1] -
+                                                     load.xyz[1]) -
+                                    load.force[1] * (self.sumLocation[0] -
+                                                     load.xyz[0]))
 
-            self.totalMoment[1] += (load.force[2] * (point[0] - load.xyz[0]) -
-                                    load.force[0] * (point[2] - load.xyz[2]))
+    def append(self, newLoad):
+        """Adds a new load to the load set"""
 
-            self.totalMoment[2] += (load.force[0] * (point[1] - load.xyz[1]) -
-                                    load.force[1] * (point[0] - load.xyz[0]))
+        self.__isLoad(newLoad)  # make sure newLoad is a Load object
+        self.__loads.append(newLoad)
+        self.__update()
 
-    def fromCSV(filePath):
+    def getfromCSV(filePath):
         """Import applied loads from a CSV"""
 
         with open(filePath, "r") as inputLoads:
@@ -239,125 +227,75 @@ class LoadSet:
 
                 self.append(Load(loc, f, m))
 
+    def insert(self, key, newLoad):
+        """Inserts new load at specified index"""
+
+        self.__isLoad(newLoad)  # make sure newLoad is a Load object
+        self.__loads.insert(key, newLoad)
+        self.__update()
+
+    def clear(self):
+        """Clears the load set of loads"""
+
+        self.__loads.clear()
+        self.__update
+
+    @property
+    def sumLocation(self):
+        return self.__sumLocation
+
+    @sumLocation.getter
+    def sumLocation(self, point):
+        """Updates the total load about a new location"""
+
+        # make sure that the supplied point is a list of three numbers
+        if type(point) != list and len(point) != 3:
+            raise TypeError("Point must be a three-item list of numbers")
+        else:
+            for coord in point:
+                if math.nan(coord):
+                    raise TypeError("""Point must be a three-item list of
+                                    numbers""")
+
+        self.__sumLocation = point
+        self.__update()
+
 
 class FastenerGroup:
     """A fastener group"""
 
-    def isFastener(f):
-        """Checks if object is a Fastener"""
+    def __init__(self, *fasteners):
 
-        if type(f) != Fastener:
-            raise TypeError("FastnerGroups may contain only Fasteners")
-        else:
-            return True
-
-    def __init__(self, fasteners):
-        self.__fasteners = []
-
+        # make sure each fastener is a Fastener class
         if len(self) > 0:
-            self.__groupUpdate_()
+            for each in fasteners:
+                self.__isFastener(each)
+            self.__fasteners = fasteners
+
+        self.__CG = [0, 0, 0]
+
+        self.__update()
+
+    def __delitem__(self, key):
+        """Deletes a fastener at the specified index"""
+
+        del self.__fasteners[key]
+        self.__update()
 
     def __len__(self):
         """Returns number of fasteners in FastenerGroup"""
 
         return len(self.__fasteners)
 
-    def __iter__(self):
-        """Returns self as an iterator"""
-
-        self.__counter = 0
-        return iter(self.__fasteners)
-
-    def __next__(self):
-        """Iterates to the next item"""
-
-        self.__counter += 1
-        if self.__counter < len(self):
-            return self.__fasteners[self.__counter]
-        else:
-            raise StopIteration
-
-    def clear(self):
-        """Clears the FastenerGroup of all Fasteners"""
-
-        self.__fasteners.clear()
-        self.__groupUpdate_()
-
-    def append(self, newFastener):
-        """Adds a newFastener to group"""
-
-        self.isFastener(newFastener)
-        self.__fasteners.append(newFastener)
-        self.__groupUpdate_()
-
     def __getitem__(self, key):
         """Returns a Fastener at a specified index"""
 
         return self.__fasteners[key]
 
-    def __delitem__(self, key):
-        """Deletes a fastener at the specified index"""
-
-        del self.__fasteners[key]
-        self.__groupUpdate_()
-
-    def __setitem__(self, key, newLoad)
-
-    def fromCSV(self, fastPath):
-        """Import list of fasteners from CSV"""
-
-        with open(fastPath, "r") as inputFasteners:
-            fastenerLines = csv.DictReader(inputFasteners)
-
-            F = []
-            # Create a list of Fastener objects from each line in the mapping file
-            for fstnr in fastenerLines:
-                # Parse each line for location, load, and diameter information
-                fastID = int(fstnr['ID'])
-                location = [float(fstnr['x']), float(fstnr['y']), float(fstnr['z'])]
-                diameter = float(fstnr['dia'])
-                E = float(fstnr['E'])
-                G = float(fstnr['G'])
-                l = float(fstnr['l'])
-
-                # Replace each list item in F with Fastener objects
-                F.append(Fastener(fastID, location, diameter, E, G, l))
-
-
-    def findCG(self,fastenerList):
-        """Finds the center of gravity of the fastener group"""
-        CG = [0, 0, 0]
-        sumArea = 0
-
-        for fstnr in fastenerList:
-            # Calculate the sum of the products
-            for i, component in enumerate(fstnr.xyz):
-                CG[i] += component * fstnr.area
-
-            # Calculate the sum of the areas
-            sumArea += fstnr.area
-
-        # Divide sum of products by sum of areas
-        for i, product in enumerate(CG):
-            CG[i] = product / sumArea
-
-        return CG
-
-    def writetoCSV(self, fileName):
-        """Output resulting fastener loads to a CSV"""
-
-        with open(fileName, 'w') as writeFile:
-            writeFile.write("ID,Fx,Fy,Fz\n")
-            for fstnr in F:
-                writeFile.write(str(fstnr.ID))
-                for i in fstnr.force:
-                    writeFile.write(',' + str(i))
-                writeFile.write('\n')
-
-    def __groupUpdate_(self):
+    def __update(self):
         # Begin Calculations
         groupCG = findCG(F)
-        netLoad = sumLoads(L, groupCG)
+        netLoad = sum_about(L, groupCG)
         matA = np.zeros((Fastener.count * 3, Fastener.count * 3))  # coeff matrix
         matB = np.zeros(Fastener.count * 3)  # solution matrix
 
@@ -451,3 +389,97 @@ class FastenerGroup:
             F[i].force[0] = matSol[rX]
             F[i].force[1] = matSol[rY]
             F[i].force[2] = matSol[rZ]
+
+    def __iter__(self):
+        """Returns self as an iterator"""
+
+        self.__counter = 0
+        return iter(self.__fasteners)
+
+    def __next__(self):
+        """Iterates to the next item"""
+
+        self.__counter += 1
+        if self.__counter < len(self):
+            return self.__fasteners[self.__counter]
+        else:
+            raise StopIteration
+
+    def __setitem__(self, key, newFastener):
+        """Sets an item at a specified index to newFastener"""
+
+        self.__isFastener(newFastener)
+        self.__fasteners[key] = newFastener
+        self.__update()
+
+    def append(self, newFastener):
+        """Adds a newFastener to group"""
+
+        self.__isFastener(newFastener)
+        self.__fasteners.append(newFastener)
+        self.__update()
+
+    def clear(self):
+        """Clears the FastenerGroup of all Fasteners"""
+
+        self.__fasteners.clear()
+        self.__update()
+
+    @property
+    def cg(self):
+        """Finds the center of gravity of the fastener group"""
+        _cg = [0, 0, 0]
+        sumWeight = 0
+
+        for fstnr in self:
+            # Calculate the sum of the products
+            for i, component in enumerate(fstnr.xyz):
+                _cg[i] += component * fstnr.weighting
+
+            # Calculate the sum of the areas
+            sumWeight += fstnr.weighting
+
+        # Divide sum of products by sum of areas
+        for i, product in enumerate(_cg):
+            _cg[i] = product / sumWeight
+
+        return _cg
+
+    def getfromCSV(self, fastPath):
+        """Import list of fasteners from CSV"""
+
+        with open(fastPath, "r") as inputFasteners:
+            fastenerLines = csv.DictReader(inputFasteners)
+
+            F = []
+            # Create a list of Fastener objects from each line in the mapping file
+            for fstnr in fastenerLines:
+                # Parse each line for location, load, and diameter information
+                fastID = int(fstnr['ID'])
+                location = [float(fstnr['x']), float(fstnr['y']), float(fstnr['z'])]
+                diameter = float(fstnr['dia'])
+                E = float(fstnr['E'])
+                G = float(fstnr['G'])
+                l = float(fstnr['l'])
+
+                # Replace each list item in F with Fastener objects
+                F.append(Fastener(fastID, location, diameter, E, G, l))
+
+    def __isFastener(f):
+        """Checks if object is a Fastener"""
+
+        if type(f) != Fastener:
+            raise TypeError("FastnerGroups may contain only Fasteners")
+        else:
+            return True
+
+    def writetoCSV(self, fileName):
+        """Output resulting fastener loads to a CSV"""
+
+        with open(fileName, 'w') as writeFile:
+            writeFile.write("ID,Fx,Fy,Fz\n")
+            for fstnr in F:
+                writeFile.write(str(fstnr.ID))
+                for i in fstnr.force:
+                    writeFile.write(',' + str(i))
+                writeFile.write('\n')
