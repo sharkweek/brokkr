@@ -54,7 +54,7 @@ import csv
 
 
 class Fastener:
-    """Fastener class containing an ID, location in space, and load vector"""
+    """Fastener class containing an ID, location in space, and load vector."""
 
     def __init__(self,
                  ID,
@@ -65,6 +65,8 @@ class Fastener:
                  length,
                  weighting=1,
                  axis=[0, 0, 0]):
+        """Initialize the instance."""
+
         self.ID = ID
         self.xyz = xyz
         self.diameter = diameter
@@ -76,6 +78,8 @@ class Fastener:
         self.axis = axis
 
     def __repr__(self):
+        """Return the "official" Fastener string representation."""
+
         return "Fastener ID: %s\nLocation: %s\nForce: %s\nDiameter: %s" \
                % (self.ID,
                   self.xyz,
@@ -84,29 +88,33 @@ class Fastener:
 
     @property
     def area(self):
-        """Cross-sectional area of the fastener"""
+        """Cross-sectional area of the fastener."""
 
         return (self.diameter ** 2) * math.pi / 4
 
     @area.setter
     def area(self, a):
-        """Sets the diameter if the area is set by the user"""
+        """Determine the diameter if the area is set manually."""
 
         self.diameter = math.sqrt(4 * a / math.pi)
 
 
 class Load:
-    """Load class containing location, force, and moment vectors"""
+    """Load class containing location, force, and moment vectors."""
 
     def __init__(self,
                  xyz=[0, 0, 0],
                  force=[0, 0, 0],
                  moment=[0, 0, 0]):
+        """Initialize a Load instance."""
+
         self.xyz = xyz
         self.force = force
         self.moment = moment
 
     def __repr__(self):
+        """Return the "official" Load string representation."""
+
         return "Load ID: %s\nLocation: %s\nForce: %s\nMoment: %s" \
                % (self.ID,
                   self.xyz,
@@ -115,10 +123,10 @@ class Load:
 
 
 class LoadSet:
-    """A set of loads"""
+    """A set of loads."""
 
     def __init__(self, *loads):
-        """Initilize the LoadSet"""
+        """Initilize a LoadSet instance."""
 
         # check that loads are Load objects
         for each in loads:
@@ -131,18 +139,18 @@ class LoadSet:
             self.__update()
 
     def __delitem__(self, key):
-        """Deletes a load with the specified index within the load set"""
+        """Delete a load with the specified index within the load set."""
 
         del self.__loads[key]
         self.__update()
 
     def __getitem__(self, key):
-        """Returns a load at the specified index"""
+        """Return a load at the specified index."""
 
         return self.__loads[key]
 
     def __isLoad(load):
-        """Checks if object is a Load type"""
+        """Check if object is a Load type."""
 
         if type(load) != Load:
             raise TypeError("LoadSets must be composed of Load objects")
@@ -150,18 +158,18 @@ class LoadSet:
             return True
 
     def __iter__(self):
-        """Returns the loads as iterator"""
+        """Return the loads as iterator."""
 
         self.__counter = 0
         return iter(self.__loads)
 
     def __len__(self):
-        """Returns the number of loads in LoadSet"""
+        """Return the number of loads in LoadSet."""
 
         return len(self.__loads)
 
     def __next__(self):
-        """Iterates to the next load"""
+        """Iterate to the next load."""
 
         self.__counter += 1
         if self.__counter < len(self):
@@ -170,56 +178,103 @@ class LoadSet:
             raise StopIteration
 
     def __setitem__(self, key, newLoad):
-        """Overwrites a load at the specified index"""
+        """Overwrite a load at the specified index."""
 
         self.__isLoad(newLoad)  # Checks if new load is a Load type
         self.__loads[key] = newLoad
         self.__update()
 
     def __update(self):
+        """Update totals based on Loads in set and __sumLocation."""
 
         # sum the forces
-        self.totalForce = [0, 0, 0]
+        self.__totalForce = [0, 0, 0]
         for load in self:
-            self.totalForce += load.force
+            self.__totalForce += load.force
 
         # sum of the moments
-        self.totalMoment = [0, 0, 0]
+        self.__totalMoment = [0, 0, 0]
         for load in self:
-            self.totalMoment += load.moment
+            self.__totalMoment += load.moment
 
         # translate and add moments induced by forces
         # Mx = Sum(yFz - (zFy-CGy))
         # My = Sum(zFx - (xFz-CGz))
         # Mz = Sum(xFy - (yFx-CGx))
         for load in self:
-            self.totalMoment[0] += (load.force[1] * (self.sumLocation[2] -
-                                                     load.xyz[2]) -
-                                    load.force[2] * (self.sumLocation[1] -
-                                                     load.xyz[1]))
-            self.totalMoment[1] += (load.force[2] * (self.sumLocation[0] -
-                                                     load.xyz[0]) -
-                                    load.force[0] * (self.sumLocation[2] -
-                                                     load.xyz[2]))
-            self.totalMoment[2] += (load.force[0] * (self.sumLocation[1] -
-                                                     load.xyz[1]) -
-                                    load.force[1] * (self.sumLocation[0] -
-                                                     load.xyz[0]))
+            self.__totalMoment[0] += (load.force[1] * (self.sumLocation[2] -
+                                                       load.xyz[2]) -
+                                      load.force[2] * (self.sumLocation[1] -
+                                                       load.xyz[1]))
+            self.__totalMoment[1] += (load.force[2] * (self.sumLocation[0] -
+                                                       load.xyz[0]) -
+                                      load.force[0] * (self.sumLocation[2] -
+                                                       load.xyz[2]))
+            self.__totalMoment[2] += (load.force[0] * (self.sumLocation[1] -
+                                                       load.xyz[1]) -
+                                      load.force[1] * (self.sumLocation[0] -
+                                                       load.xyz[0]))
+
+    @property
+    def totalForce(self):
+        """Return __totalForce."""
+
+        return self.__totalForce
+
+    @totalForce.setter
+    def totalForce(self, *args):
+        """Raise error when totalForce is manually set."""
+
+        raise AttributeError("""totalForce cannot be assigned manually.""")
+
+    @property
+    def totalMoment(self):
+        """Return __totalMoment."""
+
+        return self.__totalMoment
+
+    @totalMoment.setter
+    def totalMoment(self, *args):
+        """Raise error when totalMoment is manually set."""
+
+        raise AttributeError("""totalMoment cannot be assigned manually.""")
 
     def append(self, newLoad):
-        """Adds a new load to the load set"""
+        """Add a new load to the load set."""
 
         self.__isLoad(newLoad)  # make sure newLoad is a Load object
         self.__loads.append(newLoad)
         self.__update()
 
-    def getfromCSV(filePath):
-        """Import applied loads from a CSV"""
+    def get_from_csv(self, filePath, clear=False):
+        """Import applied loads from a CSV."""
+
+        if clear:
+            self.clear()
 
         with open(filePath, "r") as inputLoads:
             appliedload = csv.DictReader(inputLoads)
 
-            self.clear()
+            # check that all necessary columns exist
+            if 'x' not in appliedLoad:
+                raise KeyError("No column labeled 'x' in CSV.")
+            elif 'y' not in appliedLoad:
+                raise KeyError("No column labeled 'y' in CSV.")
+            elif 'z' not in appliedLoad:
+                raise KeyError("No column labeled 'z' in CSV.")
+            elif 'fx' not in appliedLoad:
+                raise KeyError("No column labeled 'fx' in CSV.")
+            elif 'fy' not in appliedLoad:
+                raise KeyError("No column labeled 'fy' in CSV.")
+            elif 'fz' not in appliedLoad:
+                raise KeyError("No column labeled 'fz' in CSV.")
+            if 'mx' not in appliedLoad:
+                raise KeyError("No column labeled 'mx' in CSV.")
+            elif 'my' not in appliedLoad:
+                raise KeyError("No column labeled 'my' in CSV.")
+            else 'mz' not in appliedLoad:
+                raise KeyError("No column labeled 'mz' in CSV.")
+
             for ld in appliedload:
                 loc = [float(ld['x']), float(ld['y']), float(ld['z'])]
                 f = [float(ld['fx']), float(ld['fy']), float(ld['fz'])]
@@ -228,25 +283,31 @@ class LoadSet:
                 self.append(Load(loc, f, m))
 
     def insert(self, key, newLoad):
-        """Inserts new load at specified index"""
+        """Insert new load at specified index."""
 
         self.__isLoad(newLoad)  # make sure newLoad is a Load object
         self.__loads.insert(key, newLoad)
         self.__update()
 
     def clear(self):
-        """Clears the load set of loads"""
+        """Clear the load set of loads."""
 
         self.__loads.clear()
         self.__update
 
     @property
     def sumLocation(self):
+        """Return __sumLocation attribute.
+
+        __sumLocation is kept private to ensure that, whenever it is changed,
+        the set is updated and the total moment is accurate.
+        """
+
         return self.__sumLocation
 
     @sumLocation.getter
     def sumLocation(self, point):
-        """Updates the total load about a new location"""
+        """Update the total load about a new location."""
 
         # make sure that the supplied point is a list of three numbers
         if type(point) != list and len(point) != 3:
@@ -262,7 +323,7 @@ class LoadSet:
 
 
 class FastenerGroup:
-    """A fastener group"""
+    """A fastener group."""
 
     def __init__(self, *fasteners):
 
@@ -284,18 +345,15 @@ class FastenerGroup:
         self.__update()
 
     def __len__(self):
-        """Returns number of fasteners in FastenerGroup"""
-
+        """Returns number of fasteners in FastenerGroup."""
         return len(self.__fasteners)
 
     def __getitem__(self, key):
-        """Returns a Fastener at a specified index"""
-
+        """Returns a Fastener at a specified index."""
         return self.__fasteners[key]
 
     def __update(self):
-        """Update bolt group to distribute loads"""
-
+        """Update bolt group to distribute loads."""
         # Make sure loads have been specified
         if type(self.appliedLoad) == Load:
             self.appliedLoad = LoadSet(appliedLoad)
@@ -305,7 +363,7 @@ class FastenerGroup:
         # Begin Calculations
         _cg = self.cg  # calculate the cg once to save computation time
         netLoad = self.appliedLoad.totalForce
-        netMoment =
+        netMoment = self.appliedLoad.totalMoment
 
         matA = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
         matB = np.zeros(len(self) * 3)  # solution matrix
@@ -358,7 +416,6 @@ class FastenerGroup:
                 matA[rZ][Fx] = -(F[i].xyz[1] - F[u].xyz[1])  # -yFx
                 matA[rZ][Fy] = +(F[i].xyz[0] - F[u].xyz[0])  # +xFy
 
-
         # fill in the solution matrix (matB)
         for i in range(3):
             matB[i] = -netLoad.force[i]
@@ -380,13 +437,13 @@ class FastenerGroup:
 
             # My = (z_cg - z_i)F_xnet - (x_cg - x_i)F_znet + M_ynet
             matB[rY] = -((_cg[2] - F[i].xyz[2]) * netLoad.force[0]
-                       - (groupCG[0] - F[i].xyz[0]) * netLoad.force[2]
-                       + netLoad.moment[1])
+                         - (groupCG[0] - F[i].xyz[0]) * netLoad.force[2]
+                         + netLoad.moment[1])
 
             # Mz = (x_cg - x_i)F_ynet - (y_cg - y_i)F_xnet + M_znet
             matB[rZ] = -((_cg[0] - F[i].xyz[0]) * netLoad.force[1]
-                       - (groupCG[1] - F[i].xyz[1]) * netLoad.force[0]
-                       + netLoad.moment[2])
+                         - (groupCG[1] - F[i].xyz[1]) * netLoad.force[0]
+                         + netLoad.moment[2])
 
         # Solve system of equations
         matSol = np.linalg.lstsq(matA, matB)[0]
