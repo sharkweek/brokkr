@@ -50,6 +50,7 @@ TODO:
 
 import math
 import numpy as np
+import pandas as pd
 import csv
 
 
@@ -246,41 +247,41 @@ class LoadSet:
         self.__loads.append(newLoad)
         self.__update()
 
-    def get_from_csv(self, filePath, clear=False):
+    def get_from_csv(self, fileName, clear=False):
         """Import applied loads from a CSV."""
 
         if clear:
             self.clear()
 
-        with open(filePath, "r") as inputLoads:
-            appliedload = csv.DictReader(inputLoads)
+        appliedLoad = pd.DataFrame()
+        appliedLoad.read_csv(fileName, dtype=float)
 
-            # check that all necessary columns exist
-            if 'x' not in appliedLoad:
-                raise KeyError("No column labeled 'x' in CSV.")
-            elif 'y' not in appliedLoad:
-                raise KeyError("No column labeled 'y' in CSV.")
-            elif 'z' not in appliedLoad:
-                raise KeyError("No column labeled 'z' in CSV.")
-            elif 'fx' not in appliedLoad:
-                raise KeyError("No column labeled 'fx' in CSV.")
-            elif 'fy' not in appliedLoad:
-                raise KeyError("No column labeled 'fy' in CSV.")
-            elif 'fz' not in appliedLoad:
-                raise KeyError("No column labeled 'fz' in CSV.")
-            if 'mx' not in appliedLoad:
-                raise KeyError("No column labeled 'mx' in CSV.")
-            elif 'my' not in appliedLoad:
-                raise KeyError("No column labeled 'my' in CSV.")
-            else 'mz' not in appliedLoad:
-                raise KeyError("No column labeled 'mz' in CSV.")
+        # check that all necessary columns exist
+        if 'x' not in appliedLoad:
+            raise KeyError("No column labeled 'x' in CSV.")
+        elif 'y' not in appliedLoad:
+            raise KeyError("No column labeled 'y' in CSV.")
+        elif 'z' not in appliedLoad:
+            raise KeyError("No column labeled 'z' in CSV.")
+        elif 'fx' not in appliedLoad:
+            raise KeyError("No column labeled 'fx' in CSV.")
+        elif 'fy' not in appliedLoad:
+            raise KeyError("No column labeled 'fy' in CSV.")
+        elif 'fz' not in appliedLoad:
+            raise KeyError("No column labeled 'fz' in CSV.")
+        elif 'mx' not in appliedLoad:
+            raise KeyError("No column labeled 'mx' in CSV.")
+        elif 'my' not in appliedLoad:
+            raise KeyError("No column labeled 'my' in CSV.")
+        elif 'mz' not in appliedLoad:
+            raise KeyError("No column labeled 'mz' in CSV.")
 
-            for ld in appliedload:
-                loc = [float(ld['x']), float(ld['y']), float(ld['z'])]
-                f = [float(ld['fx']), float(ld['fy']), float(ld['fz'])]
-                m = [float(ld['mx']), float(ld['my']), float(ld['mz'])]
+        for index, row in appliedLoad.iterrows():
+            loc = [row['x'], row['y'], row['z']]
+            f = [row['fx'], row['fy'], row['fz']]
+            m = [row['mx'], row['my'], row['mz']]
 
-                self.append(Load(loc, f, m))
+            self.append(Load(loc, f, m))
 
     def insert(self, key, newLoad):
         """Insert new load at specified index."""
@@ -307,7 +308,7 @@ class LoadSet:
 
     @sumLocation.getter
     def sumLocation(self, point):
-        """Update the total load about a new location."""
+        """Update the total moment about a new location."""
 
         # make sure that the supplied point is a list of three numbers
         if type(point) != list and len(point) != 3:
@@ -326,6 +327,7 @@ class FastenerGroup:
     """A fastener group."""
 
     def __init__(self, *fasteners):
+        """Initialize the instance."""
 
         # make sure each fastener is a Fastener class
         if len(self) > 0:
@@ -339,21 +341,24 @@ class FastenerGroup:
         self.__update()
 
     def __delitem__(self, key):
-        """Deletes a fastener at the specified index"""
+        """Delete a fastener at the specified index."""
 
         del self.__fasteners[key]
         self.__update()
 
     def __len__(self):
-        """Returns number of fasteners in FastenerGroup."""
+        """Return number of fasteners in FastenerGroup."""
+
         return len(self.__fasteners)
 
     def __getitem__(self, key):
-        """Returns a Fastener at a specified index."""
+        """Return a Fastener at a specified index."""
+
         return self.__fasteners[key]
 
     def __update(self):
         """Update bolt group to distribute loads."""
+
         # Make sure loads have been specified
         if type(self.appliedLoad) == Load:
             self.appliedLoad = LoadSet(appliedLoad)
