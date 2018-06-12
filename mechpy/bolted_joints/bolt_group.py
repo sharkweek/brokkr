@@ -76,7 +76,7 @@ class Fastener:
         self.length = length
         self.force = [0, 0, 0]
         self.weighting = weighting
-        self.axis = axis
+        self.axis = np.array(axis) / np.linalg.norm(axis)  # unit vector
 
     def __repr__(self):
         """Return the "official" Fastener string representation."""
@@ -98,6 +98,31 @@ class Fastener:
         """Determine the diameter if the area is set manually."""
 
         self.diameter = math.sqrt(4 * a / math.pi)
+
+    @property
+    def stiffness(self):
+        """Return stiffness of the fastener in each direction.
+
+        The stiffness is calculated based on the diameter and material
+        moduli of the fastener. The x-direction is the shaft axis.
+
+        Note: this does not account for total behavior of the joints.
+        """
+
+        return {'x': self.E * self.area / self.length,
+                'y': self.G * self.area / self.length,
+                'z': self.G * self.area / self.length}
+
+    @property
+    def compliance(self):
+        """Return the compliance of the fastener in each direction.
+
+        The compliance in each direction is the inverse of the stiffness.
+        """
+
+        return {'x': self.length / (self.E * self.area),
+                'y': self.length / (self.G * self.area),
+                'z': self.length / (self.G * self.area)}
 
 
 class Load:
@@ -361,17 +386,17 @@ class FastenerGroup:
 
         # Make sure loads have been specified
         if type(self.appliedLoad) == Load:
-            self.appliedLoad = LoadSet(appliedLoad)
+            self.appliedLoad = LoadSet(self.appliedLoad)
         elif type(self.appliedLoad) != LoadSet:
             raise TypeError("Applied load must be a Load or LoadSet")
 
         # Begin Calculations
         _cg = self.cg  # calculate the cg once to save computation time
-        netLoad = self.appliedLoad.totalForce
-        netMoment = self.appliedLoad.totalMoment
+        _netLoad = self.appliedLoad.totalForce
+        _netMoment = self.appliedLoad.totalMoment
 
-        matA = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
-        matB = np.zeros(len(self) * 3)  # solution matrix
+        coef_mat = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
+        soln_mat = np.zeros(len(self) * 3)  # solution matrix
 
         cSet = [[i, i+1, i+2] for i in range(0, 3 * len(self), 3)]
         rSet = [[i+6, i+7, i+8] for i in range(0, 3 * (len(self) - 2), 3)]
@@ -388,21 +413,21 @@ class FastenerGroup:
             Fz = j[2]
 
             # fill in first three rows
-            matA[0][Fx] = 1  # sum of Fx
-            matA[1][Fy] = 1  # sum of Fy
-            matA[2][Fz] = 1  # sum of Fz
+            coef_mat[0][Fx] = 1  # sum of Fx
+            coef_mat[1][Fy] = 1  # sum of Fy
+            coef_mat[2][Fz] = 1  # sum of Fz
 
             # fill in fourth row (sum of Mx at CG)
-            matA[3][Fy] = -(F[i].xyz[2] - _cg[2])  # -zFy
-            matA[3][Fz] = +(F[i].xyz[1] - _cg[1])  # +yFz
+            coef_mat[3][Fy] = -(F[i].xyz[2] - _cg[2])  # -zFy
+            coef_mat[3][Fz] = +(F[i].xyz[1] - _cg[1])  # +yFz
 
             # fill in fifth row (sum of My at CG)
-            matA[4][Fx] = +(F[i].xyz[2] - _cg[2])  # +zFx
-            matA[4][Fz] = -(F[i].xyz[0] - _cg[0])  # -xFz
+            coef_mat[4][Fx] = +(F[i].xyz[2] - _cg[2])  # +zFx
+            coef_mat[4][Fz] = -(F[i].xyz[0] - _cg[0])  # -xFz
 
             # fill in sixth row (sum of Mz at CG)
-            matA[5][Fx] = -(F[i].xyz[1] - _cg[1])  # -yFx
-            matA[5][Fy] = +(F[i].xyz[0] - _cg[0])  # +xFy
+            coef_mat[5][Fx] = -(F[i].xyz[1] - _cg[1])  # -yFx
+            coef_mat[5][Fy] = +(F[i].xyz[0] - _cg[0])  # +xFy
 
             for u, w in enumerate(rSet):
                 # u = row fastener ID
@@ -412,19 +437,19 @@ class FastenerGroup:
                 rY = w[1]
                 rZ = w[2]
 
-                matA[rX][Fy] = -(F[i].xyz[2] - F[u].xyz[2])  # -zFy
-                matA[rX][Fz] = +(F[i].xyz[1] - F[u].xyz[1])  # +yFz
+                coef_mat[rX][Fy] = -(F[i].xyz[2] - F[u].xyz[2])  # -zFy
+                coef_mat[rX][Fz] = +(F[i].xyz[1] - F[u].xyz[1])  # +yFz
 
-                matA[rY][Fx] = +(F[i].xyz[2] - F[u].xyz[2])  # +zFx
-                matA[rY][Fz] = -(F[i].xyz[0] - F[u].xyz[0])  # -xFz
+                coef_mat[rY][Fx] = +(F[i].xyz[2] - F[u].xyz[2])  # +zFx
+                coef_mat[rY][Fz] = -(F[i].xyz[0] - F[u].xyz[0])  # -xFz
 
-                matA[rZ][Fx] = -(F[i].xyz[1] - F[u].xyz[1])  # -yFx
-                matA[rZ][Fy] = +(F[i].xyz[0] - F[u].xyz[0])  # +xFy
+                coef_mat[rZ][Fx] = -(F[i].xyz[1] - F[u].xyz[1])  # -yFx
+                coef_mat[rZ][Fy] = +(F[i].xyz[0] - F[u].xyz[0])  # +xFy
 
-        # fill in the solution matrix (matB)
+        # fill in the solution matrix (soln_mat)
         for i in range(3):
-            matB[i] = -netLoad.force[i]
-            matB[i+3] = -netLoad.moment[i]
+            soln_mat[i] = -_netLoad.force[i]
+            soln_mat[i+3] = -_netLoad.moment[i]
 
         # fill in the remaining rows
         for i, j in enumerate(rSet):
@@ -436,22 +461,22 @@ class FastenerGroup:
             rZ = j[2]
 
             # Mx = (y_cg - y_i)F_znet - (z_cg - z_i)F_ynet + M_xnet
-            matB[rX] = - ((_cg[1] - F[i].xyz[1]) * netLoad.force[2]
-                          - (groupCG[2] - F[i].xyz[2]) * netLoad.force[1]
-                          + netLoad.moment[0])
+            soln_mat[rX] = - ((_cg[1] - F[i].xyz[1]) * _netLoad.force[2]
+                          - (_cg[2] - F[i].xyz[2]) * _netLoad.force[1]
+                          + _netLoad.moment[0])
 
             # My = (z_cg - z_i)F_xnet - (x_cg - x_i)F_znet + M_ynet
-            matB[rY] = -((_cg[2] - F[i].xyz[2]) * netLoad.force[0]
-                         - (groupCG[0] - F[i].xyz[0]) * netLoad.force[2]
-                         + netLoad.moment[1])
+            soln_mat[rY] = -((_cg[2] - F[i].xyz[2]) * _netLoad.force[0]
+                           - (_cg[0] - F[i].xyz[0]) * _netLoad.force[2]
+                           + _netLoad.moment[1])
 
             # Mz = (x_cg - x_i)F_ynet - (y_cg - y_i)F_xnet + M_znet
-            matB[rZ] = -((_cg[0] - F[i].xyz[0]) * netLoad.force[1]
-                         - (groupCG[1] - F[i].xyz[1]) * netLoad.force[0]
-                         + netLoad.moment[2])
+            soln_mat[rZ] = -((_cg[0] - F[i].xyz[0]) * _netLoad.force[1]
+                         - (_cg[1] - F[i].xyz[1]) * _netLoad.force[0]
+                         + _netLoad.moment[2])
 
         # Solve system of equations
-        matSol = np.linalg.lstsq(matA, matB)[0]
+        matSol = np.linalg.lstsq(coef_mat, soln_mat)[0]
 
         # Add resulting fastener loads to fastener objects
         for i, j in enumerate(cSet):
