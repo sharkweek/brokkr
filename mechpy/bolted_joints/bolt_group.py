@@ -64,7 +64,7 @@ class Fastener:
                  E,
                  G,
                  length,
-                 weighting=1,
+                 wt=1,
                  axis=[0, 0, 0]):
         """Initialize the instance."""
 
@@ -75,7 +75,7 @@ class Fastener:
         self.G = G
         self.length = length
         self.force = [0, 0, 0]
-        self.weighting = weighting
+        self.wt = wt
         self.axis = np.array(axis) / np.linalg.norm(axis)  # unit vector
 
     def __repr__(self):
@@ -331,7 +331,7 @@ class LoadSet:
 
         return self.__sumLocation
 
-    @sumLocation.getter
+    @sumLocation.setter
     def sumLocation(self, point):
         """Update the total moment about a new location."""
 
@@ -360,7 +360,6 @@ class FastenerGroup:
                 self.__isFastener(each)
             self.__fasteners = list(fasteners)
 
-        self.__CG = [0, 0, 0]
         self.appliedLoad = None
 
         self.__update()
@@ -381,10 +380,90 @@ class FastenerGroup:
 
         return self.__fasteners[key]
 
+    def __iter__(self):
+        """Return self as an iterator."""
+
+        self.__counter = 0
+        return iter(self.__fasteners)
+
+    def __isFastener(f):
+        """Check if object is a Fastener."""
+
+        if type(f) != Fastener:
+            raise TypeError("FastnerGroups may contain only Fasteners")
+        else:
+            return True
+
+    def __next__(self):
+        """Iterate to the next item."""
+
+        self.__counter += 1
+        if self.__counter < len(self):
+            return self.__fasteners[self.__counter]
+        else:
+            raise StopIteration
+
+    def __setitem__(self, key, newFastener):
+        """Set an item at a specified index to newFastener."""
+
+        self.__isFastener(newFastener)
+        self.__fasteners[key] = newFastener
+        self.__update()
+
+    def append(self, newFastener):
+        """Add a newFastener to group."""
+
+        self.__isFastener(newFastener)
+        self.__fasteners.append(newFastener)
+        self.__update()
+
+    def clear(self):
+        """Clear the FastenerGroup of all Fasteners."""
+
+        self.__fasteners.clear()
+        self.__update()
+
+    @property
+    def cg(self):
+        """Find the center of gravity of the fastener group.
+
+        The x-component of the CG is calculated
+
+            X_bar = sum(weight * x_i) / sum(weight)
+
+        The weight factor 'weight' is typically a function of stiffness (i.e.
+        area multiplied by modulus), but in this case it is a function of
+        Fastener.wt.
+        """
+
+        _cg = [0, 0, 0]
+        _sumProduct = [0, 0, 0]
+        _sumWeight = 0
+
+        for fstnr in self:
+            # Calculate the sum of the products
+            for i, component in enumerate(fstnr.xyz):
+                _sumProduct[i] += component * fstnr.wt
+
+            # Calculate the sum of the areas
+            _sumWeight += fstnr.wt
+
+        # Divide sum of products by sum of areas
+        for i, product in enumerate(_sumProduct):
+            _cg[i] = product / _sumWeight
+
+        return _cg
+
+    @property
+    def moi(self):
+        """Return the second moment of inertia for the group about each axis.
+
+        Each value in the returned vector corresponds to the app
+
     def __update(self):
         """Update bolt group to distribute loads."""
 
-        # Make sure loads have been specified
+        # Make sure loads have been assigned to group
         if type(self.appliedLoad) == Load:
             self.appliedLoad = LoadSet(self.appliedLoad)
         elif type(self.appliedLoad) != LoadSet:
@@ -392,8 +471,8 @@ class FastenerGroup:
 
         # Begin Calculations
         _cg = self.cg  # calculate the cg once to save computation time
-        _netLoad = self.appliedLoad.totalForce
-        _netMoment = self.appliedLoad.totalMoment
+        _appLoad = self.appliedLoad.totalForce
+        _appMoment = self.appliedLoad.totalMoment
 
         coef_mat = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
         soln_mat = np.zeros(len(self) * 3)  # solution matrix
@@ -488,60 +567,6 @@ class FastenerGroup:
             F[i].force[1] = matSol[rY]
             F[i].force[2] = matSol[rZ]
 
-    def __iter__(self):
-        """Returns self as an iterator"""
-
-        self.__counter = 0
-        return iter(self.__fasteners)
-
-    def __next__(self):
-        """Iterates to the next item"""
-
-        self.__counter += 1
-        if self.__counter < len(self):
-            return self.__fasteners[self.__counter]
-        else:
-            raise StopIteration
-
-    def __setitem__(self, key, newFastener):
-        """Sets an item at a specified index to newFastener"""
-
-        self.__isFastener(newFastener)
-        self.__fasteners[key] = newFastener
-        self.__update()
-
-    def append(self, newFastener):
-        """Adds a newFastener to group"""
-
-        self.__isFastener(newFastener)
-        self.__fasteners.append(newFastener)
-        self.__update()
-
-    def clear(self):
-        """Clears the FastenerGroup of all Fasteners"""
-
-        self.__fasteners.clear()
-        self.__update()
-
-    @property
-    def cg(self):
-        """Finds the center of gravity of the fastener group"""
-        _cg = [0, 0, 0]
-        sumWeight = 0
-
-        for fstnr in self:
-            # Calculate the sum of the products
-            for i, component in enumerate(fstnr.xyz):
-                _cg[i] += component * fstnr.weighting
-
-            # Calculate the sum of the areas
-            sumWeight += fstnr.weighting
-
-        # Divide sum of products by sum of areas
-        for i, product in enumerate(_cg):
-            _cg[i] = product / sumWeight
-
-        return _cg
 
     def getfromCSV(self, fastPath):
         """Import list of fasteners from CSV"""
@@ -562,14 +587,6 @@ class FastenerGroup:
 
                 # Replace each list item in F with Fastener objects
                 F.append(Fastener(fastID, location, diameter, E, G, l))
-
-    def __isFastener(f):
-        """Checks if object is a Fastener"""
-
-        if type(f) != Fastener:
-            raise TypeError("FastnerGroups may contain only Fasteners")
-        else:
-            return True
 
     def writetoCSV(self, fileName):
         """Output resulting fastener loads to a CSV"""
