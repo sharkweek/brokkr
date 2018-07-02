@@ -3,3 +3,4 @@ __pycache__
 mechpy/__pycache__
 *.pyc
 .ropeproject/
+.vscode/
