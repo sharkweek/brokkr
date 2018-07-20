@@ -3,15 +3,17 @@
 import math
 
 
-class Bolt(object):
+class Bolt:
     """A class representing a single fastner.
 
-    Attributes:
+    Attributes
+    ----------
         dia (float): shank diameter
         bolt_type (str): fastener type. Maybe either 'rivet' or 'bolt'
         e (float): Young's modulus
         c (float): flexibility
         k (float): stiffness
+
     """
 
     def __init__(self,
@@ -75,7 +77,7 @@ class Bolt(object):
                    + 0.8 * (1 / (t1 * e1) + (1 / (t2 * e2))))
 
     def tate(self, t1, t2, e1, e2, nu_b):
-        """Tate and Rosenfeld method"""
+        """Calculate the flexibility using the Tate and Rosenfeld method."""
         self._flex_method = 'Tate/Rosenfeld'
 
         # calculate flexibility
@@ -88,7 +90,7 @@ class Bolt(object):
                       5 * t1 * t2**2 + t2**3))
 
     def boeing(self, t1, t2, e1, e2):
-        """Boeing method"""
+        """Calculate the flexibility using the Boeing method."""
         self._flex_method = 'Boeing'
 
         self._c = (2 ** (t1 / self.dia) ** 0.85 / t1
@@ -97,7 +99,7 @@ class Bolt(object):
                    * (1 / e2 + 3 / (8 * self.e)))
 
     def huth(self, t1, t2, e1, e2, mat1, mat2, lap_type='single'):
-        """Huth/Airbus method"""
+        """Calculate the flexibility using the Huth/Airbus method."""
         self._flex_method = 'Huth/Airbus'
 
         # single or double shear
@@ -129,9 +131,11 @@ class Bolt(object):
                       + 1 / (2 * n * t2 * self.e)))
 
     def vought(self, t1, t2):
-        """Vought method
+        """Calculate the flexibility using the Vought method.
 
-        Note: only applies for aluminum sheets joined by steel fasteners"""
+        Note: only applies for aluminum sheets joined by steel fasteners
+        """
+
         self._flex_method = 'Vought'
 
         # determine overall grip length
@@ -149,7 +153,7 @@ class Bolt(object):
                         + epsilon * (grip / self.dia) * (1 / t2))
 
     def grumman(self, t1, t2, e1, e2):
-        """Grumman method"""
+        """Calculate the flexibility using the Grumman method."""
         self._flex_method = 'Grumman'
 
         # calculate flexibility
