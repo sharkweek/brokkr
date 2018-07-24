@@ -8,11 +8,11 @@ class Bolt:
 
     Attributes
     ----------
-        dia (float): shank diameter
-        bolt_type (str): fastener type. Maybe either 'rivet' or 'bolt'
-        e (float): Young's modulus
-        c (float): flexibility
-        k (float): stiffness
+    dia (float): shank diameter
+    bolt_type (str): fastener type. Maybe either 'rivet' or 'bolt'
+    e (float): Young's modulus
+    c (float): flexibility
+    k (float): stiffness
 
     """
 

@@ -458,7 +458,10 @@ class FastenerGroup:
     def moi(self):
         """Return the second moment of inertia for the group about each axis.
 
-        Each value in the returned vector corresponds to the app
+        Each value in the returned vector corresponds to the app.
+        """
+
+        pass
 
     def __update(self):
         """Update bolt group to distribute loads."""
