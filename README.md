@@ -4,7 +4,6 @@ mechpy - a mechanical engineering toolbox
 See https://nagordon.github.io/mechpy for more info  
 
 TODO
-
  * [ ] create sphinx or mkdocs documentation
  * [ ] continue developing composites module
  * [ ] write applied engineering tutorials articles
