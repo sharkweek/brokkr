@@ -12,7 +12,7 @@ https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19950009349.pdf
 TODO:
 -----
 * [ ] add a property for the compliance matrix Sk
-* [ ] further implement the SVector class
+* [ ] further implement the PlyVector class
 * [ ] move moduli into
 """
 
@@ -20,20 +20,21 @@ import numpy as np
 import math
 
 
-class SVector:
+class PlyVector:
     """A stress or strain vector for a single lamina.
 
-    Used to easily translate between ply and laminate coordinate systems."""
+    Used to easily translate between ply and laminate coordinate systems.
+    """
 
-    def __init__(self, vector, angle, ply_csys=True, rad=True):
+    def __init__(self, vector, angle, ply_csys=True, rad=False):
         """Initialize the instance.
 
         Default assumes that vector is in the ply c-sys and angle is in
-        radians.
+        degrees.
         """
 
-        # make sure vector is correct type and shape
-        if vector.shape != (3, 1):
+        # error check inputs for types
+        if type(new_vector) == np.ndarray and new_vector.shape() != (3, 1):
             raise TypeError("'vector' must be a 3x1 numpy array.")
         elif type(ply_csys) != bool:
             raise TypeError("'ply_csys' must be a boolean.")
@@ -50,53 +51,57 @@ class SVector:
     def __update(self,
                  vector=None,
                  angle=None,
-                 ply_csys=None,
+                 ply_csys=True,  # default values are in ply c-sys
                  rad=None):
-        """Update SVector when values are changed."""
+        """Update PlyVector when values are changed."""
 
-        # assign optional values
-        if vector is not None:
-            self.__vector = vector
+        # check if angle has changed
         if angle is not None:
             self.__angle = angle
-        if ply_csys is not None:
-            self.__ply_csys = ply_csys
         if rad is not None:
             self.__rad = rad
 
-        # convert angle to radians for mathematical calculations
-        if not self.__rad:
-            self.__angle = math.radians(angle)
+        # create trig terms for transformation matrix calcs
+        if self.__rad:
+            m = math.cos(self.__angle)
+            n = math.sin(self.__angle)
+        else:
+            m = math.cos(math.radians(self.__angle))
+            n = math.sin(math.radians(self.__angle))
 
         # create transformation matrix and inverse
-        m = math.cos(self.__angle)
-        n = math.sin(self.__angle)
         self.__T = np.array([[m**2, n**2, 2*m*n],
                              [n**2, m**2, -2*m*n],
                              [-m*n, m*n, m**2 - n**2]])
         self.__Tinv = np.linalg.inv(self.__T)
-        del m, n
 
-        # create other ply or laminate vector based on which is provided
-        if ply_csys:
-            self.__lamina = vector
-            self.__laminate = np.matmul(self.__T, self.__lamina)
+        # update ply and laminate vectors based on which is provided
+        if vector is not None:
+            if ply_csys:
+                self.__ply = vector
+                self.__lam = np.matmul(self.__T, self.__ply)
+            else:
+                self.__lam = vector
+                self.__ply = np.matmul(self.__Tinv, self.__lam)
         else:
-            self.__laminate = vector
-            self.__lamina = np.matmul(self.__Tinv, self.__laminate)
+            self.__lam = np.matmul(self.__T, self.__ply)
 
     @property
     def angle(self):
         """Lamina orientation angle w.r.t. the laminate c-sys."""
 
-        if self.__rad:
-            return self.__angle
-        else:
-            return math.degrees(self.__angle)
+        return self.__angle
 
     @angle.setter
     def angle(self, new_angle):
         """Lamina orientation angle w.r.t. the laminate c-sys."""
+
+        # make sure angle is a number
+        try:
+            float(new_angle)
+        except TypeError:
+            print("'angle' must be a number.")
+            raise
 
         self.__update(angle=new_angle)
 
@@ -110,37 +115,60 @@ class SVector:
     def rad(self, new_rad):
         """Units flag for orientation angle."""
 
+        if type(new_rad) != bool:
+            raise TypeError("'rad' must be a boolean")
+
         self.__update(rad=new_rad)
 
     @property
     def ply(self):
         """Lamina vector w.r.t. the ply c-sys."""
 
-        return self.__lamina
+        return self.__ply
 
     @ply.setter
     def ply(self, new_vector):
         """Lamina vector w.r.t. the ply c-sys."""
 
-        if type(new_vector) != np.array or new_vector.shape() != (3, 1):
+        if type(new_vector) == np.ndarray and new_vector.shape() != (3, 1):
             raise AttributeError("'new_vector' must be a 3x1 numpy array.")
 
         self.__update(vector=new_vector, ply_csys=True)
 
     @property
-    def laminate(self):
+    def lam(self):
         """Lamina vector w.r.t. the laminate c-sys."""
 
-        return self.__laminate
+        return self.__lam
 
     @laminate.setter
-    def laminate(self, new_vector):
+    def lam(self, new_vector):
         """Lamina vector w.r.t. the laminate c-sys."""
 
-        if type(new_vector) != np.array or new_vector.shape() != (3, 1):
+        if type(new_vector) == np.ndarray and new_vector.shape() != (3, 1):
             raise AttributeError("'new_vector' must be a 3x1 numpy array.")
 
         self.__update(vector=new_vector, ply_csys=False)
+
+    @property
+    def Tmat(self):
+        """The transformation matrix."""
+
+        return self.__T
+
+
+class PlyStress(PlyVector):
+    """Ply stress vector."""
+
+
+
+
+
+
+class PlyStrain(PlyVector):
+    """Ply strain vector."""
+
+
 
 
 class Lamina:
@@ -466,7 +494,7 @@ class Lamina:
 
         self.__T = np.array([[m**2, n**2, 2*m*n],
                              [n**2, m**2, -2*m*n],
-                             [-*m*n, *m*n, m**2 - n**2]])
+                             [-m*n, m*n, m**2 - n**2]])
 
         self.__Tinv = np.linalg.inv(self.__T)
 
