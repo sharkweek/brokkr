@@ -7,8 +7,16 @@ that lamina are generally orthotropic.
 See George Staab's 'Laminar Composites' for symbol conventions and
 relevant equations.
 
-Also see 'NASA-RP-1351 BASIC MECHANICS OF LAMINATED COMPOSITE PLATES'.
+Equations and symbol conventions are per 'NASA-RP-1351 BASIC MECHANICS OF
+LAMINATED COMPOSITE PLATES' unless otherwise noted.
+
 https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19950009349.pdf
+
+TODO:
+-----
+* [ ] Update lamFromCSV()
+* [ ] Update is_balanced()
+* [ ] Update is_symmetric()
 """
 
 import numpy as np
@@ -41,18 +49,17 @@ class Laminate:
         self.__D = np.zeros((3, 3))
         self.__t = 0
         self.__layup = []
-        self.N_M = np.zeros((3, 1))          # mechanical running loads
-        self.M_M = np.zeros((3, 1))          # mechanical running moments
+        self.__N_M = np.zeros((3, 1))        # mechanical running loads
+        self.__M_M = np.zeros((3, 1))        # mechanical running moments
         self.__N_T = np.zeros((3, 1))        # thermal running loads
         self.__M_T = np.zeros((3, 1))        # thermal running moments
         self.__N_H = np.zeros((3, 1))        # hygral running loads
         self.__M_H = np.zeros((3, 1))        # hygral running moments
         self.__epsilon_0 = np.zeros((3, 1))  # midplane strains
         self.__kappa_0 = np.zeros((3, 1))    # midplane curvatures
-        self.dT = 0                          # temperature delta
-        self.dM = 0                          # moisture content
+        self.__dT = 0                        # temperature delta
+        self.__dM = 0                        # moisture content
         self.__plies = list(plies)
-        self.__i = 0
 
         if len(self) > 0:
             # make sure all plies are Lamina objects
@@ -92,6 +99,18 @@ class Laminate:
         return self.__layup
 
     @property
+    def N_M(self):
+        """Return the running load applied to the laminate."""
+
+        return self.__N_M
+
+    @property
+    def M_M(self):
+        """Return the running moment applied to the laminate."""
+
+        return self.__M_M
+
+    @property
     def N_T(self):
         """Return the thermal running load."""
 
@@ -115,13 +134,29 @@ class Laminate:
 
         return self.__M_H
 
+    # Setters for properties
+    @N_M.setter
+    def N_M(self, newLoad):
+        """Update when running load is changed."""
+
+        self.__N_M = newLoad
+        self.__update()
+
+    @M_M.setter
+    def M_M(self, newLoad):
+        """Update when running moment is changed."""
+
+        self.__M_M = newLoad
+        self.__update()
+
+    # Hidden functions
     def __len__(self):
-        """Return the number of plies in the laminate"""
+        """Return the number of plies in the laminate."""
 
         return len(self.__plies)
 
     def __iter__(self):
-        """Return the an iterable of self.__plies."""
+        """Return an iterator of self.__plies."""
 
         return iter(self.__plies)
 
@@ -131,19 +166,24 @@ class Laminate:
         return self.__plies[key]
 
     def __delitem__(self, key):
-        """Extended the del  method to update the laminate when a ply is
-        removed"""
+        """Delete a ply."""
 
         del self.__plies[key]
         self.__update()
 
     def __setitem__(self, key, new_ply):
-        """Sets a specific ply to a new Lamina at the requested index"""
+        """Set a specific ply to a new Lamina at the requested index."""
 
         self.check_lamina(new_ply)
         self.__plies[key] = new_ply
         self.__update()
 
+    def __repr__(self):
+        """Set the representation of the laminate."""
+
+        return self.__layup.__repr__()
+
+    # new functions
     def __update(self):
         """Update the ply and laminate attributes based on laminate stackup."""
 
@@ -160,33 +200,40 @@ class Laminate:
             ply.z -= self.__t / 2
 
         # calculate A, B, and D matrices from individual ply matrix terms
-        # see NASA-RP-1351 Eq (45) through (47)
+        # NASA-RP-1351 Eq (45) through (47)
         for ply in self.__plies:
-            self.A += ply.Ak
-            self.B += ply.Bk
-            self.D += ply.Dk
+            self.__A += ply.Ak
+            self.__B += ply.Bk
+            self.__D += ply.Dk
 
         # calculate intermediate star matrices
-        # see NASA-RP-1351 Eq (50) and (51)
-        A_star = np.linalg.inv(self.A)
-        B_star = np.matmul(A_star, self.B)
-        C_star = np.matmul(self.B, A_star)
-        D_star = self.D - np.matmul(np.matmul(self.B, np.matmul(A_star,
-                                                                self.B)))
+        # NASA-RP-1351 Eq (51)
+        A_star = np.linalg.inv(self.__A)
+        B_star = np.matmul(A_star, self.__B)
+        C_star = np.matmul(self.__B, A_star)
+        D_star = self.__D - np.matmul(np.matmul(self.__B, A_star), self.__B)
 
         # calculate intermediate prime matrices
-        # see NASA-RP-1351 Eq (52) and (52a)
+        # NASA-RP-1351 Eq (52) and (52a)
         D_prime = np.linalg.inv(D_star)
-        A_prime = A_star - np.matmul(np.matmul(B_star,D_prime), C_star)
+        A_prime = A_star - np.matmul(np.matmul(B_star, D_prime), C_star)
         B_prime = np.matmul(B_star, D_prime)
         C_prime = - np.matmul(D_prime, C_star)
 
         ABD_prime = np.r_[np.c_[A_prime, B_prime],
                           np.c_[C_prime, D_prime]]
 
-        # [ ] TODO: fix this per the NASA-RP-1251 doc
-        # calculate thermal and hygral loads
-        # see NASA-RP-1251, Eq (91) through (93) and (95)
+        # calculate the midplane mechanical strains
+        # NASA-RP-1351 Eq (52)
+        mech_load = np.vstack(self.__N_M, self.__M_M)
+        mech_strn = np.matmult(ABD_prime, mech_load)
+
+        # calculate thermal and hygral ply strains
+        # NASA-RP-1351 Eq (91)
+
+
+
+        # NASA-RP-1251, Eq (43), (44), (91) through (93), and (95)
         for ply in self.__plies:
             self.__N_T += (np.matmul(ply.Qk_bar, (self.dT * ply.alpha_k)) *
                            (ply.zk - ply.zk1))  # NASA-RP-1251 Eq (91)
@@ -199,8 +246,8 @@ class Laminate:
 
         # calculate total load
         # See Staab Eq 6.32, and NASA-RP-1251 Eq (94) and (95)
-        N_hat = self.N_M + self.__N_T + self.__N_H
-        M_hat = self.M_M + self.__M_T + self.__M_H
+        N_hat = self.__N_M + self.__N_T + self.__N_H
+        M_hat = self.__M_M + self.__M_T + self.__M_H
 
         # calculate laminate midplane strains (See Staab Eq 6.35)
         self.epsilon_0, self.kappa_0 = np.vsplit(np.matmul(ABD_prime,
@@ -210,22 +257,20 @@ class Laminate:
 
         # calculate on-axis ply strains and stresses (See Staab Eq 6.37-6.38)
         for ply in self.__plies:
-            ply.epsilon_k = np.matmul(ply.T_e, (self.epsilon_0 + self.z *
-                                                self.kappa_0))
+            ply.epsilon_k = np.matmul(ply.T, (self.epsilon_0 + self.z *
+                                              self.kappa_0))
 
             ply.sigma_k = np.matmul(ply.Qk, (ply.epsilon_k -
                                              ply.alpha_k * self.dT -
                                              ply.beta_k * self.M_bar))
 
-    def __repr__(self):
-        return self.__layup.__repr__()
-
+    # Externally accessible functions
     def append(self, newPly):
-        """Extended list.append() to update laminate properties on addition of
-        new ply.
+        """Add a new ply to the Laminate.
 
         Note: added plies are assumed to be placed on TOP SURFACE
-        of existing laminate."""
+        of existing laminate.
+        """
 
         self.check_lamina(newPly)
         self.__plies.append(newPly)
@@ -277,13 +322,13 @@ class Laminate:
         self.__update()
 
     def sort(self):
-        """Sorts the laminate plies by ID."""
+        """Sort the laminate plies by ID."""
 
         self.__plies.sort(key=lambda ply: ply.ID)
         self.__update()
 
     def flip(self, renumber=False):
-        """Flips the stacking sequence of the Lamina.
+        """Flip the stacking sequence of the Lamina.
 
         Provides option to renumber the plies from the bottom up.
         """
