@@ -2,4 +2,4 @@
 
 from .lamina import Lamina
 from .laminate import Laminate
-from .stress_strain import PlyStress, PlyStrain
+from .ply_stress_strain import PlyStress, PlyStrain
