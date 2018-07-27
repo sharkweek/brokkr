@@ -21,6 +21,7 @@ TODO:
 
 import numpy as np
 import math
+import csv
 from .lamina import Lamina
 
 # [ ] TODO: cleanup update() function including abstraction

@@ -1,4 +1,5 @@
 """Tools for composite laminates."""
 
-from .lamina import PlyVector, Lamina
+from .lamina import Lamina
 from .laminate import Laminate
+from .stress_strain import PlyStress, PlyStrain
