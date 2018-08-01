@@ -35,40 +35,26 @@ class PlyStress:
                  rad=None):
         """Update PlyStress when values are changed."""
 
-        # check if angle has changed
+        # if angle, units, or vector has changed, create new transformation
+        # matrix
+        if (angle is not None or rad is not None or vector is not None):
+            transform = True
+
+        # assign new angle if angle changed
         if angle is not None and angle != self.__angle:
             self.__angle = angle
-            transform = True
-        else:
-            transform = False
 
-        # check if angle units have changed
+        # assign new units if units changed
         if rad is not None and rad != self.__rad:
             self.__rad = rad
-            transform = True
-        else:
-            transform = False
 
-        # check if vector has changed
+        # assign new vector if vector changed
         if vector is not None and not np.array_equal(vector, self.__vector):
             self.__vector = vector
-            transform = True
-        else:
-            transform = False
 
-        # create trig terms for transformation matrix calcs
         if transform:
-            if self.__rad:
-                m = math.cos(self.__angle)
-                n = math.sin(self.__angle)
-            else:
-                m = math.cos(math.radians(self.__angle))
-                n = math.sin(math.radians(self.__angle))
-
             # create transformation matrix and inverse
-            self.__T = np.array([[m**2, n**2, 2*m*n],
-                                 [n**2, m**2, -2*m*n],
-                                 [-m*n, m*n, m**2 - n**2]])
+            self.__T = t_matrix(self.__angle, self.__rad)
             self.__Tinv = np.linalg.inv(self.__T)
 
             # update the vector attribute
@@ -76,7 +62,7 @@ class PlyStress:
             if not ply_csys:
                 self.__vector = np.matmul(self.__Tinv, vector)
 
-        del transform, m, n
+        del transform
 
     def __typecheck(self,
                     vector=None,
@@ -270,3 +256,30 @@ class PlyStrain(PlyStress):
         new_strain = np.matmul(self.r_inv, new_strain)
 
         self._PlyStress__update(vector=new_strain)
+
+
+def t_matrix(theta, radians=True):
+    """Return the transformation matrix for a given angle theta.
+
+    The transformation matrix is used to transform stresses and tensor strains
+    from the lamina material orientation to the laminate coordinate system. The
+    inverse of the matrix may be used to transform back from the laminate
+    coordinate system to that of the lamina. Theta is measured counterclockwise
+    from the laminate x-axis and assumed to be in radians.
+
+    See 'Mechanics Of Composite Materials' by Robert M. Jones, Eq (2.76) for
+    the definition of the transformation matrix.
+    """
+
+    # create intermediate trig terms
+    if radians:
+        m = math.cos(theta)
+        n = math.sin(theta)
+    else:
+        m = math.cos(math.radians(theta))
+        n = math.sin(math.radians(theta))
+
+    # create transformation matrix and inverse
+    return np.array([[m**2, n**2, 2*m*n],
+                     [n**2, m**2, -2*m*n],
+                     [-m*n, m*n, m**2 - n**2]])
