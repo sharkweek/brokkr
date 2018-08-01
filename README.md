@@ -14,7 +14,5 @@ TODO
  * [ ] implement typing module and type hinting for type checks. make sure to limit the Python version to 3.5+.
  * [ ] come up with a cleaner way to create the Laminate class using pandas
  * [ ] create BJSFM solution
- * [ ] PlyStress and PlyStrain may not be required if all simple matrix conversions are included in the Lamina class. Remove PlyStrain and PlyStress classes if this is the case.
- * [ ] Rewrite composites tools using Jones
  * [ ] Create interactive plots using plotly
  * [ ] Add ply failure criteria and indices to Lamina/Laminate classes

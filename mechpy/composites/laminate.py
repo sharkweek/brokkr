@@ -28,8 +28,6 @@ import csv
 from .lamina import Lamina
 
 
-
-
 class Laminate:
     """Laminate made up of multiple lamina objects.
 
@@ -61,81 +59,81 @@ class Laminate:
     # Encapsulated properties
     @property
     def A(self):
-        """Return the A matrix."""
+        """A matrix."""
 
         return self.__A
 
     @property
     def B(self):
-        """Return the B matrix."""
+        """B matrix."""
 
         return self.__B
 
     @property
     def D(self):
-        """Return the D matrix."""
+        """D matrix."""
 
         return self.__D
 
     @property
     def t(self):
-        """Return the laminate thickness."""
+        """Laminate thickness."""
 
         return self.__t
 
     @property
     def layup(self):
-        """Return the layup."""
+        """Laminate layup."""
 
         return self.__layup
 
     @property
     def N_m(self):
-        """Return the running load applied to the laminate."""
+        """The mechanical running load applied to the laminate."""
 
         return self.__N_m
 
     @property
     def M_m(self):
-        """Return the running moment applied to the laminate."""
+        """The mechanical running moment applied to the laminate."""
 
         return self.__M_m
 
     @property
     def N_t(self):
-        """Return the thermal running load."""
+        """Thermally induced running load."""
 
         return self.__N_t
 
     @property
     def M_t(self):
-        """Return the thermal running moment."""
+        """Thermally induced running moment."""
 
         return self.__M_t
 
     @property
     def N_h(self):
-        """Return the hygroscopic running load."""
+        """Hygroscopically induced running load."""
 
         return self.__N_h
 
     @property
     def M_h(self):
-        """Return the hygroscopic running moment."""
+        """Hygroscopically induced running moment."""
 
         return self.__M_h
 
     # Setters for properties
     @N_m.setter
     def N_m(self, newLoad):
-        """Update when running load is changed."""
+        """The mechanical running load applied to the laminate."""
 
         self.__N_m = newLoad
         self.__update()
 
     @M_m.setter
     def M_m(self, newLoad):
-        """Update when running moment is changed."""
+        """The mechanical running moment applied to the laminate."""
 
         self.__M_m = newLoad
         self.__update()
