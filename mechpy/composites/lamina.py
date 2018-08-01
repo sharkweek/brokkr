@@ -12,6 +12,7 @@ TODO:
 -----
 * [ ] add error checking for attribute types
 * [ ] add a property for the compliance matrix Sk
+* [ ] add stress attributes for failure criteria
 """
 
 import numpy as np
