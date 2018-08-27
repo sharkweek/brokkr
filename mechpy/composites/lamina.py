@@ -34,18 +34,18 @@ class Lamina:
     r_inv = np.linalg.inv(r)
 
     def __init__(self,
-                 t=1,        # lamina thickness
-                 theta=0,    # orientation of lamina in degrees
-                 E1=1,       # Young's modulus in 1-direction
-                 E2=1,       # Young's modulus in 2-direction
-                 nu12=1,     # Poisson's ratio in 12-plane
-                 G12=1,      # shear modulus in 12-plane
-                 a11=1,      # coeff. of thermal expansion in 1-direction
-                 a22=1,      # coeff. of thermal expansion in 2-direction
-                 b11=1,      # coeff. of moisture expansion in 1-direction
-                 b22=1,      # coeff. of moisture expansion in 2-direction
-                 dT=0,       # change in temperature
-                 dm=0):      # moisture absorption
+                 t=0.010,     # lamina thickness
+                 theta=0,     # orientation of lamina in degrees
+                 E1=10e6,     # Young's modulus in 1-direction
+                 E2=10e6,     # Young's modulus in 2-direction
+                 nu12=0.1,    # Poisson's ratio in 12-plane
+                 G12=725e3,   # shear modulus in 12-plane
+                 a11=2.1e-6,  # coeff. of thermal expansion in 1-direction
+                 a22=2.1e-6,  # coeff. of thermal expansion in 2-direction
+                 b11=3e-8,    # coeff. of moisture expansion in 1-direction
+                 b22=3e-8,    # coeff. of moisture expansion in 2-direction
+                 dT=0,        # change in temperature
+                 dm=0):       # moisture absorption
         """Initialize the Lamina instance."""
 
         self.ID = 0
@@ -73,9 +73,8 @@ class Lamina:
         self.__e_tbar = np.zeros((3, 1))
         self.__e_hbar = np.zeros((3, 1))
 
-        self._update()
+        self.__update()
 
-    # TODO: change all interfaces of theta to be in degrees
     @property
     def theta(self):
         """The lamina orientation in degrees."""
@@ -87,7 +86,7 @@ class Lamina:
         """The lamina orientation in degrees."""
 
         self.__theta = new_theta
-        self._update()
+        self.__update()
 
     @property
     def E1(self):
@@ -100,7 +99,7 @@ class Lamina:
         """Young's modulus in the 1-direction."""
 
         self.__E1 = new_E1
-        self._update()
+        self.__update()
 
     @property
     def E2(self):
@@ -113,7 +112,7 @@ class Lamina:
         """Young's modulus in the lamina 2-direction."""
 
         self.__E2 = new_E2
-        self._update()
+        self.__update()
 
     @property
     def nu12(self):
@@ -126,7 +125,7 @@ class Lamina:
         """Poisson's ratio in the lamina 12-plane."""
 
         self.__nu12 = new_nu12
-        self._update()
+        self.__update()
 
     @property
     def G12(self):
@@ -139,7 +138,7 @@ class Lamina:
         """Shear modulus in the lamina 12-plane."""
 
         self.__G12 = new_G12
-        self._update()
+        self.__update()
 
     @property
     def alpha(self):
@@ -166,7 +165,7 @@ class Lamina:
         """
 
         self.__alpha = new_alpha_k
-        self._update()
+        self.__update()
 
     @property
     def beta(self):
@@ -193,7 +192,7 @@ class Lamina:
         """
 
         self.__beta = new_beta_k
-        self._update()
+        self.__update()
 
     @property
     def dT(self):
@@ -248,7 +247,7 @@ class Lamina:
         z is measured from the bottom surface of the laminate."""
 
         self.__z = new_z
-        self._update()
+        self.__update()
 
     @property
     def zk(self):
@@ -265,7 +264,7 @@ class Lamina:
         zk is measured from the bottom surface of the laminate."""
 
         self.__z = new_zk - self.__t / 2
-        self._update()
+        self.__update()
 
     @property
     def zk1(self):
@@ -282,7 +281,7 @@ class Lamina:
         zk1 is measured from the bottom surface of the laminate."""
 
         self.__z = new_zk1 + self.__t / 2
-        self._update()
+        self.__update()
 
     @property
     def Qk(self):
@@ -307,6 +306,49 @@ class Lamina:
         """The inverse of the transformation matrix."""
 
         return self.__Tinv
+
+    @property
+    def e_m(self):
+        """Mechanical strain in the lamina orientation."""
+
+        return self.__e_m
+
+    @property
+    def e_t(self):
+        """Thermal strain in the lamina orientation."""
+
+        return self.__e_t
+
+    @property
+    def e_h(self):
+        """Hygroscopic strain in the lamina orientation."""
+
+        return self.__e_h
+
+    @property
+    def e_mbar(self):
+        """Mechanical strain in the laminate orientation."""
+
+        return self.__e_mbar
+
+    @property
+    def e_tbar(self):
+        """Thermal strain in the laminate orientation."""
+
+        return self.__e_tbar
+
+    @property
+    def e_hbar(self):
+        """Hygroscopic strain in the laminate orientation."""
+
+        return self.__e_hbar
+
+    @e_m.setter
+    def e_mbar(self, new_strain):
+        """Mechanical strain in the lamina orientation."""
+
+        self.__e_m = np.matmul(self.__Tinv, new_strain)
+        self.__update()
 
     @property
     def isFullyDefined(self):

@@ -138,6 +138,32 @@ class Laminate:
         self.__M_m = newLoad
         self.__update()
 
+    @property
+    def dT(self):
+        """Change in temperature."""
+
+        return self.__dT
+
+    @property
+    def dm(self):
+        """Change in moisture."""
+
+        return self.__dm
+
+    @dT.setter
+    def dT(self, new_dT):
+        """Change in temperature."""
+
+        self.__dT = new_dT
+        self.__update()
+
+    @dm.setter
+    def dm(self, new_dm):
+        """Change in moisture."""
+
+        self.__dm = new_dm
+        self.__update()
+
     # Hidden functions
     def __len__(self):
         """Return the number of plies in the laminate."""
@@ -237,9 +263,12 @@ class Laminate:
         mech_load = np.vstack((self.__N_m, self.__M_m))
         thrm_load = np.vstack((self.__N_t, self.__M_t))
         hygr_load = np.vstack((self.__N_h, self.__M_h))
-        self.__e_0m, self.__k_0M = np.vsplit(np.matmul(ABD_prime, mech_load))
-        self.__e_0t, self.__k_0T = np.vsplit(np.matmul(ABD_prime, thrm_load))
-        self.__e_0h, self.__k_0H = np.vsplit(np.matmul(ABD_prime, hygr_load))
+        self.__e_0m, self.__k_0M = np.vsplit(np.matmul(ABD_prime,
+                                                       mech_load), 2)
+        self.__e_0t, self.__k_0T = np.vsplit(np.matmul(ABD_prime,
+                                                       thrm_load), 2)
+        self.__e_0h, self.__k_0H = np.vsplit(np.matmul(ABD_prime,
+                                                       hygr_load), 2)
 
         # TODO: add stress and strain terms to Lamina class
         # add ply strains due to mechanical loading (in laminate orientation)
@@ -269,12 +298,12 @@ class Laminate:
     def check_lamina(self, ply):
         """Check if value is a ply and raises error if not."""
 
-        if type(ply) == Lamina:
+        if type(ply) != Lamina:
             raise TypeError("Laminates may only contain Lamina objects")
         else:
             return True
 
-    def lamFromCSV(inputFile):
+    def lamFromCSV(self, inputFile):
         """Determine laminate properties from input CSV file."""
 
         with open(inputFile, 'r') as csvLaminate:
