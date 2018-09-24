@@ -45,7 +45,7 @@ class Lamina:
                  b11=3e-8,    # coeff. of moisture expansion in 1-direction
                  b22=3e-8,    # coeff. of moisture expansion in 2-direction
                  dT=0,        # change in temperature
-                 dm=0):       # moisture absorption
+                 dM=0):       # moisture absorption
         """Initialize the Lamina instance."""
 
         self.ID = 0
@@ -65,7 +65,7 @@ class Lamina:
                                 [0]],
                                dtype=float)
         self.__dT = dT
-        self.__dm = dm
+        self.__dM = dM
         self.__e_m = np.zeros((3, 1))
         self.__e_t = np.zeros((3, 1))
         self.__e_h = np.zeros((3, 1))
@@ -207,16 +207,16 @@ class Lamina:
         return self.__dT
 
     @property
-    def dm(self):
+    def dM(self):
         """The relative change in moisture of the lamina."""
 
-        return self.__dm
+        return self.__dM
 
-    @dm.setter
-    def dm(self, new_dm):
+    @dM.setter
+    def dM(self, new_dM):
         """The relative change in moisture of the lamina."""
 
-        self.__dm = new_dm
+        self.__dM = new_dM
         self.__update()
 
     @property
@@ -343,7 +343,7 @@ class Lamina:
 
         return self.__e_hbar
 
-    @e_m.setter
+    @e_mbar.setter
     def e_mbar(self, new_strain):
         """Mechanical strain in the lamina orientation."""
 
@@ -409,7 +409,7 @@ class Lamina:
         # thermal and hygral strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
         self.__e_t = self.__alpha * self.__dT
-        self.__e_h = self.__beta * self.__dm
+        self.__e_h = self.__beta * self.__dM
 
         # the transformed CTE and hygral matrices (laminate coordinate system)
         # NASA-RP-1351 Eq (90) and (95)

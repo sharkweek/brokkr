@@ -20,7 +20,6 @@ TODO:
 * [ ] create .is_balanced() function
 * [ ] force insert and append functions to ensure new ply has a unique
       ID
-* [ ] Figure out a way to force .__update() when any ply attributes are updated
 """
 
 import numpy as np
@@ -47,7 +46,7 @@ class Laminate:
         self._e_0 = np.zeros((3, 1))  # midplane strains
         self._k_0 = np.zeros((3, 1))  # midplane curvatures
         self.__dT = 0                 # change in temperature
-        self.__dm = 0                 # moisture content
+        self.__dM = 0                 # moisture content
         self.__plies = list(plies)
 
         if len(self.__plies) > 0:
@@ -145,10 +144,10 @@ class Laminate:
         return self.__dT
 
     @property
-    def dm(self):
+    def dM(self):
         """Change in moisture."""
 
-        return self.__dm
+        return self.__dM
 
     @dT.setter
     def dT(self, new_dT):
@@ -157,11 +156,11 @@ class Laminate:
         self.__dT = new_dT
         self.__update()
 
-    @dm.setter
-    def dm(self, new_dm):
+    @dM.setter
+    def dM(self, new_dM):
         """Change in moisture."""
 
-        self.__dm = new_dm
+        self.__dM = new_dM
         self.__update()
 
     # Hidden functions
@@ -237,7 +236,7 @@ class Laminate:
 
             # hygroscopic running loads
             # NASA-RP-1351, Eq (93)
-            ply.dm = self.__dm
+            ply.dM = self.__dM
             self.__N_h += np.matmul(ply.Qk_bar, ply.e_hbar)*(ply.zk - ply.zk1)
             self.__M_h += (np.matmul(ply.Qk_bar, ply.e_hbar) *
                            (ply.zk**2 - ply.zk1**2)/2)
@@ -270,7 +269,6 @@ class Laminate:
         self.__e_0h, self.__k_0H = np.vsplit(np.matmul(ABD_prime,
                                                        hygr_load), 2)
 
-        # TODO: add stress and strain terms to Lamina class
         # add ply strains due to mechanical loading (in laminate orientation)
         # Jones, Eq (4.13)
         for ply in self.__plies:
@@ -305,6 +303,8 @@ class Laminate:
 
     def lamFromCSV(self, inputFile):
         """Determine laminate properties from input CSV file."""
+
+        # TODO: fix this method
 
         with open(inputFile, 'r') as csvLaminate:
             rawLines = csv.DictReader(csvLaminate)  # create dict from csv
