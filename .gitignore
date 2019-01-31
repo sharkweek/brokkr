@@ -1,6 +1,9 @@
 .ipynb_checkpoints
 __pycache__
-mechpy/__pycache__
+mechpy/__pycache__/
+mechpy/composites/__pycache__/
+mechpy/bolted_joints/__pycache__/
 *.pyc
 .ropeproject/
 .vscode/
+.build/
