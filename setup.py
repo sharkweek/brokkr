@@ -8,6 +8,7 @@ setup(
     author_email='nealagordon@gmail.com',
     packages=['mechpy.composites',
               'mechpy.bolted_joints'],
+    package_dir={'': 'lib'}
     package_data={'': ['compositematerials.csv']},
     include_package_data=True,
     license="The MIT License (MIT)",
