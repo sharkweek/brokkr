@@ -4,6 +4,7 @@ mechpy/__pycache__/
 mechpy/composites/__pycache__/
 mechpy/bolted_joints/__pycache__/
 *.pyc
-.ropeproject/
+ropeproject/
 .vscode/
-.build/
+build/
+installed_files.txt
