@@ -2,24 +2,24 @@
 
 Assumptions
 -----------
-* lamina are generally orthotropic
-* the z-direction of the laminate is upward
-* strain values are in engineering strain
-* loads are running loads supplied as force per unit width
-* units are consistent
-* Equations and symbol conventions are per 'Mechanics Of Composite Materials' by
-  Robert M. Jones and 'NASA-RP-1351 BASIC MECHANICS OF LAMINATED COMPOSITE
-  PLATES' as noted.
+* Lamina are generally orthotropic.
+* The laminate z-direction is upward, away from the bottom surface.
+* Reported strain values are in engineering strain.
+* All loads and moments are running values supplied as force or moment per unit
+  width.
+* Unit systems are consistent (i.e. SI, US, or Imperial).
+* Equations and symbol conventions are per NASA-RP-1351 'Basic Mechanics of
+  Laminated Composite Plates' and Jones' 'Mechanics Of Composite Materials'.
 
 TODO:
 -----
-* [ ] Create is_balanced()
+* [ ] Create is_balanced() method
 * [ ] create functions to import Lamina and Laminate properties from Nastran
       BDF
-* [ ] create function(s) to calculate failure indices for Laminate
+* [ ] create methods to calculate failure indices for Laminate
 * [ ] figure out a way to update Laminate when a Lamina property is changed
-* [ ] effective laminate moduli only seem to be calculating correct values
-      for symmetric laminates
+* [ ] fix calculations for effective laminate properties
+* [ ] reorganize properties and setters to be adjacent
 """
 
 import numpy as np
@@ -29,11 +29,7 @@ import pandas as pd
 
 
 class Laminate:
-    """Laminate made up of multiple lamina objects.
-
-    Note that the stacking sequence is from the bottom of the laminate
-    moving upward.
-    """
+    """Laminate made up of multiple lamina objects."""
 
     def __init__(self, *plies):
         """Initialize with a list of Lamina objects."""
@@ -58,135 +54,6 @@ class Laminate:
             # calculate all properties
             self.__update()
 
-    # Encapsulated properties
-    @property
-    def A(self):
-        """A matrix."""
-
-        return self.__A
-
-    @property
-    def B(self):
-        """B matrix."""
-
-        return self.__B
-
-    @property
-    def D(self):
-        """D matrix."""
-
-        return self.__D
-
-    @property
-    def t(self):
-        """Laminate thickness."""
-
-        return self.__t
-
-    @property
-    def layup(self):
-        """Laminate layup."""
-
-        return self.__layup
-
-    @property
-    def N_m(self):
-        """The mechanical running load applied to the laminate."""
-
-        return self.__N_m
-
-    @property
-    def M_m(self):
-        """The mechanical running moment applied to the laminate."""
-
-        return self.__M_m
-
-    @property
-    def N_t(self):
-        """Thermally induced running load."""
-
-        return self.__N_t
-
-    @property
-    def M_t(self):
-        """Thermally induced running moment."""
-
-        return self.__M_t
-
-    @property
-    def N_h(self):
-        """Hygroscopically induced running load."""
-
-        return self.__N_h
-
-    @property
-    def M_h(self):
-        """Hygroscopically induced running moment."""
-
-        return self.__M_h
-
-    @property
-    def dT(self):
-        """Change in temperature."""
-
-        return self.__dT
-
-    @property
-    def dM(self):
-        """Change in moisture."""
-
-        return self.__dM
-
-    @property
-    def E1_eff(self):
-        """Effective extensional modulus in the laminate 1-direction."""
-
-        return self.__E1_eff
-
-    @property
-    def E2_eff(self):
-        """Effective extensional modulus in the laminate 2-direction."""
-
-        return self.__E2_eff
-
-    @property
-    def G12_eff(self):
-        """Effective in-plane shear modulus."""
-
-        return self.__G12_eff
-
-    # Setters for properties
-    @N_m.setter
-    def N_m(self, newLoad):
-        """The mechanical running load applied to the laminate.
-        
-        `newLoad` should be entered as a one-by-three running load matrix"""
-
-        self.__N_m = newLoad
-        self.__update()
-
-    @M_m.setter
-    def M_m(self, newLoad):
-        """The mechanical running moment applied to the laminate."""
-
-        self.__M_m = newLoad
-        self.__update()
-
-    @dT.setter
-    def dT(self, new_dT):
-        """Change in temperature."""
-
-        self.__dT = new_dT
-        self.__update()
-
-    @dM.setter
-    def dM(self, new_dM):
-        """Change in moisture."""
-
-        self.__dM = new_dM
-        self.__update()
-
-    # Hidden functions
     def __len__(self):
         """Return the number of plies in the laminate."""
 
@@ -220,7 +87,6 @@ class Laminate:
 
         return "Laminate layup: " + self.__layup.__repr__()
 
-    # new functions
     def __update(self):
         """Update the ply and laminate attributes based on laminate stackup."""
 
@@ -235,7 +101,7 @@ class Laminate:
         # calculate ply bottom planes
         zk1 = self.__t / 2
         for i in range(1, int(len(self.__plies) + 1)):
-            zk1 -= self.__plies[-i].t / 2
+            zk1 -= self.__plies[-i].t
             self.__plies[-i].zk1 = zk1
 
         # calculate the A, B, and D matricies; thermal and hygral loads
@@ -245,36 +111,35 @@ class Laminate:
 
         for ply in self.__plies:
             # NASA-RP-1351, Eq (45) through (47)
-            self.__A += ply.Qk_bar * (ply.zk - ply.zk1)
-            self.__B += (1/2) * ply.Qk_bar * (ply.zk**2 - ply.zk1**2)
-            self.__D += (1/3) * ply.Qk_bar * (ply.zk**3 - ply.zk1**3)
+            self.__A += ply.Q_bar * (ply.t)
+            self.__B += (1/2) * ply.Q_bar * (ply.t * ply.z)
+            self.__D += (1/3) * ply.Q_bar * (ply.t**3 / 12 + ply.t * ply.z**2)
 
             # thermal running loads
             # NASA-RP-1351, Eq (92)
             ply.dT = self.__dT
-            self.__N_t += mm(ply.Qk_bar, ply.e_tbar)*(ply.zk - ply.zk1)
-            self.__M_t += (mm(ply.Qk_bar, ply.e_tbar)
+            self.__N_t += mm(ply.Q_bar, ply.e_tbar)*(ply.zk - ply.zk1)
+            self.__M_t += (mm(ply.Q_bar, ply.e_tbar)
                            * (ply.zk**2 - ply.zk1**2)/2)
 
             # hygroscopic running loads
             # NASA-RP-1351, Eq (93)
             ply.dM = self.__dM
-            self.__N_h += mm(ply.Qk_bar, ply.e_hbar)*(ply.zk - ply.zk1)
-            self.__M_h += (mm(ply.Qk_bar, ply.e_hbar)
+            self.__N_h += mm(ply.Q_bar, ply.e_hbar)*(ply.zk - ply.zk1)
+            self.__M_h += (mm(ply.Q_bar, ply.e_hbar)
                            * (ply.zk**2 - ply.zk1**2)/2)
 
         # intermediate star matrices
-        # NASA-RP-1351 Eq (50)-(52a) provide a more straightforward
-        # description of creating the 'prime' ABD matrix.
+        # NASA-RP-1351 Eq (50)-(52a)
         A_star = np.linalg.inv(self.__A)
         B_star = - mm(A_star, self.__B)
         C_star = mm(self.__B, A_star)
         D_star = self.__D - mm(mm(self.__B, A_star), self.__B)
 
         D_prime = np.linalg.inv(D_star)
-        A_prime = A_star - mm(mm(B_star, D_prime), C_star)
-        B_prime = mm(B_star, D_prime)
         C_prime = - mm(D_prime, C_star)
+        B_prime = mm(B_star, D_prime)
+        A_prime = A_star - mm(mm(B_star, D_prime), C_star)
 
         ABD_prime = np.vstack((np.hstack((A_prime, B_prime)),
                                np.hstack((C_prime, D_prime))))
@@ -294,7 +159,7 @@ class Laminate:
         self.__k_0 = self.__k_0m + self.__k_0t + self.__k_0h
 
         for ply in self.__plies:
-            ply.e_mbar = mm(ply.T, self.__e_0 + ply.z * self.__k_0)
+            ply.e_mbar = mm(ply.T, (self.__e_0 + ply.z * self.__k_0))
 
         # calculate effective laminate properties
         # NASA, Section 5
@@ -365,8 +230,12 @@ class Laminate:
 
             self.__G12_eff = (det_ABD / np.linalg.det(denom_mat)) / self.__t
 
+    @classmethod
+    def new_from_csv(cls, file_name):
+        """Create a Laminate instance from a CSV file."""
 
-    # Externally accessible functions
+        return cls().from_csv(file_name)
+
     def append(self, newPly):
         """Add a new ply to the Laminate.
 
@@ -483,3 +352,171 @@ class Laminate:
                 return False
 
         return True
+
+    @property
+    def A(self):
+        """A matrix."""
+
+        return self.__A
+
+    @property
+    def B(self):
+        """B matrix."""
+
+        return self.__B
+
+    @property
+    def D(self):
+        """D matrix."""
+
+        return self.__D
+
+    @property
+    def t(self):
+        """Laminate thickness."""
+
+        return self.__t
+
+    @property
+    def layup(self):
+        """Laminate layup."""
+
+        return self.__layup
+
+    @property
+    def N_m(self):
+        """The mechanical running load applied to the laminate."""
+
+        return self.__N_m
+
+    @N_m.setter
+    def N_m(self, newLoad):
+        """The mechanical running load applied to the laminate.
+        
+        `newLoad` should be entered as a one-by-three running load matrix"""
+
+        self.__N_m = newLoad
+        self.__update()
+
+    @property
+    def M_m(self):
+        """The mechanical running moment applied to the laminate."""
+
+        return self.__M_m
+
+    @M_m.setter
+    def M_m(self, newLoad):
+        """The mechanical running moment applied to the laminate."""
+
+        self.__M_m = newLoad
+        self.__update()
+
+    @property
+    def N_t(self):
+        """Thermally induced running load."""
+
+        return self.__N_t
+
+    @property
+    def M_t(self):
+        """Thermally induced running moment."""
+
+        return self.__M_t
+
+    @property
+    def N_h(self):
+        """Hygroscopically induced running load."""
+
+        return self.__N_h
+
+    @property
+    def M_h(self):
+        """Hygroscopically induced running moment."""
+
+        return self.__M_h
+
+    @property
+    def dT(self):
+        """Change in temperature."""
+
+        return self.__dT
+
+    @dT.setter
+    def dT(self, new_dT):
+        """Change in temperature."""
+
+        self.__dT = new_dT
+        self.__update()
+
+    @property
+    def dM(self):
+        """Change in moisture."""
+
+        return self.__dM
+
+    @dM.setter
+    def dM(self, new_dM):
+        """Change in moisture."""
+
+        self.__dM = new_dM
+        self.__update()
+
+    @property
+    def E1_eff(self):
+        """Effective extensional modulus in the laminate 1-direction."""
+
+        return self.__E1_eff
+
+    @property
+    def E2_eff(self):
+        """Effective extensional modulus in the laminate 2-direction."""
+
+        return self.__E2_eff
+
+    @property
+    def G12_eff(self):
+        """Effective in-plane shear modulus."""
+
+        return self.__G12_eff
+
+    @property
+    def e_0(self):
+        """ """
+
+        return self.__e_0
+
+    @property
+    def e_0m(self):
+        """ """
+
+        return self.__e_0m
+
+    @property
+    def k_0m(self):
+        """ """
+
+        return self.__k_0m
+
+    @property
+    def e_0t(self):
+        """ """
+
+        return self.__e_0t
+
+    @property
+    def k_0t(self):
+        """ """
+
+        return self.__k_0t
+
+    @property
+    def e_0h(self):
+        """ """
+
+        return self.__e_0h
+
+    @property
+    def k_0h(self):
+        """ """
+
+        return self.__k_0h

@@ -1,26 +1,33 @@
 """Defines the Lamina class for use with mechpy.
 
-All mechanical and thermal properties assume that x- and y-axes are in the
-0- and 90-degree directions of the lamina, respectively. It is also assumed
-that lamina are generally orthotropic.
-
-Equations and symbol conventions are per 'Mechanics Of Composite Materials' by
-Robert M. Jones and 'NASA-RP-1351 BASIC MECHANICS OF LAMINATED COMPOSITE
-PLATES' as noted.
+Assumptions
+-----------
+* Lamina are generally orthotropic.
+* Lamina properties and values are assumed to be in the lamina coordinate system
+  (i.e. 12-plane).
+* Theta is in degrees, measured from the laminate x-axis to the lamina 1-axis.
+* The laminate z-direction is upward, away from the bottom surface.
+* Reported strain values are in engineering strain.
+* All loads and moments are running values supplied as force or moment per unit
+  width.
+* Unit systems are consistent (i.e. SI, US, or Imperial).
+* Equations and symbol conventions are per NASA-RP-1351 'Basic Mechanics of
+  Laminated Composite Plates' and Jones' 'Mechanics Of Composite Materials'.
 
 TODO:
 -----
+* [ ] add functionality to register laminate property to forwad updates to
+      Laminate classes
 * [ ] add error checking for attribute types
 * [ ] add a property for the compliance matrix Sk
-* [ ] add stress attributes for failure criteria
-* [ ] evaluate need for t_matrix() function
+* [ ] add failure indeces
 * [ ] remove laminate orientation calculations and have them be returned as
-      calculat properties
+      calculated properties
 """
 
 import numpy as np
 from numpy import matmul as mm
-import math
+from math import isnan, sin, cos, radians
 
 
 class Lamina:
@@ -29,27 +36,19 @@ class Lamina:
     Each lamina is assumed to be orthotropic.
     """
 
-    # class constants
-    # the simple matrix (Jones, Eq (2.78) and (2.79).
-    r = np.array([[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 2]])
-
-    r_inv = np.linalg.inv(r)
-
     def __init__(self,
-                 t=0.010,     # lamina thickness
-                 theta=0,     # orientation of lamina in degrees
-                 E1=10e6,     # Young's modulus in 1-direction
-                 E2=10e6,     # Young's modulus in 2-direction
-                 nu12=0.1,    # Poisson's ratio in 12-plane
-                 G12=725e3,   # shear modulus in 12-plane
-                 a11=2.1e-6,  # coeff. of thermal expansion in 1-direction
-                 a22=2.1e-6,  # coeff. of thermal expansion in 2-direction
-                 b11=3e-8,    # coeff. of moisture expansion in 1-direction
-                 b22=3e-8,    # coeff. of moisture expansion in 2-direction
-                 dT=0,        # change in temperature
-                 dM=0):       # moisture absorption
+                 t=1,     # lamina thickness
+                 theta=0, # orientation of lamina in degrees
+                 E1=1,    # Young's modulus in 1-direction
+                 E2=1,    # Young's modulus in 2-direction
+                 nu12=1,  # Poisson's ratio in 12-plane
+                 G12=1,   # shear modulus in 12-plane
+                 a11=1,   # coeff. of thermal expansion in 1-direction
+                 a22=1,   # coeff. of thermal expansion in 2-direction
+                 b11=1,   # coeff. of moisture expansion in 1-direction
+                 b22=1,   # coeff. of moisture expansion in 2-direction
+                 dT=0,    # change in temperature
+                 dM=0):   # moisture absorption
         """Initialize the Lamina instance."""
 
         self.ID = 0
@@ -71,6 +70,7 @@ class Lamina:
         self.__dT = dT
         self.__dM = dM
         self.__e_m = np.zeros((3, 1))
+        self.__e_m = np.zeros((3, 1))
         self.__e_t = np.zeros((3, 1))
         self.__e_h = np.zeros((3, 1))
         self.__e_mbar = np.zeros((3, 1))
@@ -78,6 +78,74 @@ class Lamina:
         self.__e_hbar = np.zeros((3, 1))
 
         self.__update()
+
+    def __update(self):
+        """Update calculated properties when new values are assigned."""
+
+        # upper and lower boundaries of lamina based on z
+        # NASA-RP-1351, Figure 9
+        self.__zk = self.__z + self.__t / 2
+        self.__zk1 = self.__z - self.__t / 2
+
+        # on-axis reduced stiffness matrix, Q
+        # NASA-RP-1351, Eq (15)
+        nu21 = self.nu12 * self.E2 / self.__E1  # Jones, Eq (2.67)
+        q11 = self.__E1 / (1 - self.nu12 * nu21)
+        q12 = self.nu12 * self.E2 / (1 - self.nu12 * nu21)
+        q22 = self.E2 / (1 - self.nu12 * nu21)
+        q66 = self.G12
+
+        self.__Q = np.array([[q11, q12, 0],
+                             [q12, q22, 0],
+                             [0, 0, q66]])
+
+        # the transformation matrix and its inverse
+        # create intermediate trig terms
+        m = cos(radians(self.__theta))
+        n = sin(radians(self.__theta))
+
+        # create transformation matrix and inverse
+        self.__T = np.array([[m**2, n**2, 2 * m * n],
+                             [n**2, m**2, -2 * m * n],
+                             [-m * n, m * n, m**2 - n**2]])
+        T_inv = np.linalg.inv(self.__T)
+
+        # the transformed reduced stiffness matrix (laminate coordinate system)
+        # Jones, Eq (2.84)
+        self.__Q_bar = mm(mm(T_inv, self.__Q), T_inv.transpose())
+
+        # thermal and hygral strains in laminate and lamina c-systems
+        # NASA-RP-1351 Eq (90), (91), and (95)
+        self.__e_t = self.__alpha * self.__dT
+        self.__e_h = self.__beta * self.__dM
+
+        # the transformed CTE and hygral matrices (laminate coordinate system)
+        # NASA-RP-1351 Eq (90) and (95)
+        self.__e_tbar = mm(T_inv, self.__alpha)
+        self.__e_hbar = mm(T_inv, self.__beta)
+
+        # calculate total strain
+        self.__e = self.__e_m + self.__e_t + self.__e_h
+
+    @property
+    def is_fully_defined(self):
+        """Check if lamina is fully defined with proper attr data types."""
+
+        if self.__t == 0 or isnan(self.__t):
+            raise TypeError("lamina.tk must be a non-zero number")
+        elif isnan(self.__theta):
+            raise TypeError("lamina.theta must be a number (in degrees)")
+        elif self.__E1 == 0 or isnan(self.__E1):
+            raise TypeError("lamina.E1 must be a non-zero number")
+        elif self.E2 == 0 or isnan(self.E2):
+            raise TypeError("lamina.E2 must be a non-zero number")
+        elif (self.nu12 <= 0 or self.nu12 > 1) or isnan(self.nu12):
+            raise TypeError("""lamina.nu12 must be a non-zero number between
+                            zero and 1""")
+        elif self.G12 == 0 or isnan(self.G12):
+            raise TypeError("lamina.G12 must be a non-zero number")
+        else:
+            return True
 
     @property
     def theta(self):
@@ -158,7 +226,7 @@ class Lamina:
         return self.__alpha
 
     @alpha.setter
-    def alpha(self, new_alpha_k):
+    def alpha(self, new_alpha):
         """The thermal expansion matrix for the lamina.
 
         Lamina are assumed to have orthotropic expansion coefficients.
@@ -168,7 +236,7 @@ class Lamina:
                   [0]]
         """
 
-        self.__alpha = new_alpha_k
+        self.__alpha = new_alpha
         self.__update()
 
     @property
@@ -185,7 +253,7 @@ class Lamina:
         return self.__beta
 
     @beta.setter
-    def beta(self, new_beta_k):
+    def beta(self, new_beta):
         """The hygroscopic expansion matrix for the lamina.
 
         Lamina are assumed to have orthotropic expansion coefficients.
@@ -195,7 +263,7 @@ class Lamina:
                   [0]]
         """
 
-        self.__beta = new_beta_k
+        self.__beta = new_beta
         self.__update()
 
     @property
@@ -208,7 +276,8 @@ class Lamina:
     def dT(self, new_dT):
         """The relative change in temperature of the lamina."""
 
-        return self.__dT
+        self.__dT = new_dT
+        self.__update()
 
     @property
     def dM(self):
@@ -294,16 +363,16 @@ class Lamina:
         self.__update()
 
     @property
-    def Qk(self):
+    def Q(self):
         """The on-axis reduced stiffness matrix of the lamina."""
 
-        return self.__Qk
+        return self.__Q
 
     @property
-    def Qk_bar(self):
+    def Q_bar(self):
         """The transformed reduced stiffness matrix of the lamina."""
 
-        return self.__Qk_bar
+        return self.__Q_bar
 
     @property
     def T(self):
@@ -312,10 +381,10 @@ class Lamina:
         return self.__T
 
     @property
-    def Tinv(self):
-        """The inverse of the transformation matrix."""
+    def e(self):
+        """Total lamina strain"""
 
-        return self.__Tinv
+        return self.__e
 
     @property
     def e_m(self):
@@ -353,6 +422,7 @@ class Lamina:
         """Mechanical strain in the laminate orientation."""
 
         self.__e_m = mm(self.__T, new_strain)
+        self.__update()
 
     @property
     def e_tbar(self):
@@ -372,92 +442,3 @@ class Lamina:
 
         self.__e_h = mm(self.__T, new_strain)
         self.__update()
-
-    @property
-    def is_fully_defined(self):
-        """Check if lamina is fully defined with proper attr data types."""
-
-        if self.__t == 0 or math.isnan(self.__t):
-            raise TypeError("lamina.tk must be a non-zero number")
-        elif math.isnan(self.__theta):
-            raise TypeError("lamina.theta must be a number (in degrees)")
-        elif self.__E1 == 0 or math.isnan(self.__E1):
-            raise TypeError("lamina.E1 must be a non-zero number")
-        elif self.E2 == 0 or math.isnan(self.E2):
-            raise TypeError("lamina.E2 must be a non-zero number")
-        elif (self.nu12 <= 0 or self.nu12 > 1) or math.isnan(self.nu12):
-            raise TypeError("""lamina.nu12 must be a non-zero number between
-                            zero and 1""")
-        elif self.G12 == 0 or math.isnan(self.G12):
-            raise TypeError("lamina.G12 must be a non-zero number")
-        else:
-            return True
-
-    def __update(self):
-        """Update calculated properties when new values are assigned."""
-
-        # upper and lower boundaries of lamina based on z
-        # NASA-RP-1351, Figure 9
-        self.__zk = self.__z - self.__t / 2
-        self.__zk1 = self.__z + self.__t / 2  # self.__zk1 is z_(k-1)
-
-        # on-axis reduced stiffness matrix, Qk
-        # NASA-RP-1351, Eq (15)
-        nu21 = self.nu12 * self.E2 / self.__E1  # Jones, Eq (2.67)
-        q11 = self.__E1 / (1 - self.nu12 * nu21)
-        q12 = self.nu12 * self.E2 / (1 - self.nu12 * nu21)
-        q22 = self.E2 / (1 - self.nu12 * nu21)
-        q66 = self.G12
-
-        self.__Qk = np.array([[q11, q12, 0],
-                              [q12, q22, 0],
-                              [0, 0, q66]])
-
-        # the transformation matrix and its inverse
-        # create intermediate trig terms
-        m = math.cos(math.radians(self.__theta))
-        n = math.sin(math.radians(self.__theta))
-
-        # create transformation matrix and inverse
-        self.__T = np.array([[m**2, n**2, 2*m*n],
-                             [n**2, m**2, -2*m*n],
-                             [-m*n, m*n, m**2 - n**2]])
-        self.__Tinv = np.linalg.inv(self.__T)
-
-        # the transformed reduced stiffness matrix (laminate coordinate system)
-        # Jones, Eq (2.84)
-        self.__Qk_bar = mm(mm(self.__Tinv, self.__Qk),
-                           self.__Tinv.transpose())
-
-        # thermal and hygral strains in laminate and lamina c-systems
-        # NASA-RP-1351 Eq (90), (91), and (95)
-        self.__e_t = self.__alpha * self.__dT
-        self.__e_h = self.__beta * self.__dM
-
-        # the transformed CTE and hygral matrices (laminate coordinate system)
-        # NASA-RP-1351 Eq (90) and (95)
-        self.__e_tbar = mm(self.__Tinv, self.__alpha)
-        self.__e_hbar = mm(self.__Tinv, self.__beta)
-
-
-def t_matrix(theta):
-    """Return the transformation matrix for a given theta theta.
-
-    The transformation matrix is used to transform stresses and tensor strains
-    from the lamina material orientation to the laminate coordinate system. The
-    inverse of the matrix may be used to transform back from the laminate
-    coordinate system to that of the lamina. Theta is measured counterclockwise
-    from the laminate x-axis and assumed to be in degrees.
-
-    See 'Mechanics Of Composite Materials' by Robert M. Jones, Eq (2.76) for
-    the definition of the transformation matrix.
-    """
-
-    # create intermediate trig terms
-    m = math.cos(math.radians(theta))
-    n = math.sin(math.radians(theta))
-
-    # create transformation matrix and inverse
-    return np.array([[m**2, n**2, 2*m*n],
-                     [n**2, m**2, -2*m*n],
-                     [-m*n, m*n, m**2 - n**2]])
