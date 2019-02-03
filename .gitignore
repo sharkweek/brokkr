@@ -6,3 +6,4 @@ ropeproject
 build
 dist
 installed_files.txt
+*egg-info

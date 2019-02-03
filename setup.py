@@ -6,10 +6,9 @@ setup(
     description="mechanical engineering toolbox",
     author='Neal Gordon, Andy Perez',
     packages=[
-        'composites',
-        'bolted_joints'
+        'mechpy/composites',
+        'mechpy/bolted_joints'
     ],
-    package_dir={'': 'lib'},
     license="MIT",
     long_description=open('README.md').read(),
     url='https://github.com/sharkweek/mechpy',

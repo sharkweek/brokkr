@@ -22,9 +22,9 @@ TODO:
 * [ ] reorganize properties and setters to be adjacent
 """
 
+from .lamina import Lamina
 import numpy as np
 from numpy import matmul as mm
-from .lamina import Lamina
 import pandas as pd
 
 
@@ -32,7 +32,11 @@ class Laminate:
     """Laminate made up of multiple lamina objects."""
 
     def __init__(self, *plies):
-        """Initialize with a list of Lamina objects."""
+        """Initialize with a list of Lamina objects.
+        
+        Accepts a series of Lamina objects or a single string calling out the
+        filepath to a csv file containg all the laminate data.
+        """
 
         # create A, B, and D matrices
         self.__t = 0                  # thickness
@@ -46,13 +50,17 @@ class Laminate:
         self.__E2_eff = 0
         self.__G12_eff = 0
 
-        if len(self.__plies) > 0:
-            # make sure all plies are Lamina objects
-            for ply in self.__plies:
-                self.check_lamina(ply)
+        # import from csv if filepath is provided,otherwise, process as laminae
+        try:
+            self.from_csv(plies[0])
 
-            # calculate all properties
-            self.__update()
+        except TypeError:
+            if len(self.__plies) > 0:
+                # make sure all plies are Lamina objects
+                for ply in self.__plies:
+                    self.check_lamina(ply)
+
+                self.__update()
 
     def __len__(self):
         """Return the number of plies in the laminate."""
@@ -230,12 +238,6 @@ class Laminate:
 
             self.__G12_eff = (det_ABD / np.linalg.det(denom_mat)) / self.__t
 
-    @classmethod
-    def new_from_csv(cls, file_name):
-        """Create a Laminate instance from a CSV file."""
-
-        return cls().from_csv(file_name)
-
     def append(self, newPly):
         """Add a new ply to the Laminate.
 
@@ -284,9 +286,20 @@ class Laminate:
         self.__G12_eff = 0
 
     def from_csv(self, inputFile, append=False):
-        """Determine laminate properties from input CSV file."""
-
-        # TODO: test this function
+        """Determine laminate properties from input CSV file.
+        
+        CSV must have headers:
+            't' = thickness
+            'theta' = angle of ply relative to laminate
+            'E1' = modulus in lamina 1-direction
+            'E2' = modulus in lamina 2-direction
+            'nu12' = Poisson's ratio
+            'G12' = shear modulus
+            'a11' = coeff. of thermal expansion in 1-direction
+            'a22' = coeff. of thermal expansion in 2-direction
+            'b11' = coeff. of hygral expansion in 1-direction 
+            'b22' = coeff. of hygral expansion in 1-direction
+        """
 
         if append == False:
             self.clear()
@@ -298,12 +311,10 @@ class Laminate:
                                        E2=ply['E2'],
                                        nu12=ply['nu12'],
                                        G12=ply['G12'],
-                                       a11=0,
-                                       a22=0,
-                                       b11=0,
-                                       b22=0,
-                                       dT=0,
-                                       dM=0))
+                                       a11=ply['a11'],
+                                       a22=ply['a22'],
+                                       b11=ply['b11'],
+                                       b22=ply['b22']))
 
         self.__update()
 

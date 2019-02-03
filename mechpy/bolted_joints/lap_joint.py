@@ -62,7 +62,7 @@ Assumptions:
 import math
 import csv
 import numpy
-import mechpy.bolted_joints.bolt_flex
+#import mechpy.bolted_joints.bolt_flex
 
 class Joint:
     """Class defining the joint sections"""
