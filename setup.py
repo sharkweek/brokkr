@@ -1,9 +1,8 @@
-#from distutils.core import setup
 from setuptools import setup
 
 setup(
     name='mechpy',
-    version='0.1',
+    version='0.0.1',
     description="mechanical engineering toolbox",
     author='Neal Gordon, Andy Perez',
     packages=[
@@ -18,7 +17,8 @@ setup(
         'composites',
         'mechanics',
         'statics',
-        'materials'
+        'materials',
+        'structures'
     ],
     classifiers=[
         "Programming Language :: Python",
@@ -31,9 +31,6 @@ setup(
     ],
     install_requires=[
         'numpy',
-        'matplotlib',
-        'scipy',
-        'sympy',
-        'pint'
+        'pandas'
     ]
 )
