@@ -18,3 +18,4 @@ TODO
  * [ ] create BJSFM solution
  * [ ] Create interactive plots using plotly, seaborn, or matplotlib
  * [ ] Add ply failure criteria and indices to Lamina/Laminate classes
+ * [ ] Convert BJSFM to Python using F2PY

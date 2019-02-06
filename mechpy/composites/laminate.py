@@ -29,20 +29,82 @@ import pandas as pd
 
 
 class Laminate:
-    """Laminate made up of multiple lamina objects."""
+    """
+    Laminate(*plies)
+
+    A composite laminate made up of multiple orthotropic lamina objects.
+
+    Parameters
+    ----------
+    *plies : mechpy.composites.Lamina or array_like of
+            mechpy.composites.Laminate or string
+        lamina the make up the laminate ordered from the bottom surface to the
+        top surface. In creating the Laminate, either a sequence of Lamina
+        objects or a file path to a CSV file containing all the appropriate
+        data can be supplied.
+
+    Attributes
+    ----------
+    t : float
+        total thickness of the laminate
+    layup : list of int or list of float
+        laminate stacking sequence
+    dT : int or float
+        change in temperature
+    dM : int or float
+        change in moisture
+    N_m : numpy.array_like
+        mechanical running load
+    N_t : numpy.array_like
+        thermal running load
+    N_h : numpy.array_like
+        hygral (moisture) running load
+    M_m : numpy.array_like
+        mechanical running moment
+    M_t : numpy.array_like
+        thermal running moment
+    M_h : numpy.array_like
+        hygral (moisture) running moment
+    E1_eff : float
+        effective laminate modulus in the x-direction
+    E2_eff : float
+        effective laminate modulus in the y-direction
+    G12_eff : float
+        effective shear modulus in the xy-plane
+    e_0 : numpy.array_like
+        total laminate midplane strain
+    e_0m : numpy.array_like
+        laminate midplane strain due to mechanical loading
+    e_0t : numpy.array_like
+        laminate midplane strain due to thermal effects
+    e_0h : numpy.array_like
+        laminate midplane strain due to hygral effects
+    k_0 : numpy.array_like
+        total laminate midplane curvature
+    k_0m : numpy.array_like
+        laminate midplane curvature due to mechanical loading
+    k_0t : numpy.array_like
+        laminate midplane curvature due to thermal effects
+    k_0h : numpy.array_like
+        laminate midplane curvature due to hygral effects
+
+    Methods
+    -------
+
+    """
 
     def __init__(self, *plies):
         """Initialize with a list of Lamina objects.
-        
+
         Accepts a series of Lamina objects or a single string calling out the
         filepath to a csv file containg all the laminate data.
         """
 
-        # create A, B, and D matrices
-        self.__t = 0                  # thickness
+        # create and zero out all properties needed for .__update()
+        self.__t = 0
         self.__layup = []
-        self.__dT = 0                 # change in temperature
-        self.__dM = 0                 # moisture content
+        self.__dT = 0 
+        self.__dM = 0 
         self.__plies = list(plies)
         self.__N_m = np.zeros((3, 1))
         self.__M_m = np.zeros((3, 1))
@@ -64,35 +126,29 @@ class Laminate:
 
     def __len__(self):
         """Return the number of plies in the laminate."""
-
         return len(self.__plies)
 
     def __iter__(self):
         """Return an iterator of self.__plies."""
-
         return iter(self.__plies)
 
     def __getitem__(self, key):
         """Retrieve a specific item at the requested index."""
-
         return self.__plies[key]
 
     def __delitem__(self, key):
         """Delete a ply."""
-
         del self.__plies[key]
         self.__update()
 
     def __setitem__(self, key, new_ply):
         """Set a specific ply to a new Lamina at the requested index."""
-
         self.check_lamina(new_ply)
         self.__plies[key] = new_ply
         self.__update()
 
     def __repr__(self):
         """Set the representation of the laminate."""
-
         return "Laminate layup: " + self.__layup.__repr__()
 
     def __update(self):
@@ -367,167 +423,134 @@ class Laminate:
     @property
     def A(self):
         """A matrix."""
-
         return self.__A
 
     @property
     def B(self):
         """B matrix."""
-
         return self.__B
 
     @property
     def D(self):
         """D matrix."""
-
         return self.__D
 
     @property
     def t(self):
         """Laminate thickness."""
-
         return self.__t
 
     @property
     def layup(self):
         """Laminate layup."""
-
         return self.__layup
 
     @property
     def N_m(self):
-        """The mechanical running load applied to the laminate."""
-
+        """numpy.array: mechanical running load applied to the laminate."""
         return self.__N_m
 
     @N_m.setter
     def N_m(self, newLoad):
-        """The mechanical running load applied to the laminate.
-        
-        `newLoad` should be entered as a one-by-three running load matrix"""
-
         self.__N_m = newLoad
         self.__update()
 
     @property
     def M_m(self):
-        """The mechanical running moment applied to the laminate."""
-
+        """numpy.array: mechanical running moment applied to the laminate."""
         return self.__M_m
 
     @M_m.setter
     def M_m(self, newLoad):
-        """The mechanical running moment applied to the laminate."""
-
         self.__M_m = newLoad
         self.__update()
 
     @property
     def N_t(self):
-        """Thermally induced running load."""
-
+        """3x1 numpy.array: thermally induced running load."""
         return self.__N_t
 
     @property
     def M_t(self):
-        """Thermally induced running moment."""
-
+        """3x1 numpy.array: thermally induced running moment."""
         return self.__M_t
 
     @property
     def N_h(self):
-        """Hygroscopically induced running load."""
-
+        """3x1 numpy.array: hygroscopically induced running load."""
         return self.__N_h
 
     @property
     def M_h(self):
-        """Hygroscopically induced running moment."""
-
+        """3x1 numpy.array: hygroscopically induced running moment."""
         return self.__M_h
 
     @property
     def dT(self):
-        """Change in temperature."""
-
+        """float or int: change in temperature."""
         return self.__dT
 
     @dT.setter
     def dT(self, new_dT):
-        """Change in temperature."""
-
         self.__dT = new_dT
         self.__update()
 
     @property
     def dM(self):
-        """Change in moisture."""
-
+        """float or int: change in moisture."""
         return self.__dM
 
     @dM.setter
     def dM(self, new_dM):
-        """Change in moisture."""
-
         self.__dM = new_dM
         self.__update()
 
     @property
     def E1_eff(self):
-        """Effective extensional modulus in the laminate 1-direction."""
-
+        """float: effective extensional modulus in the laminate 1-direction."""
         return self.__E1_eff
 
     @property
     def E2_eff(self):
-        """Effective extensional modulus in the laminate 2-direction."""
-
+        """float: ffective extensional modulus in the laminate 2-direction."""
         return self.__E2_eff
 
     @property
     def G12_eff(self):
-        """Effective in-plane shear modulus."""
-
+        """float: effective in-plane shear modulus."""
         return self.__G12_eff
 
     @property
     def e_0(self):
-        """ """
-
+        """3x1 numpy.array: total midplane strain on the laminate"""
         return self.__e_0
 
     @property
     def e_0m(self):
-        """ """
-
+        """3x1 numpy.array: midplane strain due to mechanical loading"""
         return self.__e_0m
 
     @property
     def k_0m(self):
-        """ """
-
+        """3x1 numpy.array: midplane curvature due to mechanical loading"""
         return self.__k_0m
 
     @property
     def e_0t(self):
-        """ """
-
+        """3x1 numpy.array: midplane strain due to thermal loading"""
         return self.__e_0t
 
     @property
     def k_0t(self):
-        """ """
-
+        """3x1 numpy.array: midplane curvature due to thermal loading"""
         return self.__k_0t
 
     @property
     def e_0h(self):
-        """ """
-
+        """3x1 numpy.array: midplane strain due to hygral loading"""
         return self.__e_0h
 
     @property
     def k_0h(self):
-        """ """
-
+        """3x1 numpy.array: midplane curvature due to thermal loading"""
         return self.__k_0h
