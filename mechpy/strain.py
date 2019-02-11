@@ -83,7 +83,7 @@ class Strain(ndarray):
             return
 
         try:
-            self.resize(6, 1)
+            self.resize((6, 1))
         except:
             raise ValueError("`strains` must be 6 values or a 6x1 array-like obj")
 

@@ -10,5 +10,3 @@ def sf(val):
         value for which to calculate the significant figures
     
     """
-
-    return len(str(val).strip
