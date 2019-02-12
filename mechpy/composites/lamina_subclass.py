@@ -69,8 +69,6 @@ class Lamina:
 
         if self.t == 0 or isnan(self.t):
             raise TypeError("lamina.tk must be a non-zero number")
-        elif isnan(self.theta):
-            raise TypeError("lamina.theta must be a number (in degrees)")
         elif self.E1 == 0 or isnan(self.E1):
             raise TypeError("lamina.E1 must be a non-zero number")
         elif self.E2 == 0 or isnan(self.E2):
@@ -89,62 +87,72 @@ class Ply(Lamina):
 
     __name__ = 'Ply'
     __protected__ = ['Q', 'Qbar', 'T', 'Tinv']
-    __unprotected__ = ['id', 'e_t', 'e_h']
+    __unprotected__ = ['e_t', 'e_h', '__locked', 'laminate']
     __updated__ = Lamina.__slots__ + ['t', 'z', 'theta', 'e_m']
     __slots__ = __protected__ + __unprotected__ + __updated__
 
     def __init__(self,
-                 id=0,
+                 laminate=None,
                  t=1,
                  z=0,
                  theta=0,
                  E1=1,
                  E2=1,
-                 nu12=1,
+                 nu12=0,
                  G12=1,
-                 a11=1,
-                 a22=1,
-                 b11=1,
-                 b22=1,
+                 a11=0,
+                 a22=0,
+                 b11=0,
+                 b22=0,
                  e_m=np.zeros((3, 1))):
         """Initialize the Ply instance."""
 
-        self.id = id
+        self.__protect(False)
+
+        self.laminate = laminate
         self.z = z
         self.theta = theta
         self.e_m = e_m
         self.e_t = np.zeros((3, 3))
         self.e_h = np.zeros((3, 3))
 
-        super(Lamina, self).__init__(
-            t, E1, E2, nu12, G12, a11, a22, b22, b22
-        )
+        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22)
 
         self.__update()
 
     def __setattr__(self, attr, val):
-        """Check and set attributes."""
+        """Set attribute."""
 
-        # udpate laminate after updated properties are set
-        if attr in self.__updated__:
-            self.__sattr(attr, val)
-            self.__update()
+        if self.__locked:
+            # udpate laminate after updated properties are set
+            if attr in self.__updated__:
+                super().__setattr__(attr, val)
+                self.__update()
 
-        # don't set protected values
-        elif attr in self.__protected__:
-            raise AttributeError(self.__name__ + ".%s" % attr
-                                 + "is a derived value and cannot be set")
+            # don't set protected values
+            elif attr in self.__protected__:
+                raise AttributeError(self.__name__ + ".%s" % attr
+                                    + "is a derived value and cannot be set")
 
-        # check if attribute is an unprotected value
-        elif attr in self.__unprotected__:
-            self.__sattr(attr, val)
+            # check if attribute is an unprotected value
+            elif attr in self.__unprotected__:
+                super().__setattr__(attr, val)
 
-    def __sattr(self, arg, val):
-        """Directly set attribute."""
-        super().__setattr__(arg, val)
+        else:
+            super().__setattr__(attr, val)
+
+        # update laminate if attributes are set
+        if self.laminate:
+            self.laminate._Laminate__update()
+
+    def __protect(self, toggle):
+        super().__setattr__('_Ply__locked', toggle)
 
     def __update(self):
         """Update calculated properties when new values are assigned."""
+
+        # unlock
+        self.__protect(False)
 
         # on-axis reduced stiffness matrix, Q
         # NASA-RP-1351, Eq (15)
@@ -154,9 +162,7 @@ class Ply(Lamina):
         q22 = self.E2 / (1 - self.nu12 * nu21)
         q66 = self.G12
 
-        self.__sattr(
-            'Q', np.array([[q11, q12, 0], [q12, q22, 0], [0, 0, q66]])
-        )
+        self.Q = np.array([[q11, q12, 0], [q12, q22, 0], [0, 0, q66]])
 
         # the transformation matrix and its inverse
         # create intermediate trig terms
@@ -164,19 +170,22 @@ class Ply(Lamina):
         n = sin(radians(self.theta))
 
         # create transformation matrix and inverse
-        self.__sattr('T', np.array([[m**2, n**2, 2 * m * n],
-                                     [n**2, m**2, -2 * m * n],
-                                     [-m * n, m * n, m**2 - n**2]]))
-        self.__sattr('Tinv', np.linalg.inv(self.T))
+        self.T = np.array([[m**2, n**2, 2 * m * n],
+                           [n**2, m**2, -2 * m * n],
+                           [-m * n, m * n, m**2 - n**2]])
+        self.Tinv = np.linalg.inv(self.T)
 
         # the transformed reduced stiffness matrix (laminate coordinate system)
         # Jones, Eq (2.84)
-        self.__sattr('Qbar', self.Tinv @ self.Q @ self.Tinv.T)
+        self.Qbar = self.Tinv @ self.Q @ self.Tinv.T
 
         # thermal and hygral strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
-        self.__sattr('e_t', self.alpha * self.dT)
-        self.__sattr('e_h', self.beta * self.dM)
+        self.e_t = self.alpha * self.laminate.dT
+        self.e_h = self.beta * self.laminate.dM
+
+        # lock
+        self.__protect(True)
 
     @property
     def zk(self):

@@ -22,13 +22,13 @@ TODO:
 * [ ] reorganize properties and setters to be adjacent
 """
 
-from .lamina import Lamina, Ply
+from .lamina_subclass import Lamina, Ply
 import numpy as np
 from numpy import matmul as mm
 import pandas as pd
 
 
-class Laminate:
+class Laminate(dict):
     """
     Laminate(*plies)
 
@@ -94,10 +94,11 @@ class Laminate:
     """
 
     __name__ = 'Laminate'
-    __protected__ = ['t', 'layup', 'N_t', 'N_h']
-    __unprotected__ = ['_Laminate__plies']
+    __protected__ = [
+        'N_t', 'N_h', 'M_t', 'M_h' 'E1_eff', 'E2_eff', 'G12_eff', 'e_0', 'k_0'
+    ]
     __updated__ = ['dT', 'dM', 'N_m', 'M_m']
-    __slots__ = __protected__ + __unprotected__ + __updated__
+    __slots__ = __protected__ + __unprotected__ + __updated__ + ['__locked']
 
     def __init__(self, *plies):
         """Initialize with a list of Lamina objects.
@@ -106,38 +107,37 @@ class Laminate:
         filepath to a csv file containg all the laminate data.
         """
 
+        # unlock attributes
+        self.__protect(False)
+
         # create and zero out all properties needed for .__update()
         self.clear()
-        self.__plies = list(plies)
 
-        # import from csv if filepath is provided,otherwise, process as laminae
-        try:
+        # init from CSV
+        if len(plies) == 1 and type(plies[0]) == str:
             self.from_csv(plies[0])
 
-        except TypeError:
-            if len(self.__plies) > 0:
-                # make sure all plies are Lamina objects
-                for ply in self.__plies:
-                    self.check_lamina(ply)
-
-                self.__update()
-
-    def __setattr__(self, attr, val):
-        """Check and set attributes."""
-
-        # udpate laminate after updated properties are set
-        if attr in self.__updated__:
-            self.__sattr(attr, val)
+        # standard init
+        else:
+            super().__init__({i+1:j for i, j in enumerate(plies)})
             self.__update()
 
-        # check if attribute is an unprotected value
-        elif attr in self.__unprotected__:
-            self.__sattr(attr, val)
+    def __setattr__(self, attr, val):
+        """Set attribute."""
 
-        # don't set protected values
-        elif attr in self.__protected__:
-            raise AttributeError(self.__name__ + ".%s" % attr
-                                 + "is a derived value and cannot be set")
+        if self.__locked:
+            # udpate laminate after updated properties are set
+            if attr in self.__updated__:
+                super().__setattr__(attr, val)
+                self.__update()
+
+            # don't set protected values
+            elif attr in self.__protected__:
+                raise AttributeError(self.__name__ + ".%s" % attr
+                                     + "is a derived value and cannot be set")
+
+        else:
+            super().__setattr__(attr, val)
 
     def __sattr(self, arg, val):
         """Directly set attribute."""
@@ -173,9 +173,11 @@ class Laminate:
     def __update(self):
         """Update the ply and laminate attributes based on laminate stackup."""
 
+        for ply in self:
+            self.check_lamina(ply)
+
         # reset internal values
         self.__t = sum([ply.t for ply in self.__plies])
-        self.__layup = [ply.theta for ply in self.__plies]
         self.__N_t = np.zeros((3, 1))   # thermal running loads
         self.__M_t = np.zeros((3, 1))   # thermal running moments
         self.__N_h = np.zeros((3, 1))   # hygroscopic running loads
@@ -312,6 +314,9 @@ class Laminate:
                                    np.hstack((np.transpose(Bstack), D))))
 
             self.__G12_eff = (det_ABD / np.linalg.det(denom_mat)) / self.__t
+
+    def __protect(self, toggle):
+        super().__setattr__('_Laminate__locked', toggle)
 
     def append(self, newPly):
         """Add a new ply to the Laminate.
@@ -462,7 +467,7 @@ class Laminate:
     @property
     def layup(self):
         """Laminate layup."""
-        return self.__layup
+        return [ply.theta for ply in self.__plies]
 
     @property
     def N_m(self):
