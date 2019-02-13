@@ -86,9 +86,9 @@ class Ply(Lamina):
     """A Ply for use in a Laminate."""
 
     __name__ = 'Ply'
-    __protected__ = ['Q', 'Qbar', 'T', 'Tinv']
-    __unprotected__ = ['e_t', 'e_h', '__locked', 'laminate']
-    __updated__ = Lamina.__slots__ + ['t', 'z', 'theta', 'e_m']
+    __protected__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h']
+    __unprotected__ = ['t', 'e_m', '__locked']
+    __updated__ = Lamina.__slots__ + ['t', 'theta', 'laminate']
     __slots__ = __protected__ + __unprotected__ + __updated__
 
     def __init__(self,
@@ -204,6 +204,10 @@ class Ply(Lamina):
         of positive pointing upward. Note: zk1 is z_(k-1).
         """
         return self.z - self.t / 2
+
+    @zk1.setter
+    def zk1(self, new_zk1):
+        self.z = new_zk1 + self.t / 2
 
     @property
     def e_tbar(self):
