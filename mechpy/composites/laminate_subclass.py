@@ -24,7 +24,7 @@ TODO:
 
 from .lamina_subclass import Lamina, Ply
 import numpy as np
-from numpy import array, hstack, vstack, zeros
+from numpy import array, hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 
@@ -102,15 +102,23 @@ class Laminate(dict):
     __updated__ = ['dT', 'dM', 'N_m', 'M_m']
     __slots__ = __protected__ + __unprotected__ + __updated__
 
+    def __unlock(func):
+        """Decorator function to allow for free attribute assignment."""
+
+        def wrapper(self, *args, **kwargs):
+            super().__setattr__('_Ply__locked', False)
+            func(self, *args, **kwargs)
+            super().__setattr__('_Ply__locked', True)
+
+        return wrapper
+
+    @__unlock
     def __init__(self, *plies):
         """Initialize with a list of Lamina objects.
 
         Accepts a series of Lamina objects or a single string calling out the
         filepath to a csv file containg all the laminate data.
         """
-
-        # unlock attributes
-        self.__protect(False)
 
         # create and zero out all properties needed for .__update()
         self.clear()
@@ -170,13 +178,9 @@ class Laminate(dict):
         """Set the representation of the laminate."""
         return "Laminate layup: " + self.layup.__repr__()
 
-    def __protect(self, toggle):
-        super().__setattr__('_Laminate__locked', toggle)
-
+    @__unlock
     def __update(self):
         """Update the ply and laminate attributes based on laminate stackup."""
-
-        self.__protect(False)
 
         for ply in self:
             self.check_lamina(ply)
@@ -317,8 +321,6 @@ class Laminate(dict):
 
             self.G12_eff = (det_ABD / det(denom_mat)) / self.t
 
-        self.__protect(True)
-
     def append(self, newPly):
         """Add a new ply to the Laminate.
 
@@ -381,16 +383,16 @@ class Laminate(dict):
 
         start = len(self)
         for i, rec in enumerate(pd.read_csv(inputFile).to_dict('records')):
-            ply = Lamina(t=rec['t'],
-                         theta=rec['theta'],
-                         E1=rec['E1'],
-                         E2=rec['E2'],
-                         nu12=rec['nu12'],
-                         G12=rec['G12'],
-                         a11=rec['a11'],
-                         a22=rec['a22'],
-                         b11=rec['b11'],
-                         b22=rec['b22'])
+            ply = Ply(t=rec['t'],
+                      theta=rec['theta'],
+                      E1=rec['E1'],
+                      E2=rec['E2'],
+                      nu12=rec['nu12'],
+                      G12=rec['G12'],
+                      a11=rec['a11'],
+                      a22=rec['a22'],
+                      b11=rec['b11'],
+                      b22=rec['b22'])
             super().__setitem__(start + i + 1, ply)
 
         self.__update()

@@ -27,6 +27,8 @@ TODO:
 """
 
 import numpy as np
+from numpy import array, zeros
+from numpy.linalg import inv
 from math import isnan, cos, sin, radians
 
 
@@ -56,12 +58,12 @@ class Lamina:
         self.E2 = E2
         self.nu12 = nu12
         self.G12 = G12
-        self.alpha = np.array([[a11],
-                               [a22],
-                               [0]], dtype=float)
-        self.beta = np.array([[b11],
-                              [b22],
-                              [0]], dtype=float)
+        self.alpha = array([[a11],
+                            [a22],
+                            [0]], dtype=float)
+        self.beta = array([[b11],
+                           [b22],
+                           [0]], dtype=float)
 
     @property
     def is_fully_defined(self):
@@ -87,10 +89,21 @@ class Ply(Lamina):
 
     __name__ = 'Ply'
     __protected__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h']
-    __unprotected__ = ['t', 'e_m', '__locked']
+    __unprotected__ = ['z', 't', 'e_m', '__locked']
     __updated__ = Lamina.__slots__ + ['t', 'theta', 'laminate']
     __slots__ = __protected__ + __unprotected__ + __updated__
 
+    def __unlock(func):
+        """Decorator function to allow for free attribute assignment."""
+
+        def wrapper(self, *args, **kwargs):
+            super().__setattr__('_Ply__locked', False)
+            func(self, *args, **kwargs)
+            super().__setattr__('_Ply__locked', True)
+
+        return wrapper
+
+    @__unlock
     def __init__(self,
                  laminate=None,
                  t=1,
@@ -104,17 +117,15 @@ class Ply(Lamina):
                  a22=0,
                  b11=0,
                  b22=0,
-                 e_m=np.zeros((3, 1))):
+                 e_m=zeros((3, 1))):
         """Initialize the Ply instance."""
-
-        self.__protect(False)
 
         self.laminate = laminate
         self.z = z
         self.theta = theta
         self.e_m = e_m
-        self.e_t = np.zeros((3, 3))
-        self.e_h = np.zeros((3, 3))
+        self.e_t = zeros((3, 3))
+        self.e_h = zeros((3, 3))
 
         super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22)
 
@@ -132,7 +143,7 @@ class Ply(Lamina):
             # don't set protected values
             elif attr in self.__protected__:
                 raise AttributeError(self.__name__ + ".%s" % attr
-                                    + "is a derived value and cannot be set")
+                                    + " is a derived value and cannot be set")
 
             # check if attribute is an unprotected value
             elif attr in self.__unprotected__:
@@ -145,14 +156,9 @@ class Ply(Lamina):
         if self.laminate:
             self.laminate._Laminate__update()
 
-    def __protect(self, toggle):
-        super().__setattr__('_Ply__locked', toggle)
-
+    @__unlock
     def __update(self):
         """Update calculated properties when new values are assigned."""
-
-        # unlock
-        self.__protect(False)
 
         # on-axis reduced stiffness matrix, Q
         # NASA-RP-1351, Eq (15)
@@ -162,7 +168,7 @@ class Ply(Lamina):
         q22 = self.E2 / (1 - self.nu12 * nu21)
         q66 = self.G12
 
-        self.Q = np.array([[q11, q12, 0], [q12, q22, 0], [0, 0, q66]])
+        self.Q = array([[q11, q12, 0], [q12, q22, 0], [0, 0, q66]])
 
         # the transformation matrix and its inverse
         # create intermediate trig terms
@@ -170,10 +176,10 @@ class Ply(Lamina):
         n = sin(radians(self.theta))
 
         # create transformation matrix and inverse
-        self.T = np.array([[m**2, n**2, 2 * m * n],
-                           [n**2, m**2, -2 * m * n],
-                           [-m * n, m * n, m**2 - n**2]])
-        self.Tinv = np.linalg.inv(self.T)
+        self.T = array([[m**2, n**2, 2 * m * n],
+                        [n**2, m**2, -2 * m * n],
+                        [-m * n, m * n, m**2 - n**2]])
+        self.Tinv = inv(self.T)
 
         # the transformed reduced stiffness matrix (laminate coordinate system)
         # Jones, Eq (2.84)
@@ -181,11 +187,34 @@ class Ply(Lamina):
 
         # thermal and hygral strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
-        self.e_t = self.alpha * self.laminate.dT
-        self.e_h = self.beta * self.laminate.dM
+        if self.laminate:
+            self.e_t = self.alpha * self.laminate.dT
+            self.e_h = self.beta * self.laminate.dM
 
-        # lock
-        self.__protect(True)
+    @__unlock
+    def from_lamina(self,
+                    lamina,
+                    laminate=None,
+                    t=1,
+                    z=0,
+                    theta=0,
+                    e_m=zeros((3, 1))):
+        """Create from Lamina object."""
+
+        if lamina.is_fully_defined():
+            for attr in lamina.__slots__:
+                super().__setattr__(attr, getattr(lamina, attr))
+            self.laminate = laminate
+            self.z = z
+            self.theta = theta
+            self.e_m = e_m
+            self.e_t = zeros((3, 3))
+            self.e_h = zeros((3, 3))
+
+        else:
+            raise AttributeError(lamina.__name__ + " is not fully defined.")
+
+        self.__update()
 
     @property
     def zk(self):
