@@ -1,22 +1,14 @@
-"""Define the Laminate class for use with mechpy.
+"""This module defines the Laminate class for use with mechpy.
 
-Assumptions
------------
-* Lamina are generally orthotropic.
-* The laminate z-direction is upward, away from the bottom surface.
-* Reported strain values are in engineering strain.
-* All loads and moments are running values supplied as force or moment per unit
-  width.
-* Unit systems are consistent (i.e. SI, US, or Imperial).
-* Equations and symbol conventions are per NASA-RP-1351 'Basic Mechanics of
-  Laminated Composite Plates' and Jones' 'Mechanics Of Composite Materials'.
+Notes
+----
+See `mechpy.composites` documentation for relevant assumptions.
 
 TODO:
 -----
 * [ ] Create is_balanced() method
 * [ ] create functions to import Lamina and Laminate properties from Nastran
-      BDF
-* [ ] create methods to calculate failure indices for Laminate
+  BDF
 * [ ] figure out a way to update Laminate when a Lamina property is changed
 * [ ] fix calculations for effective laminate properties
 * [ ] reorganize properties and setters to be adjacent
@@ -24,14 +16,13 @@ TODO:
 
 from .lamina import Lamina, Ply
 import numpy as np
-from numpy import array, hstack, vsplit, vstack, zeros
+from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 
 
 class Laminate(dict):
-    """
-    Laminate(*plies)
+    """Laminate(*plies)
 
     A composite laminate made up of multiple orthotropic lamina objects.
 
@@ -47,56 +38,28 @@ class Laminate(dict):
     ----------
     t : float
         total thickness of the laminate
-    layup : list of int or list of float
-        laminate stacking sequence
     dT : int or float
         change in temperature
     dM : int or float
         change in moisture
-    N_m : numpy.array_like
-        mechanical running load
-    N_t : numpy.array_like
-        thermal running load
-    N_h : numpy.array_like
-        hygral (moisture) running load
-    M_m : numpy.array_like
-        mechanical running moment
-    M_t : numpy.array_like
-        thermal running moment
-    M_h : numpy.array_like
-        hygral (moisture) running moment
-    E1_eff : float
-        effective laminate modulus in the x-direction
-    E2_eff : float
-        effective laminate modulus in the y-direction
-    G12_eff : float
-        effective shear modulus in the xy-plane
-    e_0 : numpy.array_like
-        total laminate midplane strain
-    e_0m : numpy.array_like
-        laminate midplane strain due to mechanical loading
-    e_0t : numpy.array_like
-        laminate midplane strain due to thermal effects
-    e_0h : numpy.array_like
-        laminate midplane strain due to hygral effects
-    k_0 : numpy.array_like
-        total laminate midplane curvature
-    k_0m : numpy.array_like
-        laminate midplane curvature due to mechanical loading
-    k_0t : numpy.array_like
-        laminate midplane curvature due to thermal effects
-    k_0h : numpy.array_like
-        laminate midplane curvature due to hygral effects
-
-    Methods
-    -------
+    N_m, N_t, N_h : 3x1 numpy.array_like
+        mechanical, thermal, and hygral running loads
+    M_m, M_t, M_h : 3x1 numpy.array_like
+        mechanical, thermal, and hygral running moments
+    Ex, Ey, Gxy : float
+        effective laminate moduli
+    e_0m, e_0t, e_0h : 3x1 numpy.array_like
+        laminate midplane strain due to mechanical, thermal, and hygral loading
+    k_0m, k_0t, k_0h : numpy.array_like
+        laminate midplane curvature due to mechanical, thermal, and hygral
+        loading
 
     """
 
     # lists of attributes for method filtering
     __name__ = 'Laminate'
     __baseattr__ = ['dT', 'dM', 'N_m', 'M_m']
-    __calcattr__ = ['N_t', 'N_h', 'M_t', 'M_h', 'E1_eff', 'E2_eff', 'G12_eff',
+    __calcattr__ = ['N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy',
                     'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B',
                     'D', 't']
     __slots__ = __baseattr__ + __calcattr__ + ['__locked']
@@ -124,12 +87,6 @@ class Laminate(dict):
 
     @__unlock
     def __init__(self, *plies):
-        """Initialize with a list of Lamina or Ply objects.
-
-        Accepts a series of Lamina or Ply objects or a single string calling
-        out the filepath to a csv file containg all the laminate data.
-        """
-
         # create and zero out all properties needed for .__update()
         self.clear()
 
@@ -148,8 +105,6 @@ class Laminate(dict):
             self.__update()
 
     def __setattr__(self, attr, val):
-        """Set attribute."""
-
         if self.__locked:
             # udpate laminate after updated properties are set
             if attr in self.__baseattr__:
@@ -165,12 +120,10 @@ class Laminate(dict):
             super().__setattr__(attr, val)
 
     def __delitem__(self, key):
-        """Delete a ply."""
         super().__delitem__(key)
         self.__update()
 
     def __setitem__(self, key, new_ply):
-        """Set a specific ply to a new Lamina at the requested index."""
         if key in self:
             new_ply = self.check_ply(new_ply)
             super().__setitem__(key, new_ply)
@@ -182,7 +135,6 @@ class Laminate(dict):
             )
 
     def __repr__(self):
-        """Set the representation of the laminate."""
         return "Laminate layup: " + self.layup.__repr__()
 
     @__unlock
@@ -258,7 +210,7 @@ class Laminate(dict):
         # calculate effective laminate properties
         # NASA, Section 5
         def minor(arr, index):
-            """Calculate the minor of a matrix."""
+            # Calculate the minor of the matrix for the given index
             return np.delete(
                 np.delete(arr, index[0], axis=0), index[1], axis=1
             )
@@ -267,40 +219,65 @@ class Laminate(dict):
         # NASA, Eq. 84
         numer = det(self.ABD)
         denom = det(minor(self.ABD, (0, 0)))
-        self.E1_eff = (numer / denom) / self.t
+        self.Ex = (numer / denom) / self.t
 
         # NASA, Eq. 85
         denom = det(minor(self.ABD, (1, 1)))
-        self.E2_eff = (numer / denom) / self.t
+        self.Ey = (numer / denom) / self.t
 
         # NASA, Eq. 86
         denom = det(minor(self.ABD, (2, 2)))
-        self.G12_eff = (numer / denom) / self.t
+        self.Gxy = (numer / denom) / self.t
 
-    def append(self, newPly):
-        """Add a new ply to the Laminate.
+    def append(self, new_ply):
+        """Add a new ply to the `Laminate`.
 
+        Parameters
+        ----------
+        new_ply : `Lamina` or `Ply`
+            the ply to be added to the laminate
+
+        Notes
+        -----
         Added plies are assumed to be placed on TOP SURFACE of existing
         laminate.
+
         """
 
-        newPly = self.check_ply(newPly)
-        super().__setitem__(len(self)+1, newPly)
+        new_ply = self.check_ply(new_ply)
+        super().__setitem__(len(self)+1, new_ply)
         self.__update()
 
-    def check_ply(self, ply):
-        """Check if value is a ply and raises error if not."""
+    def check_ply(self, obj):
+        """Check if object is a `Ply` or `Lamina` object.
 
-        if type(ply) == Ply:
+        Parameters
+        ----------
+        obj : any
+            the object to be type checked
+
+        Returns
+        -------
+            Ply
+                the original `Ply` or converted `Lamina` object
+
+        Raises
+        ------
+            TypeError
+                if `obj` is neither a `Ply` or `Lamina` object
+
+        """
+
+        if type(obj) == Ply:
             pass
-        elif ply.laminate != self:
-            super(Ply, ply).__setattr__('laminate', self)
-        elif type(ply) == Lamina:
-            ply = Ply.new_from_lamina(ply, laminate=self)
+        elif obj.laminate != self:
+            super(Ply, obj).__setattr__('laminate', self)
+        elif type(obj) == Lamina:
+            obj = Ply.new_from_lamina(obj, laminate=self, theta=0)
         else:
             raise TypeError("Laminates may only contain Ply or Lamina objects")
 
-        return ply
+        return obj
 
     @__unlock
     def clear(self):
@@ -318,9 +295,9 @@ class Laminate(dict):
         self.M_t = zeros((3, 1))
         self.N_h = zeros((3, 1))
         self.M_h = zeros((3, 1))
-        self.E1_eff = 0
-        self.E2_eff = 0
-        self.G12_eff = 0
+        self.Ex = 0
+        self.Ey = 0
+        self.Gxy = 0
         super().clear()
 
     def from_csv(self, inputFile, append=False):
@@ -329,29 +306,26 @@ class Laminate(dict):
         Parameters
         ----------
         inputFile : string
-            file path to CSV file; the CSV must have headers:
-                't' = thickness
-                'theta' = angle of ply relative to laminate
-                'E1' = modulus in lamina 1-direction
-                'E2' = modulus in lamina 2-direction
-                'nu12' = Poisson's ratio
-                'G12' = shear modulus
-                'a11' = coeff. of thermal expansion in 1-direction
-                'a22' = coeff. of thermal expansion in 2-direction
-                'b11' = coeff. of hygral expansion in 1-direction
-                'b22' = coeff. of hygral expansion in 1-direction
-        append : bool
-            Flag indicating whether to clear the laminate before adding plies
-            from the input file.
-
-        Returns
-        -------
-        None
+            file path to CSV file
+        append : bool, optional
+            flag indicating whether to clear the laminate before adding plies
+            from the input file; default is ``False``
 
         Notes
         -----
         The CSV is assumed to have the plies listed in ascending order (i.e.
-        the bottom ply is listed first).
+        the bottom ply is listed first) and must have the following headers:
+
+        |     ``t`` = thickness
+        |     ``theta`` = angle of ply relative to laminate
+        |     ``E1`` = modulus in lamina 1-direction
+        |     ``E2`` = modulus in lamina 2-direction
+        |     ``nu12`` = Poisson's ratio
+        |     ``G12`` = shear modulus
+        |     ``a11`` = coeff. of thermal expansion in 1-direction
+        |     ``a22`` = coeff. of thermal expansion in 2-direction
+        |     ``b11`` = coeff. of hygral expansion in 1-direction
+        |     ``b22`` = coeff. of hygral expansion in 1-direction
 
         """
 
@@ -376,11 +350,29 @@ class Laminate(dict):
 
         self.__update()
 
-    def pop(self, key, renumber=True):
-        """Remove item from Laminate and return Ply."""
+    def pop(self, key, renumber=True, as_lamina=False):
+        """Remove item from Laminate and return Ply.
+
+        Parameters
+        ----------
+        key : int
+            index of the ply to be removed and returned
+        renumber : bool, optional
+            If True, renumber remaining plies. (``default=True``)
+        as_lamina : bool, optional
+            If True, return the ply as a ``Lamina`` object, otherwise, return
+            as a ``Ply`` object. (``default=False``)
+
+        Returns
+        -------
+        Ply : Ply or Lamina
+            Description of returned object.
+
+        """
         p = super().pop(key)
+
+        # renumber the remaining plies
         if renumber:
-            ids = [i for i in sorted(self)]
             plies = [self[i] for i in sorted(self)]
             self.clear()
 
@@ -388,8 +380,19 @@ class Laminate(dict):
                 super().__setitem__(i+1, plies[i])
 
         self.__update()
-        return p
 
+        if not as_lamina:
+            return p
+        else:
+            return Lamina(p.t,
+                          p.E1,
+                          p.E2,
+                          p.nu12,
+                          p.G12,
+                          p.a11,
+                          p.a22,
+                          p.b11,
+                          p.b22)
 
     def flip(self):
         """Flip the stacking sequence of the Lamina."""
@@ -423,7 +426,7 @@ class Laminate(dict):
 
     @property
     def ABD(self):
-        """ABD matrix."""
+        """The laminate ABD matrix."""
         return vstack((hstack((self.A, self.B)),
                        hstack((self.B, self.D))))
 

@@ -3,7 +3,6 @@
 *.pyc
 .ropeproject
 .vscode
-build
 dist
 installed_files.txt
 *egg-info

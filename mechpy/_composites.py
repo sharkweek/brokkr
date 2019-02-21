@@ -1,18 +1,28 @@
-"""This module defines the Lamina class for use with mechpy.
+"""Tools for composite laminates.
 
 Notes
 -----
-See `mechpy.composites` documentation for relevant assumptions.
+All calculations are performed by using classical laminate theory (CLT) under
+the following assumptions:
 
-TODO:
------
-* [ ] add functionality to register laminate property to forwad updates to
-  Laminate classes
-* [ ] add error checking for attribute types
-* [ ] add a property for the compliance matrix Sk
-* [ ] add failure indeces
-* [ ] remove laminate orientation calculations and have them be returned as
-  calculated properties
+* Lamina are generally orthotropic.
+* Lamina properties and values are assumed to be in the lamina coordinate
+  system (i.e. 12-plane).
+* Lamina angles (`Lamina.theta`) are in degrees, measured from the laminate
+  x-axis to the lamina 1-axis.
+* The laminate z-direction is upward, away from the bottom surface.
+* Reported strain values are in engineering strain.
+* All loads and moments are running values supplied as force or moment per unit
+  width.
+* Unit systems are consistent (i.e. SI, US, or Imperial).
+* Equations and symbol conventions are per NASA-RP-1351 'Basic Mechanics of
+  Laminated Composite Plates' and Jones' 'Mechanics Of Composite Materials'.
+
+References
+----------
+.. [1] NASA-RP-1351, "Basic Mechanics of Laminated Composite Plates"
+.. [2] Jones, Robert M. "Mechanics Of Composite Materials"
+
 """
 
 from numpy import array, zeros
@@ -21,8 +31,7 @@ from math import isnan, cos, sin, radians
 
 
 class Lamina:
-    """Lamina(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-    ftype='strain')
+    """Lamina(t, E1, E2, nu12, G12, a11, a22, b11, b22)
 
     An individual lamina.
 
@@ -40,18 +49,13 @@ class Lamina:
     b11, b22 : float
         coefficients of hygral expansion (CTE) in the lamina 1- and 3-
         directions
-    F1, F2, F12 : float
-        lamina strengths in each direction
-    ftype : {'strain', 'stress'}
-        lamina strength type
+
     """
 
     __name__ = 'Lamina'
-    __slots__ = ['t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22',
-                 'F1', 'F2', 'F12', 'ftype']
+    __slots__ = ['t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22']
 
-    def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1,
-                 F12=1, ftype='strain'):
+    def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22):
         self.t = t
         self.E1 = E1
         self.E2 = E2
@@ -61,10 +65,6 @@ class Lamina:
         self.a22 = a22
         self.b11 = b11
         self.b22 = b22
-        self.F1 = F1
-        self.F2 = F2
-        self.F12 = F12
-        self.ftype = ftype
 
     @property
     def is_fully_defined(self):
@@ -85,8 +85,7 @@ class Lamina:
 
 
 class Ply(Lamina):
-    """Ply(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-    ftype='strain')
+    """Ply(t, E1, E2, nu12, G12, a11, a22, b11, b22)
 
     A Ply for use in a Laminate.
 
@@ -94,7 +93,7 @@ class Ply(Lamina):
     ----------
     laminate : Laminate
         the Laminate object the Ply belongs to
-    t, E1, E2, nu12, G12, a11, a22, b11, F1, F2, F12, ftype
+    t, E1, E2, nu12, G12, a11, a22, b11
         See ``Lamina`` attribute definitions
     theta : float
         the angle the Ply is oriented in w.r.t. the Laminate coordinate system
@@ -132,7 +131,7 @@ class Ply(Lamina):
       """
 
     __name__ = 'Ply'
-    __baseattr__ = Lamina.__slots__ + ['theta', 'z']
+    __baseattr__ = Lamina.__slots__ + ['theta', 'F', 'z']
     __calcattr__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 'e_m', 'laminate']
     __slots__ = __baseattr__ + __calcattr__ + ['__locked']
 
@@ -159,7 +158,7 @@ class Ply(Lamina):
 
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
-                 b22, F1=1, F2=1, F12=1, ftype='strain'):
+                 b22):
         self.laminate = laminate
         self.z = 0
         self.theta = theta
@@ -167,8 +166,7 @@ class Ply(Lamina):
         self.e_t = zeros((3, 1))
         self.e_h = zeros((3, 1))
 
-        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
-                         ftype)
+        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22)
         self.__update()
 
     def __setattr__(self, attr, val):
@@ -225,7 +223,9 @@ class Ply(Lamina):
         self.e_h = array([[self.b11], [self.b22], [0]]) * self.laminate.dM
 
     @staticmethod
-    def new_from_lamina(lamina, laminate, theta):
+    def new_from_lamina(lamina,
+                        laminate,
+                        theta):
         """Create a new Ply object from a Lamina object.
 
         Parameters
@@ -253,11 +253,7 @@ class Ply(Lamina):
                    a11=lamina.a11,
                    a22=lamina.a22,
                    b11=lamina.b11,
-                   b22=lamina.b22,
-                   F1=lamina.F1,
-                   F2=lamina.F2,
-                   F12=lamina.F12,
-                   ftype=lamina.ftype)
+                   b22=lamina.b22)
 
     @property
     def zk(self):
@@ -290,7 +286,7 @@ class Ply(Lamina):
         """Total strain."""
         return self.e_m + self.e_t + self.e_h
 
-    def failure_index(self, theory='strain', index=False):
+    def failure_index(self, theory='strain'):
         r"""Return the failure index for the given failure theory.
 
         A ply is considered to fail if the failure index for an applied load
@@ -299,17 +295,15 @@ class Ply(Lamina):
 
         .. math:: \mathrm{MS} = \frac{\mathrm{1}}{\mathrm{FI}} - 1
 
-        where :math:`\mathrm{MS}` is the margin of safety, and
-        :math:`\mathrm{FI}` is the failure index.
+        where :math:`\mathrm{MS}` is the margin of safety, and :math:
+        `\mathrm{FI}` is the failure index.
 
         Parameters
         ----------
         theory : {'strain', 'stress', 'Tsai-Hill', 'Tsai-Wu', 'Hoffman'}
             Failure theory for which to calculate a margin of safety.
-            (``default='strain'``)
         index : bool
-            Flag to return failure index instead of margin of safety.
-            (``default=False``)
+            Flag to return failure index instead of margin of safety
 
         Returns
         -------
