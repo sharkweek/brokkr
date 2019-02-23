@@ -11,8 +11,6 @@ Module contents
 Submodules
 ----------
 
-.. automodule:: composites.lamina
-
 .. autoclass:: Lamina
     :members:
     :show-inheritance:
@@ -20,8 +18,6 @@ Submodules
 .. autoclass:: Ply
     :members:
     :show-inheritance:
-
-.. automodule:: composites.laminate
 
 .. autoclass:: Laminate
     :members:

@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'numpy',
         'pandas',
-        'pint'
+        'unyt'
     ],
     python_requires='>=3.5'
 )

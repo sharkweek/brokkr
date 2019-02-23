@@ -14,7 +14,7 @@ TODO:
 * [ ] reorganize properties and setters to be adjacent
 """
 
-from .lamina import Lamina, Ply
+from ._lamina import Lamina, Ply
 import numpy as np
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
@@ -22,9 +22,11 @@ import pandas as pd
 
 
 class Laminate(dict):
-    """Laminate(*plies)
+    """A composite laminate made up of multiple orthotropic lamina objects.
 
-    A composite laminate made up of multiple orthotropic lamina objects.
+    ``Laminate`` instances contain ``Ply`` instances and used for calculating
+    the effects on individual lamina in a laminate stackup. All calculations
+    adhere to classical laminate theory (CLT).
 
     Parameters
     ----------
@@ -161,6 +163,8 @@ class Laminate(dict):
 
         for i in self:
             ply = self[i]
+            ply._Ply__update()  # force ply to update
+
             # NASA-RP-1351, Eq (45) through (47)
             self.A += ply.Qbar * (ply.t)
             self.B += (1/2) * ply.Qbar * (ply.zk**2 - ply.zk1**2)
@@ -168,7 +172,6 @@ class Laminate(dict):
 
             # thermal running loads
             # NASA-RP-1351, Eq (92)
-            ply._Ply__update()  # force ply to update
             self.N_t += (ply.Qbar @ ply.e_tbar) * (ply.zk - ply.zk1)
             self.M_t += (ply.Qbar @ ply.e_tbar) * (ply.zk**2 - ply.zk1**2)/2
 
@@ -205,7 +208,9 @@ class Laminate(dict):
         # Jones, Eq (4.13)
         for ply in self:
             e_m = self[ply].T @ (self.e_0m + self[ply].z * self.k_0m)
+            s_m = self[ply].Q @ e_m
             super(Ply, self[ply]).__setattr__('e_m', e_m)
+            super(Ply, self[ply]).__setattr__('s_m', s_m)
 
         # calculate effective laminate properties
         # NASA, Section 5

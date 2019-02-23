@@ -9,7 +9,7 @@ Welcome to mechpy's documentation!
 Contents
 --------
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Table of Contents
 
    bolted_joints

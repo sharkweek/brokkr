@@ -62,13 +62,12 @@ class Strain(ndarray):
     """
 
     def __new__(cls, *strains, stype='engr'):
-        
+
         # make sure six values are given
         try:
             new = array(strains).flatten().reshape(6, 1).view(cls)
         except ValueError:
             print("`strains` must be six values or else a 6x1 array-like obj")
-
 
         # assign strain type
         if stype != 'engr' and stype != 'tens':
@@ -77,18 +76,6 @@ class Strain(ndarray):
             new.__stype = stype
 
         return ndarray.__new__(cls, shape=new.shape, dtype=new.dtype)
-
-    def __array_finalize__(self, new):
-        if new is None:
-            return
-
-        try:
-            self.resize((6, 1))
-        except:
-            raise ValueError("`strains` must be 6 values or a 6x1 array-like obj")
-
-        # set default values for new attribute
-        self.__stype = getattr(new, '__stype', 'engr')
 
     @property
     def stype(self):

@@ -82,11 +82,7 @@
 <li class="toctree-l1"><a class="reference internal" href="bolted_joints.html">bolted_joints package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">composites</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-composites">Module contents</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-composites.lamina">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#todo">TODO:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">TODO:</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
 </ul>
 </li>
 </ul>
@@ -165,15 +161,16 @@ the following assumptions:</p>
 <li>Lamina are generally orthotropic.</li>
 <li>Lamina properties and values are assumed to be in the lamina coordinate
 system (i.e. 12-plane).</li>
-<li>Lamina angles (<cite>Lamina.theta</cite>) are in degrees, measured from the laminate
+<li>Lamina angles (<code class="docutils literal notranslate"><span class="pre">Lamina.theta</span></code>) are in degrees, measured from the laminate
 x-axis to the lamina 1-axis.</li>
 <li>The laminate z-direction is upward, away from the bottom surface.</li>
 <li>Reported strain values are in engineering strain.</li>
 <li>All loads and moments are running values supplied as force or moment per unit
 width.</li>
 <li>Unit systems are consistent (i.e. SI, US, or Imperial).</li>
-<li>Equations and symbol conventions are per NASA-RP-1351 ‘Basic Mechanics of
-Laminated Composite Plates’ and Jones’ ‘Mechanics Of Composite Materials’.</li>
+<li>Equations and symbol conventions are per NASA-RP-1351 <em>Basic Mechanics of
+Laminated Composite Plates</em> and R.M. Jones’ <em>Mechanics Of Composite
+Materials</em>.</li>
 </ul>
 <p class="rubric">References</p>
 <table class="docutils footnote" frame="void" id="id1" rules="none">
@@ -189,33 +186,19 @@ Laminated Composite Plates’ and Jones’ ‘Mechanics Of Composite Materials�
 </tbody>
 </table>
 </div>
-<div class="section" id="module-composites.lamina">
-<span id="submodules"></span><h2>Submodules<a class="headerlink" href="#module-composites.lamina" title="Permalink to this headline">¶</a></h2>
-<p>This module defines the Lamina class for use with mechpy.</p>
-<p class="rubric">Notes</p>
-<p>See <cite>mechpy.composites</cite> documentation for relevant assumptions.</p>
-<div class="section" id="todo">
-<h3>TODO:<a class="headerlink" href="#todo" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>[ ] add functionality to register laminate property to forwad updates to
-Laminate classes</li>
-<li>[ ] add error checking for attribute types</li>
-<li>[ ] add a property for the compliance matrix Sk</li>
-<li>[ ] add failure indeces</li>
-<li>[ ] remove laminate orientation calculations and have them be returned as
-calculated properties</li>
-</ul>
-</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="composites.lamina.Lamina">
-<em class="property">class </em><code class="descclassname">composites.lamina.</code><code class="descname">Lamina</code><span class="sig-paren">(</span><em>t</em>, <em>E1</em>, <em>E2</em>, <em>nu12</em>, <em>G12</em>, <em>a11</em>, <em>a22</em>, <em>b11</em>, <em>b22</em>, <em>F1=1</em>, <em>F2=1</em>, <em>F12=1</em>, <em>ftype='strain'</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.lamina.Lamina" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Lamina">
+<em class="property">class </em><code class="descclassname">composites.</code><code class="descname">Lamina</code><span class="sig-paren">(</span><em>t</em>, <em>E1</em>, <em>E2</em>, <em>nu12</em>, <em>G12</em>, <em>a11</em>, <em>a22</em>, <em>b11</em>, <em>b22</em>, <em>F1=1</em>, <em>F2=1</em>, <em>F12=1</em>, <em>ftype='strain'</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Lamina" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Lamina(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-ftype=’strain’)</p>
 <p>An individual lamina.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for material property assignment. To consider
+loading, thermal effects, or deflection, see the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> and <code class="docutils literal notranslate"><span class="pre">Laminate</span></code>
+classes.</p>
 <dl class="attribute">
-<dt id="composites.lamina.Lamina.t">
-<code class="descname">t</code><a class="headerlink" href="#composites.lamina.Lamina.t" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Lamina.t">
+<code class="descname">t</code><a class="headerlink" href="#composites.Lamina.t" title="Permalink to this definition">¶</a></dt>
 <dd><p>lamina thickness</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -242,8 +225,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Lamina.nu12">
-<code class="descname">nu12</code><a class="headerlink" href="#composites.lamina.Lamina.nu12" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Lamina.nu12">
+<code class="descname">nu12</code><a class="headerlink" href="#composites.Lamina.nu12" title="Permalink to this definition">¶</a></dt>
 <dd><p>Poisson’s ratio in the 12-plane</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -300,8 +283,8 @@ directions</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Lamina.ftype">
-<code class="descname">ftype</code><a class="headerlink" href="#composites.lamina.Lamina.ftype" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Lamina.ftype">
+<code class="descname">ftype</code><a class="headerlink" href="#composites.Lamina.ftype" title="Permalink to this definition">¶</a></dt>
 <dd><p>lamina strength type</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -314,29 +297,53 @@ directions</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Lamina.is_fully_defined">
-<code class="descname">is_fully_defined</code><a class="headerlink" href="#composites.lamina.Lamina.is_fully_defined" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Lamina.is_fully_defined">
+<code class="descname">is_fully_defined</code><a class="headerlink" href="#composites.Lamina.is_fully_defined" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if lamina is fully defined with proper attr data types.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="composites.lamina.Ply">
-<em class="property">class </em><code class="descclassname">composites.lamina.</code><code class="descname">Ply</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.lamina.Ply" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#composites.lamina.Lamina" title="composites.lamina.Lamina"><code class="xref py py-class docutils literal notranslate"><span class="pre">composites.lamina.Lamina</span></code></a></p>
-<p>Ply(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-ftype=’strain’)</p>
+<dt id="composites.Ply">
+<em class="property">class </em><code class="descclassname">composites.</code><code class="descname">Ply</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Ply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">composites._lamina.Lamina</span></code></p>
 <p>A Ply for use in a Laminate.</p>
+<p>Extended <code class="docutils literal notranslate"><span class="pre">Lamina</span></code>. While the <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for defining
+material properties, the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> class is intended to extend its
+functionality further for considering loading and thermal effects. <code class="docutils literal notranslate"><span class="pre">Ply</span></code>
+instances may exist on their own, but they are intended to function as
+constituent items of a <code class="docutils literal notranslate"><span class="pre">Laminate</span></code>.</p>
+<div class="line-block">
+<div class="line"><strong>Attribute Types</strong></div>
+<div class="line">Not all attributes of are able to be directly modified. Attributes are
+divided into ‘base’ and ‘calculated’ values categories and are
+prescribed by the class attributes <code class="docutils literal notranslate"><span class="pre">__baseattr__</span></code> and
+<code class="docutils literal notranslate"><span class="pre">__calcattr__</span></code>, respectively. Base attributes may be set freely,
+while calculated attributes are ‘locked’ and updated based on the
+values of base attributes.</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>Assumptions</strong></div>
+<div class="line">The following assumptions apply to all Ply objects:</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li>Ply z, zk, and zk1 are all measured assuming that positive is upward,
+TOWARD the top surface of the laminate.</li>
+<li>Theta is in degrees, measured from the laminate x-axis to the lamina
+1- axis.</li>
+</ul>
+</div></blockquote>
 <dl class="attribute">
-<dt id="composites.lamina.Ply.laminate">
-<code class="descname">laminate</code><a class="headerlink" href="#composites.lamina.Ply.laminate" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.laminate">
+<code class="descname">laminate</code><a class="headerlink" href="#composites.Ply.laminate" title="Permalink to this definition">¶</a></dt>
 <dd><p>the Laminate object the Ply belongs to</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#composites.laminate.Laminate" title="composites.laminate.Laminate">Laminate</a></td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#composites.Laminate" title="composites.Laminate">Laminate</a></td>
 </tr>
 </tbody>
 </table>
@@ -349,8 +356,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.theta">
-<code class="descname">theta</code><a class="headerlink" href="#composites.lamina.Ply.theta" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.theta">
+<code class="descname">theta</code><a class="headerlink" href="#composites.Ply.theta" title="Permalink to this definition">¶</a></dt>
 <dd><p>the angle the Ply is oriented in w.r.t. the Laminate coordinate system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -363,8 +370,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.Q">
-<code class="descname">Q</code><a class="headerlink" href="#composites.lamina.Ply.Q" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.Q">
+<code class="descname">Q</code><a class="headerlink" href="#composites.Ply.Q" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ply stiffness matrix in the Ply coordinate system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -377,8 +384,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.Qbar">
-<code class="descname">Qbar</code><a class="headerlink" href="#composites.lamina.Ply.Qbar" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.Qbar">
+<code class="descname">Qbar</code><a class="headerlink" href="#composites.Ply.Qbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ply stiffness matrix in the Laminate coordinate system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -391,8 +398,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.T">
-<code class="descname">T</code><a class="headerlink" href="#composites.lamina.Ply.T" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.T">
+<code class="descname">T</code><a class="headerlink" href="#composites.Ply.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ply transformation matrix</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -405,8 +412,8 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.Tinv">
-<code class="descname">Tinv</code><a class="headerlink" href="#composites.lamina.Ply.Tinv" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.Tinv">
+<code class="descname">Tinv</code><a class="headerlink" href="#composites.Ply.Tinv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse of the Ply transformation matrix</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -433,8 +440,22 @@ ftype=’strain’)</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.z">
-<code class="descname">z</code><a class="headerlink" href="#composites.lamina.Ply.z" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">s_m, s_t, s_h</code></dt>
+<dd><p>Ply stresses due to mechanical, thermal, and hygral loading</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="composites.Ply.z">
+<code class="descname">z</code><a class="headerlink" href="#composites.Ply.z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vertical location of the ply midplane in the laminate</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -446,64 +467,41 @@ ftype=’strain’)</p>
 </table>
 </dd></dl>
 
-<p class="rubric">Notes</p>
-<p><strong>Attribute Types</strong>
-Not all attributes of are able to be directly modified. Attributes are
-divided into ‘base’ and ‘calculated’ values categories and are prescribed
-by the class attributes <code class="docutils literal notranslate"><span class="pre">__baseattr__</span></code> and <code class="docutils literal notranslate"><span class="pre">__calcattr__</span></code>,
-respectively. Base attributes may be set freely, while calculated
-attributes are ‘locked’ and updated based on the values of base attributes.</p>
-<p><strong>Assumptions</strong>
-The following assumptions apply to all Ply objects:</p>
-<ul class="simple">
-<li>All Lamina object assumptions apply.</li>
-<li>Ply z, zk, and zk1 are all measured assuming that positive is upward,
-TOWARD the top surface of the laminate.</li>
-<li>Theta is in degrees, measured from the laminate x-axis to the lamina 1-
-axis.</li>
-</ul>
 <dl class="attribute">
-<dt id="composites.lamina.Ply.e">
-<code class="descname">e</code><a class="headerlink" href="#composites.lamina.Ply.e" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.e">
+<code class="descname">e</code><a class="headerlink" href="#composites.Ply.e" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total strain.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.e_hbar">
-<code class="descname">e_hbar</code><a class="headerlink" href="#composites.lamina.Ply.e_hbar" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.e_hbar">
+<code class="descname">e_hbar</code><a class="headerlink" href="#composites.Ply.e_hbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformed hygral strain.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.e_tbar">
-<code class="descname">e_tbar</code><a class="headerlink" href="#composites.lamina.Ply.e_tbar" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.e_tbar">
+<code class="descname">e_tbar</code><a class="headerlink" href="#composites.Ply.e_tbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transformed thermal strain.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.lamina.Ply.failure_index">
-<code class="descname">failure_index</code><span class="sig-paren">(</span><em>theory='strain'</em>, <em>index=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.lamina.Ply.failure_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the failure index for the given failure theory.</p>
-<p>A ply is considered to fail if the failure index for an applied load
-is equal to or greater than one. The margin of safety for a ply is
-calculated using the failure index and the following equation:</p>
-<div class="math notranslate nohighlight">
-\[\mathrm{MS} = \frac{\mathrm{1}}{\mathrm{FI}} - 1\]</div>
-<p>where <span class="math notranslate nohighlight">\(\mathrm{MS}\)</span> is the margin of safety, and
-<span class="math notranslate nohighlight">\(\mathrm{FI}\)</span> is the failure index.</p>
+<dt id="composites.Ply.failure_index">
+<code class="descname">failure_index</code><span class="sig-paren">(</span><em>theory='strain'</em>, <em>margin=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Ply.failure_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the failure index for a given failure theory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>theory</strong> (<em>{'strain'</em><em>, </em><em>'stress'</em><em>, </em><em>'Tsai-Hill'</em><em>, </em><em>'Tsai-Wu'</em><em>, </em><em>'Hoffman'}</em>) – Failure theory for which to calculate a margin of safety.
+<li><strong>theory</strong> (<em>{'strain'</em><em>, </em><em>'stress'</em><em>, </em><em>'Tsai-Hill'}</em>) – failure theory for which to calculate a failure index
 (<code class="docutils literal notranslate"><span class="pre">default='strain'</span></code>)</li>
-<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Flag to return failure index instead of margin of safety.
+<li><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If true, return a margin of safety.
 (<code class="docutils literal notranslate"><span class="pre">default=False</span></code>)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The margin of safety (default) or the failure index</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The failure index (default) or the margin of safety</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
@@ -512,50 +510,51 @@ calculated using the failure index and the following equation:</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>Failure theories are defined by the following relationships:</p>
+<p>A ply is considered to fail if the failure index for an applied load
+is equal to or greater than one. The margin of safety for a ply is
+calculated using the failure index and the following equation:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{MS} = \frac{\mathrm{1}}{\mathrm{FI}} - 1\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathrm{MS}\)</span> is the margin of safety, and
+<span class="math notranslate nohighlight">\(\mathrm{FI}\)</span> is the failure index.Failure indicies for each
+failure theory are calculated according to
+the following equations:</p>
 <p>Max strain (<code class="docutils literal notranslate"><span class="pre">theory='strain'</span></code>):</p>
 <div class="math notranslate nohighlight">
-\[\frac{\varepsilon_1}{F_1} = 1,\quad
-\frac{\varepsilon_2}{F_2} = 1,\quad
-\frac{\gamma_{12}}{F_{12}} = 1\]</div>
+\[\mathrm{FI} = \mathrm{min}
+\left( \frac{\varepsilon_1}{F_1},\quad
+\frac{\varepsilon_2}{F_2},\quad
+\frac{\gamma_{12}}{F_{12}} \right)\]</div>
 <p>Max stress (<code class="docutils literal notranslate"><span class="pre">theory='stress'</span></code>):</p>
 <div class="math notranslate nohighlight">
-\[\frac{\sigma_1}{F_1} = 1,\quad
+\[\mathrm{FI} = \mathrm{min}
+\left( \frac{\sigma_1}{F_1} = 1,\quad
 \frac{\sigma_2}{F_2} = 1,\quad
-\frac{\tau_{12}}{F_{12}} = 1\]</div>
+\frac{\tau_{12}}{F_{12}} \right)\]</div>
 <p>Tsai-Hill (<code class="docutils literal notranslate"><span class="pre">theory='Tsai-Hill'</span></code>):</p>
 <div class="math notranslate nohighlight">
-\[(\frac{\sigma_1}{F_1})^2 + (\frac{\sigma_2}{F_2})^2
-+ (\frac{\tau_{12}}{F_{12}})^2
-- \frac{\sigma_1 \sigma_2}{F_1^2} = 1\]</div>
-<p>Modified Tsai-Wu (<code class="docutils literal notranslate"><span class="pre">theory='Tsai-Wu'</span></code>):</p>
-<div class="math notranslate nohighlight">
-\[\frac{\sigma_1^2}{F_1^t F_1^c}
-+ \frac{\sigma_2^2}{F_2^t F_2^c}
-+ (\frac{1}{F_1^t} - \frac{1}{F_1^c}) \sigma_1
-+ (\frac{1}{F_2^t} - \frac{1}{F_2^c}) \sigma_2
-+ \frac{\tau_{12}^2}{F_{12}^2} = 1\]</div>
-<p>Hoffman(<code class="docutils literal notranslate"><span class="pre">theory='Hoffman'</span></code>):</p>
-<div class="math notranslate nohighlight">
-\[\frac{\sigma_1^2}{F_1^t F_1^c}
-+ \frac{\sigma_2^2}{F_2^t F_2^c}
-- \frac{\sigma_1 \sigma_2}{F_1^t F_1^c}
-+ (\frac{F_1^c - F_1^t}{F_1^t F_1^c}) \sigma_1
-+ (\frac{F_2^c - F_2^t}{F_2^t F_2^c}) \sigma_2
-+ \frac{\tau_{12}^2}{F_{12}^2} = 1\]</div>
+\[\mathrm{FI} = \left( \frac{\sigma_1}{F_1} \right)^{2}
++ \left( \frac{\sigma_2}{F_2} \right)^{2}
++ \left( \frac{\tau_{12}}{F_{12}} \right)^{2}
+- \frac{\sigma_1 \sigma_2}{F_1^2}\]</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Modified Tsai-Wu and Hoffman criteria are not supported
+as they require separate strength values for tension and compression</p>
+</div>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="composites.lamina.Ply.new_from_lamina">
-<em class="property">static </em><code class="descname">new_from_lamina</code><span class="sig-paren">(</span><em>lamina</em>, <em>laminate</em>, <em>theta</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.lamina.Ply.new_from_lamina" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.new_from_lamina">
+<em class="property">static </em><code class="descname">new_from_lamina</code><span class="sig-paren">(</span><em>lamina</em>, <em>laminate</em>, <em>theta</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Ply.new_from_lamina" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Ply object from a Lamina object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lamina</strong> (<a class="reference internal" href="#composites.lamina.Lamina" title="composites.lamina.Lamina"><em>Lamina</em></a>) – Lamina object to use to create Ply</li>
-<li><strong>laminate</strong> (<a class="reference internal" href="#composites.laminate.Laminate" title="composites.laminate.Laminate"><em>Laminate</em></a>) – Laminate object the Ply belongs to</li>
+<li><strong>lamina</strong> (<a class="reference internal" href="#composites.Lamina" title="composites.Lamina"><em>Lamina</em></a>) – Lamina object to use to create Ply</li>
+<li><strong>laminate</strong> (<a class="reference internal" href="#composites.Laminate" title="composites.Laminate"><em>Laminate</em></a>) – Laminate object the Ply belongs to</li>
 <li><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Ply orientation w.r.t. the Laminate coordinate system</li>
 </ul>
 </td>
@@ -571,43 +570,38 @@ calculated using the failure index and the following equation:</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.zk">
-<code class="descname">zk</code><a class="headerlink" href="#composites.lamina.Ply.zk" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.s">
+<code class="descname">s</code><a class="headerlink" href="#composites.Ply.s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total stress.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="composites.Ply.zk">
+<code class="descname">zk</code><a class="headerlink" href="#composites.Ply.zk" title="Permalink to this definition">¶</a></dt>
 <dd><p>The vertical location of the lamina’s top plane.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.lamina.Ply.zk1">
-<code class="descname">zk1</code><a class="headerlink" href="#composites.lamina.Ply.zk1" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Ply.zk1">
+<code class="descname">zk1</code><a class="headerlink" href="#composites.Ply.zk1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The vertical location of the lamina’s bottom plane.</p>
 </dd></dl>
 
 </dd></dl>
 
-<span class="target" id="module-composites.laminate"></span><p>This module defines the Laminate class for use with mechpy.</p>
-<p class="rubric">Notes</p>
-<p>See <cite>mechpy.composites</cite> documentation for relevant assumptions.</p>
-<div class="section" id="id3">
-<h3>TODO:<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li>[ ] Create is_balanced() method</li>
-<li>[ ] create functions to import Lamina and Laminate properties from Nastran
-BDF</li>
-<li>[ ] figure out a way to update Laminate when a Lamina property is changed</li>
-<li>[ ] fix calculations for effective laminate properties</li>
-<li>[ ] reorganize properties and setters to be adjacent</li>
-</ul>
-</div>
 <dl class="class">
-<dt id="composites.laminate.Laminate">
-<em class="property">class </em><code class="descclassname">composites.laminate.</code><code class="descname">Laminate</code><span class="sig-paren">(</span><em>*plies</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate">
+<em class="property">class </em><code class="descclassname">composites.</code><code class="descname">Laminate</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 <p>A composite laminate made up of multiple orthotropic lamina objects.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Laminate</span></code> instances contain <code class="docutils literal notranslate"><span class="pre">Ply</span></code> instances and used for calculating
+the effects on individual lamina in a laminate stackup. All calculations
+adhere to classical laminate theory (CLT).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*plies</strong> (<a class="reference internal" href="#composites.lamina.Lamina" title="composites.lamina.Lamina"><em>Lamina</em></a><em>, </em><a class="reference internal" href="#composites.lamina.Ply" title="composites.lamina.Ply"><em>Ply</em></a><em>, or </em><em>string</em>) – lamina or plies that make up the laminate ordered from the bottom
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*plies</strong> (<a class="reference internal" href="#composites.Lamina" title="composites.Lamina"><em>Lamina</em></a><em>, </em><a class="reference internal" href="#composites.Ply" title="composites.Ply"><em>Ply</em></a><em>, or </em><em>string</em>) – lamina or plies that make up the laminate ordered from the bottom
 surface to the top surface. In creating the Laminate, either a
 sequence of objects or a file path to a CSV file containing all the
 appropriate data can be supplied.</td>
@@ -615,8 +609,8 @@ appropriate data can be supplied.</td>
 </tbody>
 </table>
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.t">
-<code class="descname">t</code><a class="headerlink" href="#composites.laminate.Laminate.t" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.t">
+<code class="descname">t</code><a class="headerlink" href="#composites.Laminate.t" title="Permalink to this definition">¶</a></dt>
 <dd><p>total thickness of the laminate</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -629,8 +623,8 @@ appropriate data can be supplied.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.dT">
-<code class="descname">dT</code><a class="headerlink" href="#composites.laminate.Laminate.dT" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.dT">
+<code class="descname">dT</code><a class="headerlink" href="#composites.Laminate.dT" title="Permalink to this definition">¶</a></dt>
 <dd><p>change in temperature</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -643,8 +637,8 @@ appropriate data can be supplied.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.dM">
-<code class="descname">dM</code><a class="headerlink" href="#composites.laminate.Laminate.dM" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.dM">
+<code class="descname">dM</code><a class="headerlink" href="#composites.Laminate.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>change in moisture</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -728,14 +722,14 @@ loading</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.ABD">
-<code class="descname">ABD</code><a class="headerlink" href="#composites.laminate.Laminate.ABD" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.ABD">
+<code class="descname">ABD</code><a class="headerlink" href="#composites.Laminate.ABD" title="Permalink to this definition">¶</a></dt>
 <dd><p>The laminate ABD matrix.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.laminate.Laminate.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>new_ply</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate.append" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>new_ply</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new ply to the <cite>Laminate</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -751,8 +745,8 @@ laminate.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.laminate.Laminate.check_ply">
-<code class="descname">check_ply</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate.check_ply" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.check_ply">
+<code class="descname">check_ply</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate.check_ply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if object is a <cite>Ply</cite> or <cite>Lamina</cite> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -762,7 +756,7 @@ laminate.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the original <cite>Ply</cite> or converted <cite>Lamina</cite> object</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#composites.lamina.Ply" title="composites.lamina.Ply">Ply</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#composites.Ply" title="composites.Ply">Ply</a></td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – if <cite>obj</cite> is neither a <cite>Ply</cite> or <cite>Lamina</cite> object</td>
 </tr>
@@ -771,20 +765,20 @@ laminate.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.e_0">
-<code class="descname">e_0</code><a class="headerlink" href="#composites.laminate.Laminate.e_0" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.e_0">
+<code class="descname">e_0</code><a class="headerlink" href="#composites.Laminate.e_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total midplane strain.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.laminate.Laminate.flip">
-<code class="descname">flip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate.flip" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.flip">
+<code class="descname">flip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate.flip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flip the stacking sequence of the Lamina.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.laminate.Laminate.from_csv">
-<code class="descname">from_csv</code><span class="sig-paren">(</span><em>inputFile</em>, <em>append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate.from_csv" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.from_csv">
+<code class="descname">from_csv</code><span class="sig-paren">(</span><em>inputFile</em>, <em>append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate.from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine laminate properties from input CSV file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -817,32 +811,32 @@ the bottom ply is listed first) and must have the following headers:</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.is_balanced">
-<code class="descname">is_balanced</code><a class="headerlink" href="#composites.laminate.Laminate.is_balanced" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.is_balanced">
+<code class="descname">is_balanced</code><a class="headerlink" href="#composites.Laminate.is_balanced" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if True if laminate is balanced.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.is_symmetric">
-<code class="descname">is_symmetric</code><a class="headerlink" href="#composites.laminate.Laminate.is_symmetric" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.is_symmetric">
+<code class="descname">is_symmetric</code><a class="headerlink" href="#composites.Laminate.is_symmetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if True if laminate is symmetric.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.k_0">
-<code class="descname">k_0</code><a class="headerlink" href="#composites.laminate.Laminate.k_0" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.k_0">
+<code class="descname">k_0</code><a class="headerlink" href="#composites.Laminate.k_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total laminate curvature.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="composites.laminate.Laminate.layup">
-<code class="descname">layup</code><a class="headerlink" href="#composites.laminate.Laminate.layup" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.layup">
+<code class="descname">layup</code><a class="headerlink" href="#composites.Laminate.layup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Laminate layup.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="composites.laminate.Laminate.pop">
-<code class="descname">pop</code><span class="sig-paren">(</span><em>key</em>, <em>renumber=True</em>, <em>as_lamina=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.laminate.Laminate.pop" title="Permalink to this definition">¶</a></dt>
+<dt id="composites.Laminate.pop">
+<code class="descname">pop</code><span class="sig-paren">(</span><em>key</em>, <em>renumber=True</em>, <em>as_lamina=False</em><span class="sig-paren">)</span><a class="headerlink" href="#composites.Laminate.pop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove item from Laminate and return Ply.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -859,7 +853,7 @@ as a <code class="docutils literal notranslate"><span class="pre">Ply</span></co
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Ply</strong> – Description of returned object.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#composites.lamina.Ply" title="composites.lamina.Ply">Ply</a> or <a class="reference internal" href="#composites.lamina.Lamina" title="composites.lamina.Lamina">Lamina</a></p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#composites.Ply" title="composites.Ply">Ply</a> or <a class="reference internal" href="#composites.Lamina" title="composites.Lamina">Lamina</a></p>
 </td>
 </tr>
 </tbody>

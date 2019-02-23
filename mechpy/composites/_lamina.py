@@ -21,10 +21,12 @@ from math import isnan, cos, sin, radians
 
 
 class Lamina:
-    """Lamina(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-    ftype='strain')
-
+    """
     An individual lamina.
+
+    The ``Lamina`` class exists for material property assignment. To consider
+    loading, thermal effects, or deflection, see the ``Ply`` and ``Laminate``
+    classes.
 
     Attributes
     ----------
@@ -44,6 +46,8 @@ class Lamina:
         lamina strengths in each direction
     ftype : {'strain', 'stress'}
         lamina strength type
+
+
     """
 
     __name__ = 'Lamina'
@@ -85,10 +89,30 @@ class Lamina:
 
 
 class Ply(Lamina):
-    """Ply(t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1, F12=1,
-    ftype='strain')
-
+    """
     A Ply for use in a Laminate.
+
+    Extended ``Lamina``. While the ``Lamina`` class exists for defining
+    material properties, the ``Ply`` class is intended to extend its
+    functionality further for considering loading and thermal effects. ``Ply``
+    instances may exist on their own, but they are intended to function as
+    constituent items of a ``Laminate``.
+
+    | **Attribute Types**
+    | Not all attributes of are able to be directly modified. Attributes are
+      divided into 'base' and 'calculated' values categories and are
+      prescribed by the class attributes ``__baseattr__`` and
+      ``__calcattr__``, respectively. Base attributes may be set freely,
+      while calculated attributes are 'locked' and updated based on the
+      values of base attributes.
+
+    | **Assumptions**
+    | The following assumptions apply to all Ply objects:
+
+      * Ply z, zk, and zk1 are all measured assuming that positive is upward,
+        TOWARD the top surface of the laminate.
+      * Theta is in degrees, measured from the laminate x-axis to the lamina
+        1- axis.
 
     Attributes
     ----------
@@ -108,32 +132,17 @@ class Ply(Lamina):
         Inverse of the Ply transformation matrix
     e_m, e_t, e_h : 3x1 numpy.ndarray
         Ply strains due to mechanical, thermal, and hygral loading
+    s_m, s_t, s_h : 3x1 numpy.ndarray
+        Ply stresses due to mechanical, thermal, and hygral loading
     z : float
         Vertical location of the ply midplane in the laminate
-
-    Notes
-    -----
-    **Attribute Types**
-    Not all attributes of are able to be directly modified. Attributes are
-    divided into 'base' and 'calculated' values categories and are prescribed
-    by the class attributes ``__baseattr__`` and ``__calcattr__``,
-    respectively. Base attributes may be set freely, while calculated
-    attributes are 'locked' and updated based on the values of base attributes.
-
-    **Assumptions**
-    The following assumptions apply to all Ply objects:
-
-    * All Lamina object assumptions apply.
-    * Ply z, zk, and zk1 are all measured assuming that positive is upward,
-      TOWARD the top surface of the laminate.
-    * Theta is in degrees, measured from the laminate x-axis to the lamina 1-
-      axis.
 
       """
 
     __name__ = 'Ply'
-    __baseattr__ = Lamina.__slots__ + ['theta', 'z']
-    __calcattr__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 'e_m', 'laminate']
+    __baseattr__ = Lamina.__slots__ + ['theta', 'z', 'e_m', 's_m']
+    __calcattr__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
+                    'laminate']
     __slots__ = __baseattr__ + __calcattr__ + ['__locked']
 
     def __unlock(func):
@@ -160,12 +169,16 @@ class Ply(Lamina):
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
                  b22, F1=1, F2=1, F12=1, ftype='strain'):
+        """Extend ``Lamina.__init__()`` to account for Ply-only attributes."""
         self.laminate = laminate
         self.z = 0
         self.theta = theta
         self.e_m = zeros((3, 1))
         self.e_t = zeros((3, 1))
         self.e_h = zeros((3, 1))
+        self.s_m = zeros((3, 1))
+        self.s_t = zeros((3, 1))
+        self.s_h = zeros((3, 1))
 
         super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
                          ftype)
@@ -223,6 +236,13 @@ class Ply(Lamina):
         # NASA-RP-1351 Eq (90), (91), and (95)
         self.e_t = array([[self.a11], [self.a22], [0]]) * self.laminate.dT
         self.e_h = array([[self.b11], [self.b22], [0]]) * self.laminate.dM
+
+        # thermal and hygral stresses in laminate and lamina c-systems
+        # NASA-RP-1351 Eq (90), (91), and (95)
+        self.s_t = self.Q @ self.e_t
+        self.s_h = self.Q @ self.e_h
+
+        # calculate failure index
 
     @staticmethod
     def new_from_lamina(lamina, laminate, theta):
@@ -290,9 +310,30 @@ class Ply(Lamina):
         """Total strain."""
         return self.e_m + self.e_t + self.e_h
 
-    def failure_index(self, theory='strain', index=False):
-        r"""Return the failure index for the given failure theory.
+    @property
+    def s(self):
+        """Total stress."""
+        return self.s_m + self.s_t + self.s_h
 
+    def failure_index(self, theory='strain', margin=False):
+        r"""Return the failure index for a given failure theory.
+
+        Parameters
+        ----------
+        theory : {'strain', 'stress', 'Tsai-Hill'}
+            failure theory for which to calculate a failure index
+            (``default='strain'``)
+        index : bool
+            If true, return a margin of safety.
+            (``default=False``)
+
+        Returns
+        -------
+        float
+            The failure index (default) or the margin of safety
+
+        Notes
+        -----
         A ply is considered to fail if the failure index for an applied load
         is equal to or greater than one. The margin of safety for a ply is
         calculated using the failure index and the following equation:
@@ -300,64 +341,35 @@ class Ply(Lamina):
         .. math:: \mathrm{MS} = \frac{\mathrm{1}}{\mathrm{FI}} - 1
 
         where :math:`\mathrm{MS}` is the margin of safety, and
-        :math:`\mathrm{FI}` is the failure index.
-
-        Parameters
-        ----------
-        theory : {'strain', 'stress', 'Tsai-Hill', 'Tsai-Wu', 'Hoffman'}
-            Failure theory for which to calculate a margin of safety.
-            (``default='strain'``)
-        index : bool
-            Flag to return failure index instead of margin of safety.
-            (``default=False``)
-
-        Returns
-        -------
-        float
-            The margin of safety (default) or the failure index
-
-        Notes
-        -----
-        Failure theories are defined by the following relationships:
+        :math:`\mathrm{FI}` is the failure index.Failure indicies for each
+        failure theory are calculated according to
+        the following equations:
 
         Max strain (``theory='strain'``):
 
         .. math::
-           \frac{\varepsilon_1}{F_1} = 1,\quad
-           \frac{\varepsilon_2}{F_2} = 1,\quad
-           \frac{\gamma_{12}}{F_{12}} = 1
+           \mathrm{FI} = \mathrm{min}
+           \left( \frac{\varepsilon_1}{F_1},\quad
+           \frac{\varepsilon_2}{F_2},\quad
+           \frac{\gamma_{12}}{F_{12}} \right)
 
         Max stress (``theory='stress'``):
 
         .. math::
-           \frac{\sigma_1}{F_1} = 1,\quad
+           \mathrm{FI} = \mathrm{min}
+           \left( \frac{\sigma_1}{F_1} = 1,\quad
            \frac{\sigma_2}{F_2} = 1,\quad
-           \frac{\tau_{12}}{F_{12}} = 1
+           \frac{\tau_{12}}{F_{12}} \right)
 
         Tsai-Hill (``theory='Tsai-Hill'``):
 
         .. math::
-           (\frac{\sigma_1}{F_1})^2 + (\frac{\sigma_2}{F_2})^2
-           + (\frac{\tau_{12}}{F_{12}})^2
-           - \frac{\sigma_1 \sigma_2}{F_1^2} = 1
+           \mathrm{FI} = \left( \frac{\sigma_1}{F_1} \right)^{2}
+           + \left( \frac{\sigma_2}{F_2} \right)^{2}
+           + \left( \frac{\tau_{12}}{F_{12}} \right)^{2}
+           - \frac{\sigma_1 \sigma_2}{F_1^2}
 
-        Modified Tsai-Wu (``theory='Tsai-Wu'``):
-
-        .. math::
-           \frac{\sigma_1^2}{F_1^t F_1^c}
-           + \frac{\sigma_2^2}{F_2^t F_2^c}
-           + (\frac{1}{F_1^t} - \frac{1}{F_1^c}) \sigma_1
-           + (\frac{1}{F_2^t} - \frac{1}{F_2^c}) \sigma_2
-           + \frac{\tau_{12}^2}{F_{12}^2} = 1
-
-        Hoffman(``theory='Hoffman'``):
-
-        .. math::
-           \frac{\sigma_1^2}{F_1^t F_1^c}
-           + \frac{\sigma_2^2}{F_2^t F_2^c}
-           - \frac{\sigma_1 \sigma_2}{F_1^t F_1^c}
-           + (\frac{F_1^c - F_1^t}{F_1^t F_1^c}) \sigma_1
-           + (\frac{F_2^c - F_2^t}{F_2^t F_2^c}) \sigma_2
-           + \frac{\tau_{12}^2}{F_{12}^2} = 1
+        .. note:: Modified Tsai-Wu and Hoffman criteria are not supported
+           as they require separate strength values for tension and compression
 
         """
