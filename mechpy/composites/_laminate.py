@@ -1,24 +1,24 @@
-"""This module defines the Laminate class for use with mechpy.
+"""Defines the Laminate class for use with mechpy.
 
 Notes
-----
+-----
 See `mechpy.composites` documentation for relevant assumptions.
 
 TODO:
 -----
+* [ ] add unyt units
 * [ ] Create is_balanced() method
 * [ ] create functions to import Lamina and Laminate properties from Nastran
   BDF
-* [ ] figure out a way to update Laminate when a Lamina property is changed
 * [ ] fix calculations for effective laminate properties
 * [ ] reorganize properties and setters to be adjacent
 """
 
 from ._lamina import Lamina, Ply
-import numpy as np
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
+from mechpy._cogs import matrix_minor
 
 
 class Laminate(dict):
@@ -45,15 +45,16 @@ class Laminate(dict):
     dM : int or float
         change in moisture
     N_m, N_t, N_h : 3x1 numpy.array_like
-        mechanical, thermal, and hygral running loads
+        mechanical, thermal, and hygroscopic running loads
     M_m, M_t, M_h : 3x1 numpy.array_like
-        mechanical, thermal, and hygral running moments
+        mechanical, thermal, and hygroscopic running moments
     Ex, Ey, Gxy : float
         effective laminate moduli
     e_0m, e_0t, e_0h : 3x1 numpy.array_like
-        laminate midplane strain due to mechanical, thermal, and hygral loading
+        laminate midplane strain due to mechanical, thermal, and hygroscopic
+        loading
     k_0m, k_0t, k_0h : numpy.array_like
-        laminate midplane curvature due to mechanical, thermal, and hygral
+        laminate midplane curvature due to mechanical, thermal, and hygroscopic
         loading
 
     """
@@ -107,6 +108,7 @@ class Laminate(dict):
             self.__update()
 
     def __setattr__(self, attr, val):
+        """Extend ``__setattr__`` to update instance when attributes change."""
         if self.__locked:
             # udpate laminate after updated properties are set
             if attr in self.__baseattr__:
@@ -122,10 +124,12 @@ class Laminate(dict):
             super().__setattr__(attr, val)
 
     def __delitem__(self, key):
+        """Extend ``__delitem__`` to update instance when ply is removed."""
         super().__delitem__(key)
         self.__update()
 
     def __setitem__(self, key, new_ply):
+        """Extend ``__setitem__`` to ensure added item is a ``Ply``."""
         if key in self:
             new_ply = self.check_ply(new_ply)
             super().__setitem__(key, new_ply)
@@ -137,6 +141,7 @@ class Laminate(dict):
             )
 
     def __repr__(self):
+        """Return the string representation."""
         return "Laminate layup: " + self.layup.__repr__()
 
     @__unlock
@@ -156,7 +161,7 @@ class Laminate(dict):
             zk1 -= self[i].t
             super(Ply, self[i]).__setattr__('z', zk1 + self[i].t/2)
 
-        # calculate the A, B, and D matricies; thermal and hygral loads
+        # calculate the A, B, and D matricies; thermal and hygroscopic loads
         self.A = zeros((3, 3))
         self.B = zeros((3, 3))
         self.D = zeros((3, 3))
@@ -172,13 +177,15 @@ class Laminate(dict):
 
             # thermal running loads
             # NASA-RP-1351, Eq (92)
-            self.N_t += (ply.Qbar @ ply.e_tbar) * (ply.zk - ply.zk1)
-            self.M_t += (ply.Qbar @ ply.e_tbar) * (ply.zk**2 - ply.zk1**2)/2
+            e_tbar = ply.Tinv @ ply.e_t
+            self.N_t += (ply.Qbar @ e_tbar) * (ply.zk - ply.zk1)
+            self.M_t += (ply.Qbar @ e_tbar) * (ply.zk**2 - ply.zk1**2)/2
 
             # hygroscopic running loads
             # NASA-RP-1351, Eq (93)
-            self.N_h += (ply.Qbar @ ply.e_hbar) * (ply.zk - ply.zk1)
-            self.M_h += (ply.Qbar @ ply.e_hbar) * (ply.zk**2 - ply.zk1**2)/2
+            e_hbar = ply.Tinv @ ply.e_h
+            self.N_h += (ply.Qbar @ e_hbar) * (ply.zk - ply.zk1)
+            self.M_h += (ply.Qbar @ e_hbar) * (ply.zk**2 - ply.zk1**2)/2
 
         # intermediate star matrices
         # NASA-RP-1351 Eq (50)-(52a)
@@ -214,24 +221,19 @@ class Laminate(dict):
 
         # calculate effective laminate properties
         # NASA, Section 5
-        def minor(arr, index):
-            # Calculate the minor of the matrix for the given index
-            return np.delete(
-                np.delete(arr, index[0], axis=0), index[1], axis=1
-            )
 
         # calculate effective moduli
         # NASA, Eq. 84
         numer = det(self.ABD)
-        denom = det(minor(self.ABD, (0, 0)))
+        denom = det(matrix_minor(self.ABD, (0, 0)))
         self.Ex = (numer / denom) / self.t
 
         # NASA, Eq. 85
-        denom = det(minor(self.ABD, (1, 1)))
+        denom = det(matrix_minor(self.ABD, (1, 1)))
         self.Ey = (numer / denom) / self.t
 
         # NASA, Eq. 86
-        denom = det(minor(self.ABD, (2, 2)))
+        denom = det(matrix_minor(self.ABD, (2, 2)))
         self.Gxy = (numer / denom) / self.t
 
     def append(self, new_ply):
@@ -278,7 +280,7 @@ class Laminate(dict):
         elif obj.laminate != self:
             super(Ply, obj).__setattr__('laminate', self)
         elif type(obj) == Lamina:
-            obj = Ply.new_from_lamina(obj, laminate=self, theta=0)
+            obj = Ply.from_lamina(obj, laminate=self, theta=0)
         else:
             raise TypeError("Laminates may only contain Ply or Lamina objects")
 
@@ -329,8 +331,8 @@ class Laminate(dict):
         |     ``G12`` = shear modulus
         |     ``a11`` = coeff. of thermal expansion in 1-direction
         |     ``a22`` = coeff. of thermal expansion in 2-direction
-        |     ``b11`` = coeff. of hygral expansion in 1-direction
-        |     ``b22`` = coeff. of hygral expansion in 1-direction
+        |     ``b11`` = coeff. of hygroscopic expansion in 1-direction
+        |     ``b22`` = coeff. of hygroscopic expansion in 1-direction
 
         """
 

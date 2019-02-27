@@ -1,23 +1,18 @@
-"""This module defines the Lamina class for use with mechpy.
-
-Notes
------
-See `mechpy.composites` documentation for relevant assumptions.
+"""Defines the Lamina class for use with mechpy.
 
 TODO:
 -----
-* [ ] add functionality to register laminate property to forwad updates to
-  Laminate classes
 * [ ] add error checking for attribute types
+* [ ] add unyt units to input (may allow for removal of `ftype`)
 * [ ] add a property for the compliance matrix Sk
 * [ ] add failure indeces
-* [ ] remove laminate orientation calculations and have them be returned as
-  calculated properties
+
 """
 
 from numpy import array, zeros
 from numpy.linalg import inv
 from math import isnan, cos, sin, radians
+from mechpy._cogs import ms
 
 
 class Lamina:
@@ -40,13 +35,12 @@ class Lamina:
         coefficients of thermal expansion (CTE) in the lamina 1- and 2-
         directions
     b11, b22 : float
-        coefficients of hygral expansion (CTE) in the lamina 1- and 3-
+        coefficients of hygroscopic expansion (CTE) in the lamina 1- and 3-
         directions
     F1, F2, F12 : float
         lamina strengths in each direction
     ftype : {'strain', 'stress'}
         lamina strength type
-
 
     """
 
@@ -101,10 +95,10 @@ class Ply(Lamina):
     | **Attribute Types**
     | Not all attributes of are able to be directly modified. Attributes are
       divided into 'base' and 'calculated' values categories and are
-      prescribed by the class attributes ``__baseattr__`` and
-      ``__calcattr__``, respectively. Base attributes may be set freely,
-      while calculated attributes are 'locked' and updated based on the
-      values of base attributes.
+      prescribed by the class attributes ``__baseattr__`` and ``__calcattr__``,
+      respectively. Base attributes may be set freely, while calculated
+      attributes are 'locked' and updated based on the values of base
+      attributes.
 
     | **Assumptions**
     | The following assumptions apply to all Ply objects:
@@ -131,18 +125,22 @@ class Ply(Lamina):
     Tinv : 3x1 numpy.ndarray
         Inverse of the Ply transformation matrix
     e_m, e_t, e_h : 3x1 numpy.ndarray
-        Ply strains due to mechanical, thermal, and hygral loading
+        Ply strains due to mechanical, thermal, and hygroscopic loading
     s_m, s_t, s_h : 3x1 numpy.ndarray
-        Ply stresses due to mechanical, thermal, and hygral loading
+        Ply stresses due to mechanical, thermal, and hygroscopic loading
     z : float
         Vertical location of the ply midplane in the laminate
+    failure_theory : {'strain', 'stress', 'Tsai-Hill'}
+        The failure theory for calculating the failure index
+    failure_index : float
+        the failure index
 
-      """
+    """
 
     __name__ = 'Ply'
     __baseattr__ = Lamina.__slots__ + ['theta', 'z', 'e_m', 's_m']
     __calcattr__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
-                    'laminate']
+                    'laminate', 'failure_theory', 'failure_index']
     __slots__ = __baseattr__ + __calcattr__ + ['__locked']
 
     def __unlock(func):
@@ -168,8 +166,10 @@ class Ply(Lamina):
 
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
-                 b22, F1=1, F2=1, F12=1, ftype='strain'):
-        """Extend ``Lamina.__init__()`` to account for Ply-only attributes."""
+                 b22, F1=1, F2=1, F12=1, ftype='strain',
+                 failure_theory='strain'):
+        """Extend ``__init__`` to account for Ply-only attributes."""
+
         self.laminate = laminate
         self.z = 0
         self.theta = theta
@@ -179,12 +179,16 @@ class Ply(Lamina):
         self.s_m = zeros((3, 1))
         self.s_t = zeros((3, 1))
         self.s_h = zeros((3, 1))
+        self.failure_theory = failure_theory
+        self.failure_index = 0
 
         super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
                          ftype)
         self.__update()
 
     def __setattr__(self, attr, val):
+        """Extend ``__setattr__`` to protect calculated attributes."""
+
         if self.__locked:
             # udpate laminate after updated properties are set
             if attr in self.__baseattr__:
@@ -232,38 +236,42 @@ class Ply(Lamina):
         # Jones, Eq (2.84)
         self.Qbar = self.Tinv @ self.Q @ self.Tinv.T
 
-        # thermal and hygral strains in laminate and lamina c-systems
+        # thermal and hygroscopic strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
         self.e_t = array([[self.a11], [self.a22], [0]]) * self.laminate.dT
         self.e_h = array([[self.b11], [self.b22], [0]]) * self.laminate.dM
 
-        # thermal and hygral stresses in laminate and lamina c-systems
+        # thermal and hygroscopic stresses in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
         self.s_t = self.Q @ self.e_t
         self.s_h = self.Q @ self.e_h
 
         # calculate failure index
+        self.failure_index = self.calc_failure_index(self.failure_theory,
+                                                     self.F1,
+                                                     self.F2,
+                                                     self.F12)
 
-    @staticmethod
-    def new_from_lamina(lamina, laminate, theta):
+    @classmethod
+    def from_lamina(cls, lamina, laminate, theta):
         """Create a new Ply object from a Lamina object.
 
         Parameters
         ----------
         lamina : Lamina
-            Lamina object to use to create Ply
+            ``Lamina`` from which to create ``Ply``
         laminate : Laminate
-            Laminate object the Ply belongs to
+            ``Laminate`` object the ``Ply`` belongs to
         theta : float
-            Ply orientation w.r.t. the Laminate coordinate system
+            ``Ply`` orientation w.r.t. the ``Laminate`` coordinate system
 
         Returns
         -------
-        Ply object
+        ``Ply`` object
 
         """
 
-        return Ply(laminate=laminate,
+        return cls(laminate=laminate,
                    theta=theta,
                    t=lamina.t,
                    E1=lamina.E1,
@@ -281,7 +289,7 @@ class Ply(Lamina):
 
     @property
     def zk(self):
-        """The vertical location of the lamina's top plane. """
+        """The vertical location of the lamina's top plane."""
         return self.z + self.t / 2
 
     @property
@@ -293,18 +301,6 @@ class Ply(Lamina):
     def zk1(self, new_zk1):
         self.z = new_zk1 + self.t / 2
 
-    # TODO : remove e_tbar and e_hbar from Ply and perform translation in
-    #        laminate
-    @property
-    def e_tbar(self):
-        """Transformed thermal strain."""
-        return self.Tinv @ self.e_t  # NASA-RP-1351 Eq (90)
-
-    @property
-    def e_hbar(self):
-        """Transformed hygral strain."""
-        return self.Tinv @ self.e_h  # NASA-RP-1351 Eq (95)
-
     @property
     def e(self):
         """Total strain."""
@@ -315,35 +311,28 @@ class Ply(Lamina):
         """Total stress."""
         return self.s_m + self.s_t + self.s_h
 
-    def failure_index(self, theory='strain', margin=False):
-        r"""Return the failure index for a given failure theory.
+    @staticmethod
+    def calc_failure_index(theory, F1, F2, F12):
+        r"""Calculate the failure index for a given failure theory.
 
         Parameters
         ----------
         theory : {'strain', 'stress', 'Tsai-Hill'}
             failure theory for which to calculate a failure index
-            (``default='strain'``)
-        index : bool
-            If true, return a margin of safety.
-            (``default=False``)
+        F1, F2, F12 : float
+            strengths of the material
 
         Returns
         -------
         float
-            The failure index (default) or the margin of safety
+            The failure index
 
         Notes
         -----
         A ply is considered to fail if the failure index for an applied load
-        is equal to or greater than one. The margin of safety for a ply is
-        calculated using the failure index and the following equation:
-
-        .. math:: \mathrm{MS} = \frac{\mathrm{1}}{\mathrm{FI}} - 1
-
-        where :math:`\mathrm{MS}` is the margin of safety, and
-        :math:`\mathrm{FI}` is the failure index.Failure indicies for each
-        failure theory are calculated according to
-        the following equations:
+        is equal to or greater than one. Failure indicies for each failure
+        theory are calculated according to the following equations per the
+        BJSFM User Manual [#3]_.
 
         Max strain (``theory='strain'``):
 
@@ -372,4 +361,17 @@ class Ply(Lamina):
         .. note:: Modified Tsai-Wu and Hoffman criteria are not supported
            as they require separate strength values for tension and compression
 
+        References
+        ----------
+        .. [#3] Ogonowski, J.M, *Effect of Variances and Manufacturing
+           Tolerances on the Design Strength and Life of Mechanically Fastened
+           Composite Joints, Volume 3 - Bolted Joint Stress Field Model
+           (BJSFM) Computer Program User's Manual*, McDonnell Aircraft
+           Company, AFWAL-TR-81-3041 VOLUME 3, pp. 8-9, 15 April 1981
+
         """
+
+    @property
+    def margin(self):
+        """The margin of safety."""
+        return ms(1, self.failure_index)

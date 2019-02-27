@@ -12,8 +12,9 @@ Contents
    :maxdepth: 3
    :caption: Table of Contents
 
-   bolted_joints
-   composites
+   mechpy
+   mechpy.bolted_joints
+   mechpy.composites
 
 
 Indices and tables

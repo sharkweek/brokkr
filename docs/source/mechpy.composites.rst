@@ -1,16 +1,12 @@
-composites
-==========
+Composites (``mechpy.composites``)
+==================================
 
-Module contents
+Summary
+-------
+.. automodule:: mechpy.composites
+
+Module Contents
 ---------------
-
-.. automodule:: composites
-    :members:
-    :show-inheritance:
-
-Submodules
-----------
-
 .. autoclass:: Lamina
     :members:
     :show-inheritance:

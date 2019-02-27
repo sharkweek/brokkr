@@ -1,7 +1,5 @@
 """Tools for composite laminates.
 
-Notes
------
 All calculations are performed by using classical laminate theory (CLT) under
 the following assumptions:
 
@@ -15,14 +13,14 @@ the following assumptions:
 * All loads and moments are running values supplied as force or moment per unit
   width.
 * Unit systems are consistent (i.e. SI, US, or Imperial).
-* Equations and symbol conventions are per NASA-RP-1351 *Basic Mechanics of
-  Laminated Composite Plates* and R.M. Jones' *Mechanics Of Composite
-  Materials*.
+* Equations and symbol conventions are per NASA-RP-1351 [#1]_ and Jones [#2]_.
 
 References
 ----------
-.. [1] NASA-RP-1351, "Basic Mechanics of Laminated Composite Plates"
-.. [2] Jones, Robert M. "Mechanics Of Composite Materials"
+.. [#1] Nettles, A.T., "Basic Mechanics of Laminated Composite Plates", NASA
+   Marshall Space Flight Center, Alabama, NASA-RP-1351, October 1994
+.. [#2] Jones, Robert M. "Mechanics Of Composite Materials", Taylor & Francis,
+   Inc., 1999
 
 """
 

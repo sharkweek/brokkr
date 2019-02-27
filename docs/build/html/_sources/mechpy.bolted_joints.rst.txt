@@ -1,8 +1,5 @@
-bolted\_joints package
+Bolted Joints
 ======================
-
-Submodules
-----------
 
 bolted\_joints.bolt module
 --------------------------
