@@ -1,4 +1,4 @@
-"""Defines the Lamina class for use with mechpy.
+"""Defines the Lamina class for use with brokkr.
 
 TODO:
 -----
@@ -12,7 +12,7 @@ TODO:
 from numpy import array, zeros
 from numpy.linalg import inv
 from math import isnan, cos, sin, radians
-from mechpy._cogs import ms
+from brokkr._cogs import ms
 
 
 class Lamina:

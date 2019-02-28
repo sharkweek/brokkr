@@ -1,9 +1,9 @@
-Composites (``mechpy.composites``)
+Composites (``brokkr.composites``)
 ==================================
 
 Summary
 -------
-.. automodule:: mechpy.composites
+.. automodule:: brokkr.composites
 
 Module Contents
 ---------------

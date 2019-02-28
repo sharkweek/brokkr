@@ -1,8 +1,8 @@
-"""Defines the Laminate class for use with mechpy.
+"""Defines the Laminate class for use with brokkr.
 
 Notes
 -----
-See `mechpy.composites` documentation for relevant assumptions.
+See `brokkr.composites` documentation for relevant assumptions.
 
 TODO:
 -----
@@ -18,7 +18,7 @@ from ._lamina import Lamina, Ply
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
-from mechpy._cogs import matrix_minor
+from brokkr._cogs import matrix_minor
 
 
 class Laminate(dict):

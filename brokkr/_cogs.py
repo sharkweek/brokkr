@@ -1,4 +1,4 @@
-"""Miscellaneous functions used in mechpy."""
+"""Miscellaneous functions used in brokkr."""
 
 import numpy as np
 

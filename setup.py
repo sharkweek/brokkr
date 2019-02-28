@@ -1,17 +1,17 @@
 from setuptools import setup
 
 setup(
-    name='mechpy',
+    name='brokkr',
     version='0.0.1',
     description="mechanical engineering toolbox",
-    author='Neal Gordon, Andy Perez',
+    author='Andy Perez',
     packages=[
-        'mechpy/composites',
-        'mechpy/bolted_joints'
+        'brokkr/composites',
+        'brokkr/bolted_joints'
     ],
     license="MIT",
     long_description=open('README.md').read(),
-    url='https://github.com/sharkweek/mechpy',
+    url='https://github.com/sharkweek/brokkr',
     keywords=[
         'composites',
         'mechanics',

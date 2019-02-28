@@ -1,12 +1,12 @@
-mechpy
+brokkr
 =============
-.. automodule:: mechpy
+.. automodule:: brokkr
 
 Tensors
 -------
-.. automodule:: mechpy._tensor
+.. automodule:: brokkr._tensor
 
-.. py:module:: mechpy
+.. py:module:: brokkr
 .. autoclass:: Tensor
     :members:
     :show-inheritance:
@@ -21,7 +21,7 @@ Tensors
 
 Functions
 ---------
-.. automodule:: mechpy._cogs
+.. automodule:: brokkr._cogs
 
-.. py:module:: mechpy
+.. py:module:: brokkr
 .. autofunction:: ms

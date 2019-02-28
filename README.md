@@ -8,7 +8,7 @@ TODO
  * [ ] create sphinx or mkdocs documentation
  * [ ] continue developing composites module
  * [ ] write applied engineering tutorials articles
- * [ ] clean up links in mechpy documentation
+ * [ ] clean up links in brokkr documentation
  * [ ] clean up mohr circle tutorial
  * [ ] consolidate fastener.py and bolt.py
  * [ ] clean up bolted_joints functions
