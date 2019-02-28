@@ -1,8 +1,6 @@
-# `mechpy` - A Mechanical Engineering Toolbox
+# `brokkr` - A Mechanical Engineering Toolbox
 
 This repo provides a collection of tools for mechanical engineering analysis.
-
-Forked from `nagordon`'s original [`mechpy`](https://nagordon.github.io/mechpy).
 
 TODO
  * [ ] fix module structure and importing errors
