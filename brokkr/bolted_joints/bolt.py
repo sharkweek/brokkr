@@ -1,6 +1,6 @@
 """Calculate the flexibility of a fastener in a lap joint."""
 
-import math
+from math import pi
 
 
 class Bolt:
@@ -8,19 +8,20 @@ class Bolt:
 
     Attributes
     ----------
-    dia (float): shank diameter
-    bolt_type (str): fastener type. Maybe either 'rivet' or 'bolt'
-    e (float): Young's modulus
-    c (float): flexibility
-    k (float): stiffness
+    dia : float
+        shank diameter
+    bolt_type : str
+        fastener type. Maybe either 'rivet' or 'bolt'
+    e : float
+        Young's modulus
+    c : float
+        flexibility
+    k : float
+        stiffness
 
     """
 
-    def __init__(self,
-                 dia,
-                 bolt_type,
-                 e,
-                 c=1):
+    def __init__(self, dia, bolt_type, e, c=1):
         """Initialize the instance of Bolt."""
 
         self.dia = dia
@@ -61,12 +62,6 @@ class Bolt:
 
         return self._flex_method
 
-    @flex_method.setter
-    def flex_method(self, _):
-        """Keep user from setting the flexibility method manually."""
-
-        raise AttributeError("The flexibility method cannot be set mannually.")
-
     def swift(self, t1, t2, e1, e2):
         """Calculate the bolt stiffness using the Swift/Douglas method."""
 
@@ -83,11 +78,10 @@ class Bolt:
         # calculate flexibility
         self._c = (1 / (self.e * t1) + 1 / (self.e * t2) + 1 / (e1 * t1)
                    + 1 / (e2 * t2)
-                   + 32 / (9 * self.e * math.pi * self.dia**2)
+                   + 32 / (9 * self.e * pi * self.dia**2)
                    * (1 + nu_b) * (t1 + t2)
-                   + 8 / (5 * self.e * math.pi * self.dia**4)
-                   * (t1**3 + 5 * t1**2 * t2 +
-                      5 * t1 * t2**2 + t2**3))
+                   + 8 / (5 * self.e * pi * self.dia**4)
+                   * (t1**3 + 5 * t1**2 * t2 + 5 * t1 * t2**2 + t2**3))
 
     def boeing(self, t1, t2, e1, e2):
         """Calculate the flexibility using the Boeing method."""
@@ -113,13 +107,13 @@ class Bolt:
             a = 2/3
             b = 3.0
 
-        elif (mat1 == 'metal' and mat2 == 'metal' and
-              self.bolt_type == 'rivet'):
+        elif (mat1 == 'metal' and mat2 == 'metal'
+              and self.bolt_type == 'rivet'):
             a = 2/5
             b = 2.2
 
-        elif (mat1 == 'composite' and mat2 == 'composite' and
-              self.bolt_type == 'bolt'):
+        elif (mat1 == 'composite' and mat2 == 'composite'
+              and self.bolt_type == 'bolt'):
             a = 2/3
             b = 4.2
 

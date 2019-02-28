@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>mechpy &mdash; mechpy 0.1 documentation</title>
+  <title>brokkr &mdash; brokkr 0.1 documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Bolted Joints" href="mechpy.bolted_joints.html" />
-    <link rel="prev" title="Welcome to mechpy’s documentation!" href="index.html" /> 
+    <link rel="next" title="Bolted Joints" href="brokkr.bolted_joints.html" />
+    <link rel="prev" title="Welcome to brokkr’s documentation!" href="index.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -48,7 +48,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> mechpy
+            <a href="index.html" class="icon icon-home"> brokkr
           
 
           
@@ -80,13 +80,13 @@
             
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">mechpy</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-mechpy._tensor">Classes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mechpy._cogs">Functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">brokkr</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr._tensor">Tensors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr._cogs">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="mechpy.bolted_joints.html">Bolted Joints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mechpy.composites.html">Composites (<code class="docutils literal notranslate"><span class="pre">mechpy.composites</span></code>)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.bolted_joints.html">Bolted Joints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.composites.html">Composites (<code class="docutils literal notranslate"><span class="pre">brokkr.composites</span></code>)</a></li>
 </ul>
 
             
@@ -101,7 +101,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">mechpy</a>
+          <a href="index.html">brokkr</a>
         
       </nav>
 
@@ -132,13 +132,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>mechpy</li>
+      <li>brokkr</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/mechpy.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/brokkr.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -151,19 +151,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-mechpy">
-<span id="mechpy"></span><h1>mechpy<a class="headerlink" href="#module-mechpy" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-mechpy._tensor">
-<span id="classes"></span><h2>Classes<a class="headerlink" href="#module-mechpy._tensor" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="module-brokkr">
+<span id="brokkr"></span><h1>brokkr<a class="headerlink" href="#module-brokkr" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-brokkr._tensor">
+<span id="tensors"></span><h2>Tensors<a class="headerlink" href="#module-brokkr._tensor" title="Permalink to this headline">¶</a></h2>
 <p>Define stress/strain tensors.</p>
-<span class="target" id="module-mechpy"></span><dl class="class">
-<dt id="mechpy.Stress">
-<em class="property">class </em><code class="descclassname">mechpy.</code><code class="descname">Stress</code><span class="sig-paren">(</span><em>stresses</em><span class="sig-paren">)</span><a class="headerlink" href="#mechpy.Stress" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">mechpy._tensor.Tensor</span></code></p>
-<p>Stress tensor.</p>
+<span class="target" id="module-brokkr"></span><dl class="class">
+<dt id="brokkr.Tensor">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Tensor</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unyt.array.unyt_array</span></code></p>
+<p>Base 3x3 symmetric tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matrix</strong> (<em>numpy.array_like</em>) – an array-like object with six values</li>
+<li><strong>units</strong> (<em>string</em><em> or </em><em>unyt.Units</em>) – the physical units for the tensor</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="brokkr.Tensor.set_v_item">
+<code class="descname">set_v_item</code><span class="sig-paren">(</span><em>vindex</em>, <em>new_val</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Tensor.set_v_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set an item in-place using Voigt index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vindex</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the Voigt index of the item to set</li>
+<li><strong>new_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – the new value for the specified <code class="docutils literal notranslate"><span class="pre">vindex</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
-<dt id="mechpy.Stress.principal">
-<code class="descname">principal</code><a class="headerlink" href="#mechpy.Stress.principal" title="Permalink to this definition">¶</a></dt>
+<dt id="brokkr.Tensor.voigt">
+<code class="descname">voigt</code><a class="headerlink" href="#brokkr.Tensor.voigt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Voigt representation of the array.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr.Stress">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Stress</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._tensor.Tensor</span></code></p>
+<p>Stress tensor.</p>
+<p>A subset of the tensor class, the stress tensor requires that units be
+a pressure and provides additional, stress-specific functionality.
+Acceptable pressure units are <code class="docutils literal notranslate"><span class="pre">'Ba'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Pa'</span></code>, <code class="docutils literal notranslate"><span class="pre">'atm'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'psi'</span></code>.</p>
+<dl class="attribute">
+<dt id="brokkr.Stress.principal">
+<code class="descname">principal</code><a class="headerlink" href="#brokkr.Stress.principal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Array of principal stresses.</p>
 <p>The array format is:</p>
 <div class="math notranslate nohighlight">
@@ -175,21 +221,29 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="mechpy.Stress.vonMises">
-<code class="descname">vonMises</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mechpy.Stress.vonMises" title="Permalink to this definition">¶</a></dt>
+<dt id="brokkr.Stress.vonMises">
+<code class="descname">vonMises</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Stress.vonMises" title="Permalink to this definition">¶</a></dt>
 <dd><p>The equivalent von Mises stress of the stress tensor.</p>
+<p>The von Mises stress <span class="math notranslate nohighlight">\(\sigma_{v}\)</span> is defined:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{v} = \sqrt{
+\frac{1}{2} \left[ \left( \sigma_{11} - \sigma_{22} \right) ^ 2
++ \left( \sigma_{22} - \sigma_{33} \right) ^ 2
++ \left( \sigma_{33} - \sigma_{11} \right) ^ 2
++ 6 \left( \tau_{12}^2 + \tau_{23}^2 + \tau_{31}^2 \right) \right]
+}\]</div>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="mechpy.Strain">
-<em class="property">class </em><code class="descclassname">mechpy.</code><code class="descname">Strain</code><span class="sig-paren">(</span><em>strains</em><span class="sig-paren">)</span><a class="headerlink" href="#mechpy.Strain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">mechpy._tensor.Tensor</span></code></p>
+<dt id="brokkr.Strain">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Strain</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._tensor.Tensor</span></code></p>
 <p>Strain tensor.</p>
 <dl class="attribute">
-<dt id="mechpy.Strain.stype">
-<code class="descname">stype</code><a class="headerlink" href="#mechpy.Strain.stype" title="Permalink to this definition">¶</a></dt>
+<dt id="brokkr.Strain.stype">
+<code class="descname">stype</code><a class="headerlink" href="#brokkr.Strain.stype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Strain type.</p>
 <p>Must be ‘engineering’ or ‘tensor’ strain.</p>
 <p class="rubric">Notes</p>
@@ -214,12 +268,12 @@ notation, the relationship is defined:</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-mechpy._cogs">
-<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-mechpy._cogs" title="Permalink to this headline">¶</a></h2>
-<p>Miscellaneous functions used in mechpy.</p>
-<span class="target" id="module-mechpy"></span><dl class="function">
-<dt id="mechpy.ms">
-<code class="descclassname">mechpy.</code><code class="descname">ms</code><span class="sig-paren">(</span><em>applied</em>, <em>allowed</em>, <em>knockdown=1</em><span class="sig-paren">)</span><a class="headerlink" href="#mechpy.ms" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="module-brokkr._cogs">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-brokkr._cogs" title="Permalink to this headline">¶</a></h2>
+<p>Miscellaneous functions used in brokkr.</p>
+<span class="target" id="module-brokkr"></span><dl class="function">
+<dt id="brokkr.ms">
+<code class="descclassname">brokkr.</code><code class="descname">ms</code><span class="sig-paren">(</span><em>applied</em>, <em>allowed</em>, <em>knockdown=1</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.ms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the margin of safety.</p>
 <p>The margin of safety is calculated according to the following formula:</p>
 <div class="math notranslate nohighlight">
@@ -282,10 +336,10 @@ the <code class="docutils literal notranslate"><span class="pre">allowed</span><
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mechpy.bolted_joints.html" class="btn btn-neutral float-right" title="Bolted Joints" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="brokkr.bolted_joints.html" class="btn btn-neutral float-right" title="Bolted Joints" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to mechpy’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to brokkr’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

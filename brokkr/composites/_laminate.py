@@ -18,7 +18,11 @@ from ._lamina import Lamina, Ply
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
-from brokkr._cogs import matrix_minor
+from brokkr._cogs.math import matrix_minor
+
+LAMINATE_BASE = ('dT', 'dM', 'N_m', 'M_m')
+LAMINATE_CALC = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
+                 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
 
 
 class Laminate(dict):
@@ -61,32 +65,30 @@ class Laminate(dict):
 
     # lists of attributes for method filtering
     __name__ = 'Laminate'
-    __baseattr__ = ['dT', 'dM', 'N_m', 'M_m']
-    __calcattr__ = ['N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy',
-                    'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B',
-                    'D', 't']
-    __slots__ = __baseattr__ + __calcattr__ + ['__locked']
+    __baseattr__ = LAMINATE_BASE
+    __calcattr__ = LAMINATE_CALC
+    __slots__ = LAMINATE_BASE + LAMINATE_CALC + ('__locked',)
 
-    def __unlock(func):
+    def __unlock(locked_func):
         """Decorate methods to unlock attributes.
 
         Parameters
         ----------
-        update : bool
-            Determines whether to run the __update() method after execution.
+        locked_func : bool
+            The function to unlock.
 
         Returns
         -------
         function
-            An unprotected function.
+            An unlocked function.
 
         """
 
-        def wrapper(self, *args, **kwargs):
+        def unlocked_func(self, *args, **kwargs):
             super().__setattr__('_Laminate__locked', False)
-            func(self, *args, **kwargs)
+            locked_func(self, *args, **kwargs)
             super().__setattr__('_Laminate__locked', True)
-        return wrapper
+        return unlocked_func
 
     @__unlock
     def __init__(self, *plies):
@@ -323,16 +325,20 @@ class Laminate(dict):
         The CSV is assumed to have the plies listed in ascending order (i.e.
         the bottom ply is listed first) and must have the following headers:
 
-        |     ``t`` = thickness
-        |     ``theta`` = angle of ply relative to laminate
-        |     ``E1`` = modulus in lamina 1-direction
-        |     ``E2`` = modulus in lamina 2-direction
-        |     ``nu12`` = Poisson's ratio
-        |     ``G12`` = shear modulus
-        |     ``a11`` = coeff. of thermal expansion in 1-direction
-        |     ``a22`` = coeff. of thermal expansion in 2-direction
-        |     ``b11`` = coeff. of hygroscopic expansion in 1-direction
-        |     ``b22`` = coeff. of hygroscopic expansion in 1-direction
+        ========== ==============================================
+        Header     Description
+        ========== ==============================================
+        ``t``      thickness
+        ``theta``  angle of ply relative to laminate
+        ``E1``     modulus in lamina 1-direction
+        ``E2``     modulus in lamina 2-direction
+        ``nu12``   Poisson's ratio
+        ``G12``    shear modulus
+        ``a11``    coeff. of thermal expansion in 1-direction
+        ``a22``    coeff. of thermal expansion in 2-direction
+        ``b11``    coeff. of hygroscopic expansion in 1-direction
+        ``b22``    coeff. of hygroscopic expansion in 1-direction
+        ========== ==============================================
 
         """
 
@@ -391,14 +397,7 @@ class Laminate(dict):
         if not as_lamina:
             return p
         else:
-            return Lamina(p.t,
-                          p.E1,
-                          p.E2,
-                          p.nu12,
-                          p.G12,
-                          p.a11,
-                          p.a22,
-                          p.b11,
+            return Lamina(p.t, p.E1, p.E2, p.nu12, p.G12, p.a11, p.a22, p.b11,
                           p.b22)
 
     def flip(self):

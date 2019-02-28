@@ -26,3 +26,5 @@ References
 
 from ._lamina import Lamina, Ply
 from ._laminate import Laminate
+
+__all__ = ['Lamina', 'Ply', 'Laminate']

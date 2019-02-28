@@ -47,13 +47,11 @@ def ms(applied, allowed, knockdown=1):
 
     where
 
-    +------------------------+------------------+
-    | :math:`MS`             | margin of safety |
-    +------------------------+------------------+
-    | :math:`F_{\text{app}}` | applied load     |
-    +------------------------+------------------+
-    | :math:`F_{\text{alw}}` | allowable        |
-    +------------------------+------------------+
+    ====================== ================
+    :math:`MS`             margin of safety
+    :math:`F_{\text{app}}` applied load
+    :math:`F_{\text{alw}}` allowable
+    ====================== ================
 
     .. note::
        The ``applied`` and ``allowed`` values must have the same units.
