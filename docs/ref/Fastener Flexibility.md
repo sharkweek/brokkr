@@ -1,0 +1,2 @@
+## Fastener Flexibility
+Scripts for calculating fastener flexibility based on a number of industry standard methods. More information on fastener flexibility can be found [here](http://files.engineering.com/getfile.aspx?folder=32e29d82-4eef-4633-9685-8f827605bc1a&file=Fastener_flexibility.doc&__hstc=212727627.e3e806a5f899fb3250ec63a9d8c26c1a.1459436108615.1462928318688.1463426953142.4&__hssc=212727627.1.1463426953142&__hsfp=2118087242)
