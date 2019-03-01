@@ -1,6 +1,6 @@
-# `brokkr` - A Mechanical Engineering Toolbox
+# `brokkr`
 
-This repo provides a collection of tools for mechanical engineering analysis.
+This repo provides a collection of Python tools for mechanical/structural engineering analysis.
 
 TODO
  * [ ] fix module structure and importing errors
