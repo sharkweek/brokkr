@@ -1,7 +1,0 @@
-CalculiX version 2.1
-
-CalculiX is an open source finite element solver. This solver interacts with some of the Excel modules.
-http://www.calculix.de/
-
-The latest windows version can be found from bConverged. Note that the latest version will NOT be compatible with the Excel modules.
-http://www.bconverged.com/

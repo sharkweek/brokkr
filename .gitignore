@@ -1,8 +1,0 @@
-.ipynb_checkpoints
-*__pycache__
-*.pyc
-.ropeproject
-.vscode
-dist
-installed_files.txt
-*egg-info

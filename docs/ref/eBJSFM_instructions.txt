@@ -1,3 +1,0 @@
-The eBJSFM Excel file must be linked to the eBJSFM executable file.
-
-The eBJSFM Executable may only be used with the eBJSFM Excel file. All other use is prohibited. ESP Composites, LLC. All Rights Reserved.
