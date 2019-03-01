@@ -18,7 +18,7 @@ from ._lamina import Lamina, Ply
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
-from brokkr._cogs.math import matrix_minor
+from brokkr.math import matrix_minor
 
 LAMINATE_BASE = ('dT', 'dM', 'N_m', 'M_m')
 LAMINATE_CALC = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',

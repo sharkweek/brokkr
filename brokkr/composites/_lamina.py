@@ -12,7 +12,7 @@ TODO:
 from numpy import array, zeros
 from numpy.linalg import inv
 from math import isnan, cos, sin, radians
-from brokkr._cogs.math import ms
+from brokkr.math import ms
 
 # attribute definitions for class slots
 LAMINA_BASE = ('t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22',
