@@ -2,6 +2,8 @@
 
 import numpy as np
 
+__all__ = ['matrix_minor', 'ms']
+
 
 def matrix_minor(matrix, indices):
     """Return the minor of a 2D ``numpy.ndarray``.

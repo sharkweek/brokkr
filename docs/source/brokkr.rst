@@ -19,9 +19,27 @@ Tensors
     :members:
     :show-inheritance:
 
+Vectors
+-------
+.. automodule:: brokkr._vector
+.. autoclass:: Vector
+    :members:
+    :show-inheritance:
+
+.. autoclass:: Force
+    :members:
+    :show-inheritance:
+
+.. autoclass:: Moment
+    :members:
+    :show-inheritance:
+
+.. autoclass:: Displacement
+    :members:
+    :show-inheritance:
+
 Functions
 ---------
-.. automodule:: brokkr._cogs
-
-.. py:module:: brokkr
+.. automodule:: brokkr.mech_math
 .. autofunction:: ms
+.. autofunction:: matrix_minor

@@ -1,25 +1,10 @@
 """Define stress/strain tensors."""
 
 from numpy import array, empty
-import unyt as u
+from unyt.dimensions import pressure, length
 from unyt.array import unyt_array
 
-# set unit regsitry
-us_unit_system = u.UnitSystem(name='US',
-                              length_unit='inch',
-                              mass_unit='lb',
-                              time_unit='s',
-                              temperature_unit='degF',
-                              angle_unit='deg')
-
-# add strain unit
-ureg = u.UnitRegistry()
-ureg.add('strain',
-         base_value=1.0,
-         dimensions=u.dimensions.dimensionless,
-         tex_repr=r"\rm{\varepsilon}",
-         prefixable=True)
-u.unit_registry.default_unit_registry = ureg
+__all__ = ['Tensor', 'Strain', 'Stress']
 
 
 class Tensor(unyt_array):
@@ -39,7 +24,7 @@ class Tensor(unyt_array):
         if array(matrix).size != 6:
             raise TypeError("`matrix` must have six values")
         else:
-            new = unyt_array(empty((3, 3)), units, ureg).view(cls)
+            new = unyt_array(empty((3, 3)), units).view(cls)
             return new
 
     def __init__(self, matrix):
@@ -77,26 +62,40 @@ class Tensor(unyt_array):
         for j, k in i[vindex]:
             self[j, k] = new_val
 
+    def has_dimension(self, dim):
+        """Check if dimensions of vector match `dim`.
+
+        Parameters
+        ----------
+        dim : ``unyt.dimensions`` dimension
+            the dimension to compare the instance against
+
+        Returns
+        -------
+        bool
+            True if instance's dimension matches ``dim``; False otherwise.
+
+        """
+
+        return self.units.dimensions == dim
+
 
 class Stress(Tensor):
     """Stress tensor.
 
-    A subset of the tensor class, the stress tensor requires that units be
-    a pressure and provides additional, stress-specific functionality.
-    Acceptable pressure units are ``'Ba'``, ``'Pa'``, ``'atm'``, and ``'psi'``.
+    A subset of the tensor class, the stress tensor requires that ``units`` be
+    in pressure and provides additional, stress-specific functionality.
 
     """
 
     def __new__(cls, stresses, units='psi'):
         """Create `Stress` instance."""
-        # check for pressure dim
-        if units not in ureg.list_same_dimensions(u.psi):
-            raise TypeError(
-                "Units must be pressure untis: 'Ba', 'Pa', 'atm', or 'psi'"
-            )
-
         new = super().__new__(cls, stresses, units)
-        return new
+        # check for pressure dim
+        if new.has_dimension(pressure):
+            return new
+        else:
+            raise TypeError("`units` must be pressure units.")
 
     def vonMises(self):
         r"""The equivalent von Mises stress of the stress tensor.
@@ -150,14 +149,32 @@ class Stress(Tensor):
 
 
 class Strain(Tensor):
-    """Strain tensor."""
+    """Strain tensor.
 
-    def __new__(cls, strains, stype='engr'):
+    A subset of the tensor class, the strain tensor requires that ``units`` be
+    in units of length/length and provides additional, strain-specific
+    functionality.
+
+    Parameters
+    ----------
+    stype : {'engineering', 'tensor'}
+        the type of shear strain
+
+    """
+
+    def __new__(cls, strains, units='inch/inch', stype='engineering'):
         """Create `Strain` instance object."""
 
-        new = super().__new__(cls, strains, 3, 'strain')
-        new.stype = stype
-        return new
+        new = super().__new__(cls, strains, units)
+        new.__stype = stype
+
+        # check dimensions
+        if new.has_dimension(length / length):
+            return new
+        else:
+            raise TypeError(
+                "`units` must be in strain (length/length or dimensionsless)"
+            )
 
     @property
     def stype(self):
