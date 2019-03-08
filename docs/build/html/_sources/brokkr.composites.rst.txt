@@ -1,14 +1,12 @@
-Composites (``mechpy.composites``)
+Composites (``brokkr.composites``)
 ==================================
 
 Summary
 -------
-
-.. automodule:: mechpy.composites
+.. automodule:: brokkr.composites
 
 Module Contents
 ---------------
-
 .. autoclass:: Lamina
     :members:
     :show-inheritance:

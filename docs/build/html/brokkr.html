@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>brokkr &mdash; brokkr 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bolted Joints" href="brokkr.bolted_joints.html" />
+    <link rel="prev" title="Welcome to brokkr’s documentation!" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> brokkr
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">brokkr</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr._tensor">Tensors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr._vector">Vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr.bmath">Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.bolted_joints.html">Bolted Joints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.composites.html">Composites (<code class="docutils literal notranslate"><span class="pre">brokkr.composites</span></code>)</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">brokkr</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>brokkr</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/brokkr.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-brokkr">
+<span id="brokkr"></span><h1>brokkr<a class="headerlink" href="#module-brokkr" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-brokkr._tensor">
+<span id="tensors"></span><h2>Tensors<a class="headerlink" href="#module-brokkr._tensor" title="Permalink to this headline">¶</a></h2>
+<p>Define stress/strain tensors.</p>
+<span class="target" id="module-brokkr"></span><dl class="class">
+<dt id="brokkr.Tensor">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Tensor</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unyt.array.unyt_array</span></code></p>
+<p>Base 3x3 symmetric tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matrix</strong> (<em>numpy.array_like</em>) – an array-like object with six values</li>
+<li><strong>units</strong> (<em>string</em><em> or </em><em>unyt.Units</em>) – the physical units for the tensor</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="brokkr.Tensor.has_dimension">
+<code class="descname">has_dimension</code><span class="sig-paren">(</span><em>dim</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Tensor.has_dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if dimensions of vector match <cite>dim</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dim</strong> (<code class="docutils literal notranslate"><span class="pre">unyt.dimensions</span></code> dimension) – the dimension to compare the instance against</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if instance’s dimension matches <code class="docutils literal notranslate"><span class="pre">dim</span></code>; False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.Tensor.set_v_item">
+<code class="descname">set_v_item</code><span class="sig-paren">(</span><em>vindex</em>, <em>new_val</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Tensor.set_v_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set an item in-place using Voigt index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>vindex</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the Voigt index of the item to set</li>
+<li><strong>new_val</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – the new value for the specified <code class="docutils literal notranslate"><span class="pre">vindex</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr.Tensor.voigt">
+<code class="descname">voigt</code><a class="headerlink" href="#brokkr.Tensor.voigt" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Voigt representation of the array.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr.Stress">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Stress</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Stress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._tensor.Tensor</span></code></p>
+<p>Stress tensor.</p>
+<p>A subset of the tensor class, the stress tensor requires that <code class="docutils literal notranslate"><span class="pre">units</span></code> be
+in pressure and provides additional, stress-specific functionality.</p>
+<dl class="attribute">
+<dt id="brokkr.Stress.principal">
+<code class="descname">principal</code><a class="headerlink" href="#brokkr.Stress.principal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of principal stresses.</p>
+<p>The array format is:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\left[ \begin{matrix}
+(\sigma_{xy})_1 &amp; (\sigma_{xy})_2 &amp; (\tau_{xy})_\text{max} \\
+(\sigma_{yz})_1 &amp; (\sigma_{yz})_2 &amp; (\tau_{yz})_\text{max} \\
+(\sigma_{zx})_1 &amp; (\sigma_{zx})_2 &amp; (\tau_{zx})_\text{max}
+\end{matrix} \right]\end{split}\]</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.Stress.vonMises">
+<code class="descname">vonMises</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Stress.vonMises" title="Permalink to this definition">¶</a></dt>
+<dd><p>The equivalent von Mises stress of the stress tensor.</p>
+<p>The von Mises stress <span class="math notranslate nohighlight">\(\sigma_{v}\)</span> is defined:</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{v} = \sqrt{
+\frac{1}{2} \left[ \left( \sigma_{11} - \sigma_{22} \right) ^ 2
++ \left( \sigma_{22} - \sigma_{33} \right) ^ 2
++ \left( \sigma_{33} - \sigma_{11} \right) ^ 2
++ 6 \left( \tau_{12}^2 + \tau_{23}^2 + \tau_{31}^2 \right) \right]
+}\]</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr.Strain">
+<em class="property">class </em><code class="descclassname">brokkr.</code><code class="descname">Strain</code><span class="sig-paren">(</span><em>matrix</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.Strain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._tensor.Tensor</span></code></p>
+<p>Strain tensor.</p>
+<p>A subset of the tensor class, the strain tensor requires that <code class="docutils literal notranslate"><span class="pre">units</span></code> be
+in units of length/length and provides additional, strain-specific
+functionality.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stype</strong> (<em>{'engineering'</em><em>, </em><em>'tensor'}</em>) – the type of shear strain</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="brokkr.Strain.stype">
+<code class="descname">stype</code><a class="headerlink" href="#brokkr.Strain.stype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strain type.</p>
+<p>Must be ‘engineering’ or ‘tensor’ strain.</p>
+<p class="rubric">Notes</p>
+<p>Only affects shear strains (i.e. <span class="math notranslate nohighlight">\(\varepsilon_4\)</span>,
+<span class="math notranslate nohighlight">\(\varepsilon_5\)</span>, and <span class="math notranslate nohighlight">\(\varepsilon_6\)</span>). Using Voigt
+notation, the relationship is defined:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\underbrace{ \left[ \begin{matrix}
+\varepsilon_1 \\ \varepsilon_2 \\ \varepsilon_3 \\ \varepsilon_4 \\
+\varepsilon_5 \\ \varepsilon_6
+\end{matrix} \right] }_\text{contracted notation} =
+\underbrace{ \left[ \begin{matrix}
+\varepsilon_{11} \\ \varepsilon_{22} \\ \varepsilon_{33} \\
+\gamma_{23} \\ \gamma_{31} \\ \gamma_{12}
+\end{matrix} \right] }_\text{engineering strain} =
+\underbrace{ \left[ \begin{matrix}
+\varepsilon_{11} \\ \varepsilon_{22} \\ \varepsilon_{33} \\
+2 \varepsilon_{23} \\ 2 \varepsilon_{31} \\ 2 \varepsilon_{12}
+\end{matrix} \right] }_\text{engineering strain}\end{split}\]</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-brokkr._vector">
+<span id="vectors"></span><h2>Vectors<a class="headerlink" href="#module-brokkr._vector" title="Permalink to this headline">¶</a></h2>
+<p>Define vector classes.</p>
+<dl class="class">
+<dt id="brokkr._vector.Vector">
+<em class="property">class </em><code class="descclassname">brokkr._vector.</code><code class="descname">Vector</code><a class="headerlink" href="#brokkr._vector.Vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">unyt.array.unyt_array</span></code></p>
+<p>Base 3x1 vector array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>matrix</strong> (<em>numpy.array_like</em>) – an array-like object with three items</li>
+<li><strong>units</strong> (<em>string</em><em> or </em><em>unyt.Unit object</em>) – the physical units for the vector</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">units</span></code> is supplied as a string, it must conform to the same
+formatting rules as the <code class="docutils literal notranslate"><span class="pre">unyt.array.unyt_array.to()</span></code> method.</p>
+<dl class="method">
+<dt id="brokkr._vector.Vector.has_dimension">
+<code class="descname">has_dimension</code><span class="sig-paren">(</span><em>dim</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr._vector.Vector.has_dimension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if dimensions of vector match <cite>dim</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dim</strong> (<code class="docutils literal notranslate"><span class="pre">unyt.dimensions</span></code> dimension) – the dimension to compare the instance against</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if instance’s dimension matches <code class="docutils literal notranslate"><span class="pre">dim</span></code>; False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr._vector.Vector.resultant">
+<code class="descname">resultant</code><a class="headerlink" href="#brokkr._vector.Vector.resultant" title="Permalink to this definition">¶</a></dt>
+<dd><p>The resultant magnitude.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr._vector.Force">
+<em class="property">class </em><code class="descclassname">brokkr._vector.</code><code class="descname">Force</code><a class="headerlink" href="#brokkr._vector.Force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#brokkr._vector.Vector" title="brokkr._vector.Vector"><code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._vector.Vector</span></code></a></p>
+<p>A 3D force vector.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr._vector.Moment">
+<em class="property">class </em><code class="descclassname">brokkr._vector.</code><code class="descname">Moment</code><a class="headerlink" href="#brokkr._vector.Moment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#brokkr._vector.Vector" title="brokkr._vector.Vector"><code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._vector.Vector</span></code></a></p>
+<p>A 3D moment vector.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="brokkr._vector.Displacement">
+<em class="property">class </em><code class="descclassname">brokkr._vector.</code><code class="descname">Displacement</code><a class="headerlink" href="#brokkr._vector.Displacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#brokkr._vector.Vector" title="brokkr._vector.Vector"><code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr._vector.Vector</span></code></a></p>
+<p>A 3D distance vector.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-brokkr.bmath">
+<span id="functions"></span><h2>Functions<a class="headerlink" href="#module-brokkr.bmath" title="Permalink to this headline">¶</a></h2>
+<p>Miscellaneous functions used in brokkr.</p>
+<dl class="function">
+<dt id="brokkr.bmath.ms">
+<code class="descclassname">brokkr.bmath.</code><code class="descname">ms</code><span class="sig-paren">(</span><em>applied</em>, <em>allowed</em>, <em>knockdown=1</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bmath.ms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the margin of safety.</p>
+<p>The margin of safety is calculated according to the following formula:</p>
+<div class="math notranslate nohighlight">
+\[MS = \frac{F_{\text{app}}}{k F_{alw}} - 1\]</div>
+<p>where</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="58%" />
+<col width="42%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><span class="math notranslate nohighlight">\(MS\)</span></td>
+<td>margin of safety</td>
+</tr>
+<tr class="row-even"><td><span class="math notranslate nohighlight">\(F_{\text{app}}\)</span></td>
+<td>applied load</td>
+</tr>
+<tr class="row-odd"><td><span class="math notranslate nohighlight">\(F_{\text{alw}}\)</span></td>
+<td>allowable</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">applied</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed</span></code> values must have the same units.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>applied</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – applied stress, load, or strain</li>
+<li><strong>allowed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – the allowable strength</li>
+<li><strong>knockdown</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – allowable knockdown factor (<code class="docutils literal notranslate"><span class="pre">default=1</span></code>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the margin of safety</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>It is also possible to calculate a margin of safety using a failure index
+by substituting the failure index in for the <code class="docutils literal notranslate"><span class="pre">applied</span></code> value and setting
+the <code class="docutils literal notranslate"><span class="pre">allowed</span></code> value to <code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="brokkr.bmath.matrix_minor">
+<code class="descclassname">brokkr.bmath.</code><code class="descname">matrix_minor</code><span class="sig-paren">(</span><em>matrix</em>, <em>indices</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bmath.matrix_minor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the minor of a 2D <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>matrix</strong> (<em>2D numpy.ndarray</em>) – the matrix from which to find a minor</li>
+<li><strong>indices</strong> (<em>tuple of ints</em>) – a tuple of two values indicating the row and columns for the minor</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the matrix minor</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">numpy.ndarray</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If the supplied <code class="docutils literal notranslate"><span class="pre">indices</span></code> is not a tuple of two integers or if
+<code class="docutils literal notranslate"><span class="pre">matrix</span></code> is not square</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="brokkr.bolted_joints.html" class="btn btn-neutral float-right" title="Bolted Joints" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to brokkr’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Andy Perez
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

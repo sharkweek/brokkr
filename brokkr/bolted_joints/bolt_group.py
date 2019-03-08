@@ -59,6 +59,8 @@ from .loadset import LoadSet
 class FastenerGroup:
     """A fastener group."""
 
+    # TODO: follow Niu Stress analysis chapter 9.4
+
     def __init__(self, *fasteners):
         """Initialize the instance."""
 

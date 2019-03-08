@@ -2,6 +2,8 @@
 
 import numpy as np
 
+__all__ = ['matrix_minor', 'ms']
+
 
 def matrix_minor(matrix, indices):
     """Return the minor of a 2D ``numpy.ndarray``.
@@ -47,13 +49,11 @@ def ms(applied, allowed, knockdown=1):
 
     where
 
-    +------------------------+------------------+
-    | :math:`MS`             | margin of safety |
-    +------------------------+------------------+
-    | :math:`F_{\text{app}}` | applied load     |
-    +------------------------+------------------+
-    | :math:`F_{\text{alw}}` | allowable        |
-    +------------------------+------------------+
+    ====================== ================
+    :math:`MS`             margin of safety
+    :math:`F_{\text{app}}` applied load
+    :math:`F_{\text{alw}}` allowable
+    ====================== ================
 
     .. note::
        The ``applied`` and ``allowed`` values must have the same units.

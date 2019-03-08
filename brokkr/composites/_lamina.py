@@ -12,12 +12,18 @@ TODO:
 from numpy import array, zeros
 from numpy.linalg import inv
 from math import isnan, cos, sin, radians
-from brokkr._cogs import ms
+from brokkr.mech_math import ms
+
+# attribute definitions for class slots
+LAMINA_BASE = ('t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22',
+               'F1', 'F2', 'F12', 'ftype')
+PLY_BASE = ('theta', 'z', 'e_m', 's_m')
+PLY_CALC = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
+            'laminate', 'failure_theory', 'failure_index')
 
 
 class Lamina:
-    """
-    An individual lamina.
+    """An individual lamina.
 
     The ``Lamina`` class exists for material property assignment. To consider
     loading, thermal effects, or deflection, see the ``Ply`` and ``Laminate``
@@ -45,8 +51,7 @@ class Lamina:
     """
 
     __name__ = 'Lamina'
-    __slots__ = ['t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22',
-                 'F1', 'F2', 'F12', 'ftype']
+    __slots__ = LAMINA_BASE
 
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1,
                  F12=1, ftype='strain'):
@@ -83,8 +88,7 @@ class Lamina:
 
 
 class Ply(Lamina):
-    """
-    A Ply for use in a Laminate.
+    """A Ply for use in a Laminate.
 
     Extended ``Lamina``. While the ``Lamina`` class exists for defining
     material properties, the ``Ply`` class is intended to extend its
@@ -138,17 +142,16 @@ class Ply(Lamina):
     """
 
     __name__ = 'Ply'
-    __baseattr__ = Lamina.__slots__ + ['theta', 'z', 'e_m', 's_m']
-    __calcattr__ = ['Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
-                    'laminate', 'failure_theory', 'failure_index']
-    __slots__ = __baseattr__ + __calcattr__ + ['__locked']
+    __baseattr__ = LAMINA_BASE + PLY_BASE
+    __calcattr__ = PLY_CALC
+    __slots__ = PLY_BASE + PLY_CALC + ('__locked',)
 
-    def __unlock(func):
+    def __unlock(locked_func):
         """Decorate methods to unlock attributes.
 
         Parameters
         ----------
-        func : bool
+        locked_func : bool
             The function to unlock.
 
         Returns
@@ -158,11 +161,11 @@ class Ply(Lamina):
 
         """
 
-        def wrapper(self, *args, **kwargs):
+        def unlocked_func(self, *args, **kwargs):
             super().__setattr__('_Ply__locked', False)
-            func(self, *args, **kwargs)
+            locked_func(self, *args, **kwargs)
             super().__setattr__('_Ply__locked', True)
-        return wrapper
+        return unlocked_func
 
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
