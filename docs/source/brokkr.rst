@@ -1,10 +1,10 @@
 brokkr
-=============
+======
 .. automodule:: brokkr
 
 Tensors
 -------
-.. automodule:: brokkr._tensor
+.. automodule:: brokkr.tensor
 
 .. py:module:: brokkr
 .. autoclass:: Tensor
@@ -21,7 +21,7 @@ Tensors
 
 Vectors
 -------
-.. automodule:: brokkr._vector
+.. automodule:: brokkr.vector
 .. autoclass:: Vector
     :members:
     :show-inheritance:

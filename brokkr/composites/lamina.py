@@ -9,10 +9,23 @@ TODO:
 
 """
 
-from numpy import array, zeros
+from numpy import array, zeros, cos, sin
 from numpy.linalg import inv
-from math import isnan, cos, sin, radians
 from brokkr.mech_math import ms
+from brokkr import USYS, UREG
+from brokkr._exceptions import (
+    UnitDimensionError,
+    BoundedValueError,
+    check_bounds
+)
+from unyt.dimensions import (
+    length,
+    pressure,
+    dimensionless,
+    temperature,
+    angle
+)
+
 
 # attribute definitions for class slots
 LAMINA_BASE = ('t', 'E1', 'E2', 'nu12', 'G12', 'a11', 'a22', 'b11', 'b22',
@@ -29,7 +42,7 @@ class Lamina:
     loading, thermal effects, or deflection, see the ``Ply`` and ``Laminate``
     classes.
 
-    Attributes
+    Parameters
     ----------
     t : float
         lamina thickness
@@ -44,17 +57,45 @@ class Lamina:
         coefficients of hygroscopic expansion (CTE) in the lamina 1- and 3-
         directions
     F1, F2, F12 : float
-        lamina strengths in each direction
-    ftype : {'strain', 'stress'}
-        lamina strength type
+        lamina strengths in each direction; may be in strain or stress
+
+    Notes
+    -----
+    Parameters may be entered including or not including units. If units are
+    not included, they will be assigned from the default unit registry
+    (``brokkr.UREG``). Dimensionless units such as strain and percent moisture
+    gain are assigned a ``dimensionless`` unit. Calculated attributes produce
+    the appropriate units based on the base attributes.
 
     """
 
     __name__ = 'Lamina'
-    __slots__ = LAMINA_BASE
+    _param_dims = {
+        't': (length, ),
+        'E1': (pressure, ),
+        'E2': (pressure, ),
+        'nu12': (dimensionless, ),
+        'G12': (pressure, ),
+        'a11': (1 / temperature, ),
+        'a22': (1 / temperature, ),
+        'b11': (dimensionless, ),  # percent moisture change
+        'b22': (dimensionless, ),
+        'F1': (dimensionless, pressure),  # dimensionless for strain
+        'F2': (dimensionless, pressure),
+        'F12': (dimensionless, pressure)
+    }
+    _param_limits = {  # defines attribute limits for use with `check_bounds()`
+        't': {'mn': 0, 'mx': None, 'condition': 2},
+        'E1': {'mn': 0, 'mx': None, 'condition': 2},
+        'E2': {'mn': 0, 'mx': None, 'condition': 2},
+        'nu12': {'mn': 0, 'mx': 1, 'condition': 3},
+        'G12': {'mn': 0, 'mx': None, 'condition': 2}
+    }
+    __slots__ = list(_param_dims)
 
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=1, F2=1,
-                 F12=1, ftype='strain'):
+                 F12=1):
+
         self.t = t
         self.E1 = E1
         self.E2 = E2
@@ -67,24 +108,33 @@ class Lamina:
         self.F1 = F1
         self.F2 = F2
         self.F12 = F12
-        self.ftype = ftype
 
-    @property
-    def is_fully_defined(self):
-        """Check if lamina is fully defined with proper attr data types."""
+    def __setattr__(self, name, attr):
+        """Extend __setattr__() to validate units."""
 
-        if self.t == 0 or isnan(self.t):
-            raise TypeError("lamina.tk must be a non-zero number")
-        elif self.E1 == 0 or isnan(self.E1):
-            raise TypeError("lamina.E1 must be a non-zero number")
-        elif self.E2 == 0 or isnan(self.E2):
-            raise TypeError("lamina.E2 must be a non-zero number")
-        elif (self.nu12 >= 1) or isnan(self.nu12):
-            raise TypeError("""lamina.nu12 must be less than or equal to 1""")
-        elif self.G12 == 0 or isnan(self.G12):
-            raise TypeError("lamina.G12 must be a non-zero number")
-        else:
-            return True
+        # set dimensions for required attributes
+        if name in Lamina._param_dims:
+            correct_dim = Lamina._param_dims.get(name)
+            # check if object has units
+            try:
+                attr.units
+
+            # if not, assign units
+            except AttributeError:
+                attr *= USYS[correct_dim[0]]  # assign first
+
+            # if so, check units have correct dimensionality
+            else:
+                for each in correct_dim:
+                    if attr.units.dimensions != each:
+                        raise UnitDimensionError(name, correct_dim)
+
+        # make sure value is within limits
+        if name in self._param_limits:
+            if not check_bounds(attr.value, **self._param_limits.get(name)):
+                raise BoundedValueError("ah-ah-ah....")
+
+        super().__setattr__(name, attr)
 
 
 class Ply(Lamina):
@@ -112,7 +162,7 @@ class Ply(Lamina):
       * Theta is in degrees, measured from the laminate x-axis to the lamina
         1- axis.
 
-    Attributes
+    Parameters
     ----------
     laminate : Laminate
         the Laminate object the Ply belongs to
@@ -120,6 +170,11 @@ class Ply(Lamina):
         See ``Lamina`` attribute definitions
     theta : float
         the angle the Ply is oriented in w.r.t. the Laminate coordinate system
+    failure_theory : {'strain', 'stress', 'Tsai-Hill'}
+        The failure theory for calculating the failure index
+
+    Attributes
+    ----------
     Q : 3x1 numpy.ndarray
         Ply stiffness matrix in the Ply coordinate system
     Qbar : 3x1 numpy.ndarray
@@ -134,14 +189,22 @@ class Ply(Lamina):
         Ply stresses due to mechanical, thermal, and hygroscopic loading
     z : float
         Vertical location of the ply midplane in the laminate
-    failure_theory : {'strain', 'stress', 'Tsai-Hill'}
-        The failure theory for calculating the failure index
     failure_index : float
         the failure index
 
     """
 
     __name__ = 'Ply'
+    _param_dims = {
+        **Lamina._param_dims,
+        'theta': (angle, ),
+        'z': (length, ),
+        'e_m': (dimensionless, ),
+        's_m': (pressure, )
+    }
+    _param_limits = {  # defines attribute limits for use with `check_bounds()`
+        **Lamina._param_limits
+    }
     __baseattr__ = LAMINA_BASE + PLY_BASE
     __calcattr__ = PLY_CALC
     __slots__ = PLY_BASE + PLY_CALC + ('__locked',)
@@ -169,8 +232,7 @@ class Ply(Lamina):
 
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
-                 b22, F1=1, F2=1, F12=1, ftype='strain',
-                 failure_theory='strain'):
+                 b22, F1=1, F2=1, F12=1, failure_theory='strain'):
         """Extend ``__init__`` to account for Ply-only attributes."""
 
         self.laminate = laminate

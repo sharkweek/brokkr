@@ -24,7 +24,7 @@ References
 
 """
 
-from ._lamina import Lamina, Ply
-from ._laminate import Laminate
+from .lamina import Lamina, Ply
+from .laminate import Laminate
 
 __all__ = ['Lamina', 'Ply', 'Laminate']
