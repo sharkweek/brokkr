@@ -43,3 +43,10 @@ Functions
 .. automodule:: brokkr.mech_math
 .. autofunction:: ms
 .. autofunction:: matrix_minor
+
+Additional Namespace Objects
+----------------------------
+In addition to the variables/objects/etc. listed above, the following entities
+are avaialble from the top level ``brokkr`` namespace.
+
+* list of stuff

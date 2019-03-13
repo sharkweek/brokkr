@@ -129,13 +129,19 @@ class BoundedValueError(Exception):
 
 
 class CoefficientError(BoundedValueError):
-    """Error for values that must be between 0 and 1."""
+    """Error for values that must be between 0 and 1.
+
+    .. warning:: ``CoefficientError`` will accept all ``condition`` values
+        that ``BoundedValueError`` accepts, but should limited to ``3``
+        through ``6``. Use ``BoundedValueError`` for any other conditions.
+
+    """
 
     def __init__(cls, name, condition):
         super().__init__(name, 0, 1, condition)
 
 
-def check_bounds(val, mn, mx, condition):
+def out_of_bounds(val, mn, mx, condition):
     """Check if value satisfies boundary conditions.
 
     Parameters
@@ -144,8 +150,13 @@ def check_bounds(val, mn, mx, condition):
         value to evaluate against boundary conditions
     mn, mx: float or int
         the minimum and maximum boundaries
-    condition: int {1 through 8}
+    condition: {1 through 8}
         the boundary condition to evaluate
+
+    Returns
+    -------
+    bool
+        True if ``val`` is outside boundaries, False if within boundaries
 
     Notes
     -----
@@ -167,7 +178,7 @@ def check_bounds(val, mn, mx, condition):
 
     """
 
-    return {
+    return not {
         1: lambda: val > mn and mx is None,
         2: lambda: val >= mn and mx is None,
         3: lambda: mn < val < mx,

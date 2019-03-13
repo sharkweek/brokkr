@@ -16,7 +16,7 @@ from brokkr import USYS, UREG
 from brokkr._exceptions import (
     UnitDimensionError,
     BoundedValueError,
-    check_bounds
+    out_of_bounds
 )
 from unyt.dimensions import (
     length,
@@ -45,19 +45,28 @@ class Lamina:
     Parameters
     ----------
     t : float
-        lamina thickness
+        lamina thickness (``(length)``)
     E1, E2, G12 : float
         elastic moduli in the lamina 1-, 2-, and 12-directions
+        (``(mass)/((length)*(time)**2)``)
     nu12 : float
-        Poisson's ratio in the 12-plane
+        Poisson's ratio in the 12-plane (``(dimensionless)``)
     a11, a22 : float
         coefficients of thermal expansion (CTE) in the lamina 1- and 2-
-        directions
+        directions (``(dimensionless)``)
     b11, b22 : float
         coefficients of hygroscopic expansion (CTE) in the lamina 1- and 3-
-        directions
+        directions (``(dimensionless)``)
     F1, F2, F12 : float
         lamina strengths in each direction; may be in strain or stress
+        (``(dimensionless)`` or ``(mass)/((length)*(time)**2)``)
+
+    Raises
+    ------
+    BoundedValueError
+        if attribute value is not within required boundaries
+    UnitDimensionError
+        if attribute units have incorrect dimensionality
 
     Notes
     -----
@@ -84,7 +93,8 @@ class Lamina:
         'F2': (dimensionless, pressure),
         'F12': (dimensionless, pressure)
     }
-    _param_limits = {  # defines attribute limits for use with `check_bounds()`
+      # define attribute limits for use with `out_of_bounds()`
+    _param_limits = {
         't': {'mn': 0, 'mx': None, 'condition': 2},
         'E1': {'mn': 0, 'mx': None, 'condition': 2},
         'E2': {'mn': 0, 'mx': None, 'condition': 2},
@@ -131,8 +141,8 @@ class Lamina:
 
         # make sure value is within limits
         if name in self._param_limits:
-            if not check_bounds(attr.value, **self._param_limits.get(name)):
-                raise BoundedValueError("ah-ah-ah....")
+            if out_of_bounds(attr.value, **self._param_limits.get(name)):
+                raise BoundedValueError(name, **self._param_limits.get(name))
 
         super().__setattr__(name, attr)
 
@@ -149,7 +159,7 @@ class Ply(Lamina):
     | **Attribute Types**
     | Not all attributes of are able to be directly modified. Attributes are
       divided into 'base' and 'calculated' values categories and are
-      prescribed by the class attributes ``__baseattr__`` and ``__calcattr__``,
+      prescribed by the class attributes ``__baseattr__`` and ``_calc_attr``,
       respectively. Base attributes may be set freely, while calculated
       attributes are 'locked' and updated based on the values of base
       attributes.
@@ -166,8 +176,6 @@ class Ply(Lamina):
     ----------
     laminate : Laminate
         the Laminate object the Ply belongs to
-    t, E1, E2, nu12, G12, a11, a22, b11, F1, F2, F12, ftype
-        See ``Lamina`` attribute definitions
     theta : float
         the angle the Ply is oriented in w.r.t. the Laminate coordinate system
     failure_theory : {'strain', 'stress', 'Tsai-Hill'}
@@ -197,17 +205,16 @@ class Ply(Lamina):
     __name__ = 'Ply'
     _param_dims = {
         **Lamina._param_dims,
-        'theta': (angle, ),
-        'z': (length, ),
-        'e_m': (dimensionless, ),
-        's_m': (pressure, )
+        'theta': (angle,),
+        'z': (length,),
+        'e_m': (dimensionless,),
+        's_m': (pressure,)
     }
-    _param_limits = {  # defines attribute limits for use with `check_bounds()`
-        **Lamina._param_limits
-    }
-    __baseattr__ = LAMINA_BASE + PLY_BASE
-    __calcattr__ = PLY_CALC
-    __slots__ = PLY_BASE + PLY_CALC + ('__locked',)
+
+    _base_attr = list(_param_dims)
+    _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
+                  'laminate', 'failure_theory', 'failure_index')
+    __slots__ = _base_attr + _calc_attr + ('__locked',)
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -247,8 +254,7 @@ class Ply(Lamina):
         self.failure_theory = failure_theory
         self.failure_index = 0
 
-        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
-                         ftype)
+        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12)
         self.__update()
 
     def __setattr__(self, attr, val):
@@ -261,7 +267,7 @@ class Ply(Lamina):
                 self.__update()
 
             # don't set protected values
-            elif attr in self.__calcattr__:
+            elif attr in self._calc_attr:
                 raise AttributeError(self.__name__ + ".%s" % attr
                                      + " is a derived value and cannot be set")
 
