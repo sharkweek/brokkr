@@ -4,10 +4,10 @@ from numpy import array
 from unyt.dimensions import force, length
 from unyt.array import unyt_array
 
-__all__ = ['Vector', 'Force', 'Moment', 'Displacement']
+__all__ = ['BaseVector', 'ForceVector', 'MomentVector', 'DisplacementVector']
 
 
-class Vector(unyt_array):
+class BaseVector(unyt_array):
     """Base 3x1 vector array.
 
     Parameters
@@ -25,7 +25,7 @@ class Vector(unyt_array):
     """
 
     def __new__(cls, matrix, units):
-        """Create `Vector` instance."""
+        """Create `BaseVector` instance."""
         new = array(matrix)
         if new.size != 3:
             raise TypeError("`matrix` must have six values")
@@ -58,11 +58,11 @@ class Vector(unyt_array):
         return self.units.dimensions == dim
 
 
-class Force(Vector):
+class ForceVector(BaseVector):
     """A 3D force vector."""
 
     def __new__(cls, forces, units='lbf'):
-        """Create `Force` instance."""
+        """Create `ForceVector` instance."""
         new = super().__new__(cls, forces, units)
         # check for force dim
         if new.has_dimension(force):
@@ -71,11 +71,11 @@ class Force(Vector):
             raise TypeError("`units` must be force units")
 
 
-class Moment(Vector):
+class MomentVector(BaseVector):
     """A 3D moment vector."""
 
     def __new__(cls, moments, units='inch*lbf'):
-        """Create `Moment` instance."""
+        """Create `MomentVector` instance."""
         new = super().__new__(cls, moments, units)
         # check for moment dim
         if new.has_dimension(length * force):
@@ -84,11 +84,11 @@ class Moment(Vector):
             raise TypeError("`units` must be moment units")
 
 
-class Displacement(Vector):
+class DisplacementVector(BaseVector):
     """A 3D distance vector."""
 
     def __new__(cls, displacements, units='inch'):
-        """Create `Displacement` instance."""
+        """Create `DisplacementVector` instance."""
         new = super().__new__(cls, displacements, units)
         # check for length dim
         if new.has_dimension(length):

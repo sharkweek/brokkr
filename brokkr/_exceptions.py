@@ -1,5 +1,7 @@
 """Exceptions for ``brokkr``"""
 
+from .mech_math import out_of_bounds
+
 
 class UnitDimensionError(Exception):
     """Error raised if wrong unit type is assigned.
@@ -34,7 +36,7 @@ class BoundedValueError(Exception):
         the minimum value checked against
     mx : float
         the maximum value checked against
-    condition: int
+    condition: {'g', 'ge', 'g-l', 'ge-l', 'g-le', 'ge-le', 'l', 'le'}
         the condition ``name`` was evaluated against ;see 'Notes' for
         acceptable values
 
@@ -43,18 +45,18 @@ class BoundedValueError(Exception):
     ``condition`` should may be any of the values defined for each of the
     boundary conditions described in the table below:
 
-    ===== ==================
-    Value Boundary Condition
-    ===== ==================
-    ``1`` ``val > mn``
-    ``2`` ``val >= mn``
-    ``3`` ``mn < val < mx``
-    ``4`` ``mn <= val < mx``
-    ``5`` ``mn < val <= mx``
-    ``6`` ``mn <= val <= mx``
-    ``7`` ``val < mx``
-    ``8`` ``val <= mx``
-    ===== ==================
+    =========== ==================
+    Value       Boundary Condition
+    =========== ==================
+    ``'g'``     ``val > mn``
+    ``'ge'``    ``val >= mn``
+    ``'g-l'``   ``mn < val < mx``
+    ``'ge-l'``  ``mn <= val < mx``
+    ``'g-le'``  ``mn < val <= mx``
+    ``'ge-le'`` ``mn <= val <= mx``
+    ``'l'``     ``val < mx``
+    ``'le'``    ``val <= mx``
+    =========== ==================
 
     """
 
@@ -75,46 +77,62 @@ class BoundedValueError(Exception):
             self.both = False
 
         args = {
-            1: {'mn': str(mn) + ' ',
-                'mn_eq': '> ',
+            'g': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>',
                 'mx': '',
                 'mx_eq': '',
-                'nd': ''},
-            2: {'mn': str(mn) + ' ',
-                'mn_eq': '>= ',
+                'nd': ''
+            },
+            'ge': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>=',
                 'mx': '',
                 'mx_eq': '',
-                'nd': ''},
-            3: {'mn': str(mn) + ' ',
-                'mn_eq': '< ',
+                'nd': ''
+            },
+            'g-l': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>',
                 'mx': str(mx) + ' ',
-                'mx_eq': '< ',
-                'nd': 'and '},
-            4: {'mn': str(mn) + ' ',
-                'mn_eq': '<= ',
+                'mx_eq': '<',
+                'nd': 'and '
+            },
+            'ge-l': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>=',
                 'mx': str(mx) + ' ',
-                'mx_eq': '< ',
-                'nd': 'and '},
-            5: {'mn': str(mn) + ' ',
-                'mn_eq': '< ',
+                'mx_eq': '<',
+                'nd': 'and '
+            },
+            'g-le': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>',
+                'mx': str(mx) + ' ',
+                'mx_eq': '<=',
+                'nd': 'and '
+            },
+            'ge-le': {
+                'mn': str(mn) + ' ',
+                'mn_eq': '>=',
                 'mx': str(mx) + ' ',
                 'mx_eq': '<= ',
-                'nd': 'and '},
-            6: {'mn': str(mn) + ' ',
-                'mn_eq': '<= ',
-                'mx': str(mx) + ' ',
-                'mx_eq': '<= ',
-                'nd': 'and '},
-            7: {'mn': '',
+                'nd': 'and '
+            },
+            'l': {
+                'mn': '',
                 'mn_eq': '',
                 'mx': str(mx) + ' ',
-                'mx_eq': '< ',
-                'nd': ''},
-            8: {'mn': '',
+                'mx_eq': '<',
+                'nd': ''
+            },
+            'le': {
+                'mn': '',
                 'mn_eq': '',
                 'mx': str(mx) + ' ',
-                'mx_eq': '<= ',
-                'nd': ''}
+                'mx_eq': '<=',
+                'nd': ''
+            }
         }.get(condition)
 
         for each in args:
@@ -139,52 +157,3 @@ class CoefficientError(BoundedValueError):
 
     def __init__(cls, name, condition):
         super().__init__(name, 0, 1, condition)
-
-
-def out_of_bounds(val, mn, mx, condition):
-    """Check if value satisfies boundary conditions.
-
-    Parameters
-    ----------
-    val : float or int
-        value to evaluate against boundary conditions
-    mn, mx: float or int
-        the minimum and maximum boundaries
-    condition: {1 through 8}
-        the boundary condition to evaluate
-
-    Returns
-    -------
-    bool
-        True if ``val`` is outside boundaries, False if within boundaries
-
-    Notes
-    -----
-    ``condition`` should may be any of the values defined for each of the
-    boundary conditions described in the table below:
-
-    ===== ==================
-    Value Boundary Condition
-    ===== ==================
-    ``1`` ``val > mn``
-    ``2`` ``val >= mn``
-    ``3`` ``mn < val < mx``
-    ``4`` ``mn <= val < mx``
-    ``5`` ``mn < val <= mx``
-    ``6`` ``mn <= val <= mx``
-    ``7`` ``val < mx``
-    ``8`` ``val <= mx``
-    ===== ==================
-
-    """
-
-    return not {
-        1: lambda: val > mn and mx is None,
-        2: lambda: val >= mn and mx is None,
-        3: lambda: mn < val < mx,
-        4: lambda: mn <= val < mx,
-        5: lambda: mn < val <= mx,
-        6: lambda: mn <= val <= mx,
-        7: lambda: mn is None and val < mx,
-        8: lambda: mn is None and val <= mx
-    }.get(condition)()

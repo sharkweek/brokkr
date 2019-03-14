@@ -7,13 +7,18 @@ Welcome to ``brokkr``'s documentation!
 
 How to Use This Documentation
 -----------------------------
-Attributes and parameters are
+Attributes and parameters with units are documented with ``dim: unit``
 available for
 
 
 Module Overview
 ----------------
 table of modules and their purpose
+
+
+General Usage
+-------------
+units discussion
 
 
 Requirements

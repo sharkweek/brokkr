@@ -4,10 +4,10 @@ from numpy import array, empty
 from unyt.dimensions import pressure, length
 from unyt.array import unyt_array
 
-__all__ = ['Tensor', 'Strain', 'Stress']
+__all__ = ['BaseTensor', 'StrainTensor', 'StressTensor']
 
 
-class Tensor(unyt_array):
+class BaseTensor(unyt_array):
     """Base 3x3 symmetric tensor.
 
     Parameters
@@ -20,7 +20,7 @@ class Tensor(unyt_array):
     """
 
     def __new__(cls, matrix, units):
-        """Create `Tensor` instance."""
+        """Create `BaseTensor` instance."""
         if array(matrix).size != 6:
             raise TypeError("`matrix` must have six values")
         else:
@@ -28,7 +28,7 @@ class Tensor(unyt_array):
             return new
 
     def __init__(self, matrix):
-        """Initialize `Tensor` instance."""
+        """Initialize `BaseTensor` instance."""
         for i, j in enumerate(array(matrix).ravel()):
             self.set_v_item(i, j)
 
@@ -80,7 +80,7 @@ class Tensor(unyt_array):
         return self.units.dimensions == dim
 
 
-class Stress(Tensor):
+class StressTensor(BaseTensor):
     """Stress tensor.
 
     A subset of the tensor class, the stress tensor requires that ``units`` be
@@ -89,7 +89,7 @@ class Stress(Tensor):
     """
 
     def __new__(cls, stresses, units='psi'):
-        """Create `Stress` instance."""
+        """Create `StressTensor` instance."""
         new = super().__new__(cls, stresses, units)
         # check for pressure dim
         if new.has_dimension(pressure):
@@ -148,8 +148,8 @@ class Stress(Tensor):
                       [czx + rzx, czx - rzx, rzx]])
 
 
-class Strain(Tensor):
-    """Strain tensor.
+class StrainTensor(BaseTensor):
+    """A strain tensor.
 
     A subset of the tensor class, the strain tensor requires that ``units`` be
     in units of length/length and provides additional, strain-specific
@@ -163,7 +163,7 @@ class Strain(Tensor):
     """
 
     def __new__(cls, strains, units='inch/inch', stype='engineering'):
-        """Create `Strain` instance object."""
+        """Create `StrainTensor` instance object."""
 
         new = super().__new__(cls, strains, units)
         new.__stype = stype
@@ -178,7 +178,7 @@ class Strain(Tensor):
 
     @property
     def stype(self):
-        r"""Strain type.
+        r"""StrainTensor type.
 
         Must be 'engineering' or 'tensor' strain.
 

@@ -14,11 +14,13 @@ TODO:
 * [ ] reorganize properties and setters to be adjacent
 """
 
-from ._lamina import Lamina, Ply
+from .lamina import Lamina, Ply
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
+
+__all__ = ['Laminate']
 
 LAMINATE_BASE = ('dT', 'dM', 'N_m', 'M_m')
 LAMINATE_CALC = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
