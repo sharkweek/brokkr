@@ -1,7 +1,5 @@
 """Exceptions for ``brokkr``"""
 
-from .mech_math import out_of_bounds
-
 
 class UnitDimensionError(Exception):
     """Error raised if wrong unit type is assigned.
@@ -157,3 +155,15 @@ class CoefficientError(BoundedValueError):
 
     def __init__(cls, name, condition):
         super().__init__(name, 0, 1, condition)
+
+class CalculatedAttributeError(AttributeError):
+    """Error for calculated values."""
+
+    def __init__(self, attr_name):
+        self.attr_name = attr_name
+
+    def __str__(self):
+        return (
+            f"`{self.attr_name}` is a calculated attribute and cannot be"
+            + "set manually."
+        )

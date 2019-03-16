@@ -15,16 +15,24 @@ TODO:
 """
 
 from .lamina import Lamina, Ply
+from brokkr._exceptions import (
+    UnitDimensionError,
+    CalculatedAttributeError,
+)
+from brokkr.config import USYS, UREG
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
+from unyt import UnitSystem
+from unyt.dimensions import (
+    length,
+    dimensionless,
+    temperature,
+    force
+)
 
 __all__ = ['Laminate']
-
-LAMINATE_BASE = ('dT', 'dM', 'N_m', 'M_m')
-LAMINATE_CALC = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
-                 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
 
 
 class Laminate(dict):
@@ -66,10 +74,17 @@ class Laminate(dict):
     """
 
     # lists of attributes for method filtering
-    __name__ = 'Laminate'
-    __baseattr__ = LAMINATE_BASE
-    __calcattr__ = LAMINATE_CALC
-    __slots__ = LAMINATE_BASE + LAMINATE_CALC + ('__locked',)
+    _param_dims = {
+        'dT': (temperature,),
+        'dM': (dimensionless,),
+        'N_m': (force / length,),
+        'M_m': (force * length / length,)
+    }
+
+    _base_attr = tuple(_param_dims) + ('usys',)
+    _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
+                  'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
+    __slots__ = _base_attr + _calc_attr + ('__locked')
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -93,9 +108,10 @@ class Laminate(dict):
         return unlocked_func
 
     @__unlock
-    def __init__(self, *plies):
+    def __init__(self, *plies, usys=USYS):
         # create and zero out all properties needed for .__update()
         self.clear()
+        super().__setattr__('usys', usys)
 
         # init from CSV
         if len(plies) == 1 and type(plies[0]) == str:
@@ -111,21 +127,50 @@ class Laminate(dict):
             super().__init__(plies)
             self.__update()
 
-    def __setattr__(self, attr, val):
+    def __setattr__(self, name, attr):
         """Extend ``__setattr__`` to update instance when attributes change."""
+
         if self.__locked:
-            # udpate laminate after updated properties are set
-            if attr in self.__baseattr__:
-                super().__setattr__(attr, val)
-                self.__update()
+            # validate units
+            if name in self._base_attr:
+                if name in self._param_dims:
+                    correct_dim = self._param_dims.get(name)
+
+                    if hasattr(attr, 'units'):
+                        if attr.units.dimensions not in correct_dim:
+                            raise UnitDimensionError(
+                                name,
+                                ' OR '.join([str(i) for i in correct_dim])
+                            )
+                        else:  # force consistent units
+                            attr.convert_to_base(self.usys)
+
+                    else:
+                        attr *= self.usys[correct_dim[0]]  # first dim
+
+                    super().__setattr__(name, attr)
+                    self.__update()
+
+                # validate unit system
+                elif name == 'usys':
+                    # validate unit system
+                    if type(attr) != UnitSystem:
+                        raise TypeError(f"`{name}` must be a `UnitSystem`")
+                    elif attr['temperature'].base_offset != 0:
+                        raise TypeError(
+                            "Unit system must have an absolute temperature"
+                            + " unit (e.g. R or K)"
+                        )
+                    elif attr != self.usys:
+                        super().__setattr__(name, attr)
+                        self.__update()
 
             # don't set protected values
-            elif attr in self.__calcattr__:
-                raise AttributeError(self.__name__ + ".%s" % attr
-                                     + "is a derived value and cannot be set")
+            elif name in self._calc_attr:
+                raise CalculatedAttributeError(name)
 
         else:
-            super().__setattr__(attr, val)
+            super().__setattr__(name, attr)
 
     def __delitem__(self, key):
         """Extend ``__delitem__`` to update instance when ply is removed."""
@@ -193,10 +238,10 @@ class Laminate(dict):
 
         # intermediate star matrices
         # NASA-RP-1351 Eq (50)-(52a)
-        A_star = inv(self.A)
-        B_star = - (A_star @ self.B)
-        C_star = self.B @ A_star
-        D_star = self.D - (self.B @ A_star @ self.B)
+        A_star = inv(self.A.v)
+        B_star = - (A_star @ self.B.v)
+        C_star = self.B.v @ A_star
+        D_star = self.D.v - (self.B.v @ A_star @ self.B.v)
 
         D_prime = inv(D_star)
         C_prime = - (D_prime @ C_star)
@@ -208,9 +253,9 @@ class Laminate(dict):
 
         # the midplane strains
         # Jones, (4.108) and (4.109). Also see Section 4.5.4
-        mech_load = vstack((self.N_m, self.M_m))
-        thrm_load = vstack((self.N_t, self.M_t))
-        hygr_load = vstack((self.N_h, self.M_h))
+        mech_load = vstack((self.N_m.v, self.M_m.v))
+        thrm_load = vstack((self.N_t.v, self.M_t.v))
+        hygr_load = vstack((self.N_h.v, self.M_h.v))
         self.e_0m, self.k_0m = vsplit((ABD_prime @ mech_load), 2)
         self.e_0t, self.k_0t = vsplit((ABD_prime @ thrm_load), 2)
         self.e_0h, self.k_0h = vsplit((ABD_prime @ hygr_load), 2)
@@ -228,17 +273,17 @@ class Laminate(dict):
 
         # calculate effective moduli
         # NASA, Eq. 84
-        numer = det(self.ABD)
-        denom = det(matrix_minor(self.ABD, (0, 0)))
-        self.Ex = (numer / denom) / self.t
+        numer = det(self.ABD.v)
+        denom = det(matrix_minor(self.ABD.v, (0, 0)))
+        self.Ex = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 85
-        denom = det(matrix_minor(self.ABD, (1, 1)))
-        self.Ey = (numer / denom) / self.t
+        denom = det(matrix_minor(self.ABD.v, (1, 1)))
+        self.Ey = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 86
-        denom = det(matrix_minor(self.ABD, (2, 2)))
-        self.Gxy = (numer / denom) / self.t
+        denom = det(matrix_minor(self.ABD.v, (2, 2)))
+        self.Gxy = ((numer / denom) / self.t.v) * self.usys['pressure']
 
     def append(self, new_ply):
         """Add a new ply to the `Laminate`.
@@ -281,10 +326,10 @@ class Laminate(dict):
 
         if type(obj) == Ply:
             pass
-        elif obj.laminate != self:
-            super(Ply, obj).__setattr__('laminate', self)
         elif type(obj) == Lamina:
             obj = Ply.from_lamina(obj, laminate=self, theta=0)
+        elif obj.laminate != self:
+            super(Ply, obj).__setattr__('laminate', self)
         else:
             raise TypeError("Laminates may only contain Ply or Lamina objects")
 
