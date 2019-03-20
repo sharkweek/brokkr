@@ -24,12 +24,13 @@ from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
-from unyt import UnitSystem
+from unyt import UnitSystem, unyt_array
 from unyt.dimensions import (
     length,
     dimensionless,
     temperature,
-    force
+    force,
+    pressure
 )
 
 __all__ = ['Laminate']
@@ -78,13 +79,30 @@ class Laminate(dict):
         'dT': (temperature,),
         'dM': (dimensionless,),
         'N_m': (force / length,),
-        'M_m': (force * length / length,)
+        'M_m': (force * length / length,),
+        'N_t': (force / length,),
+        'N_h': (force / length,),
+        'M_t': (force * length / length,),
+        'M_h': (force * length / length,),
+        'Ex': (pressure,),
+        'Ey': (pressure,),
+        'Gxy': (pressure,),
+        'e_0m': (dimensionless,),
+        'e_0t': (dimensionless,),
+        'e_0h': (dimensionless,),
+        'k_0m': (dimensionless,),
+        'k_0t': (dimensionless,),
+        'k_0h': (dimensionless,),
+        'A': (pressure * length,),
+        'B': (pressure * length**2,),
+        'D': (pressure * length**3,),
+        't': (length,)
     }
 
     _base_attr = tuple(_param_dims) + ('usys',)
     _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
                   'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
-    __slots__ = _base_attr + _calc_attr + ('__locked')
+    __slots__ = _base_attr + _calc_attr + ('__locked',)
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -108,10 +126,14 @@ class Laminate(dict):
         return unlocked_func
 
     @__unlock
-    def __init__(self, *plies, usys=USYS):
+    def __init__(self, *plies, dT=0, dM=0, N_m=zeros((3, 1)),
+                 M_m=zeros((3, 1)), usys=USYS):
         # create and zero out all properties needed for .__update()
-        self.clear()
-        super().__setattr__('usys', usys)
+        self.usys = usys
+        self.dT = dT
+        self.dM = dM
+        self.N_m = N_m
+        self.M_m = N_m
 
         # init from CSV
         if len(plies) == 1 and type(plies[0]) == str:
@@ -119,57 +141,62 @@ class Laminate(dict):
 
         # standard init
         else:
-            for ply in plies:
-                # convert to Ply objects
-                ply = self.check_ply(ply)
             # convert plies to dict with ply ids as keys
-            plies = {i+1: j for i, j in enumerate(plies)}
-            super().__init__(plies)
+            ply_dict = {i+1: self.check_ply(j) for i, j in enumerate(plies)}
+            super().__init__(ply_dict)
             self.__update()
 
     def __setattr__(self, name, attr):
         """Extend ``__setattr__`` to update instance when attributes change."""
 
+        def check_dim(name, attr):
+            """Validate dimensions."""
+            if name in self._param_dims:
+                correct_dim = self._param_dims.get(name)
+
+                if hasattr(attr, 'units'):
+                    if attr.units.dimensions not in correct_dim:
+                        raise UnitDimensionError(
+                            name,
+                            ' OR '.join([str(i) for i in correct_dim])
+                        )
+                    else:  # force consistent units
+                        attr.convert_to_base(self.usys)
+
+                else:
+                    attr *= self.usys[correct_dim[0]]  # first dim
+
+            # validate unit system
+            if name == 'usys':
+                # validate unit system
+                if type(attr) != UnitSystem:
+                    raise TypeError(f"`{name}` must be a `UnitSystem`")
+                elif attr['temperature'].base_offset != 0:
+                    raise TypeError(
+                        "Unit system must have an absolute temperature"
+                        + " unit (e.g. R or K)"
+                    )
+
+            return attr
+
         if self.__locked:
+            # don't set protected values
+            if name in self._calc_attr:
+                raise CalculatedAttributeError(name)
+
             # validate units
             if name in self._base_attr:
-                if name in self._param_dims:
-                    correct_dim = self._param_dims.get(name)
+                attr = check_dim(name, attr)
+                super().__setattr__(name, attr)
+                self.__update()
 
-                    if hasattr(attr, 'units'):
-                        if attr.units.dimensions not in correct_dim:
-                            raise UnitDimensionError(
-                                name,
-                                ' OR '.join([str(i) for i in correct_dim])
-                            )
-                        else:  # force consistent units
-                            attr.convert_to_base(self.usys)
-
-                    else:
-                        attr *= self.usys[correct_dim[0]]  # first dim
-
+            if name == 'usys':
+                if attr != self.usys:
                     super().__setattr__(name, attr)
                     self.__update()
 
-                # validate unit system
-                elif name == 'usys':
-                    # validate unit system
-                    if type(attr) != UnitSystem:
-                        raise TypeError(f"`{name}` must be a `UnitSystem`")
-                    elif attr['temperature'].base_offset != 0:
-                        raise TypeError(
-                            "Unit system must have an absolute temperature"
-                            + " unit (e.g. R or K)"
-                        )
-                    elif attr != self.usys:
-                        super().__setattr__(name, attr)
-                        self.__update()
-
-            # don't set protected values
-            elif name in self._calc_attr:
-                raise CalculatedAttributeError(name)
-
         else:
+            attr = check_dim(name, attr)
             super().__setattr__(name, attr)
 
     def __delitem__(self, key):
@@ -191,7 +218,10 @@ class Laminate(dict):
 
     def __repr__(self):
         """Return the string representation."""
-        return "Laminate layup: " + self.layup.__repr__()
+        repr = 'Laminate:'
+        for ply in self:
+            repr += f'\n    Ply {ply}: {self[ply].theta.v}'
+        return repr
 
     @__unlock
     def __update(self):
@@ -208,6 +238,7 @@ class Laminate(dict):
         zk1 = self.t / 2
         for i in [x for x in sorted(self, reverse=True)]:  # count down the top
             zk1 -= self[i].t
+            # bypass lock to avoid recursive updates to self and ply
             super(Ply, self[i]).__setattr__('z', zk1 + self[i].t/2)
 
         # calculate the A, B, and D matricies; thermal and hygroscopic loads
@@ -263,7 +294,7 @@ class Laminate(dict):
         # add ply strains due to mechanical loading (in laminate orientation)
         # Jones, Eq (4.13)
         for ply in self:
-            e_m = self[ply].T @ (self.e_0m + self[ply].z * self.k_0m)
+            e_m = self[ply].T @ (self.e_0m + self[ply].z.v * self.k_0m)
             s_m = self[ply].Q @ e_m
             super(Ply, self[ply]).__setattr__('e_m', e_m)
             super(Ply, self[ply]).__setattr__('s_m', s_m)
@@ -339,6 +370,7 @@ class Laminate(dict):
     def clear(self):
         """Clear laminate of all plies."""
 
+        super().clear()
         self.A = zeros((3, 3))
         self.B = zeros((3, 3))
         self.D = zeros((3, 3))
@@ -354,7 +386,6 @@ class Laminate(dict):
         self.Ex = 0
         self.Ey = 0
         self.Gxy = 0
-        super().clear()
 
     def from_csv(self, inputFile, append=False):
         """Determine laminate properties from input CSV file.

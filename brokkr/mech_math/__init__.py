@@ -4,7 +4,7 @@ import numpy as np
 from .tensors import StrainTensor, StressTensor
 from .vectors import ForceVector, MomentVector, DisplacementVector
 
-__all__ = ['matrix_minor', 'ms']
+__all__ = ['matrix_minor', 'ms', 'out_of_bounds']
 
 
 def matrix_minor(matrix, indices):

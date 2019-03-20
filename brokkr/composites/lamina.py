@@ -10,13 +10,12 @@ TODO:
 
 from numpy import zeros, cos, sin, ndarray
 from numpy.linalg import inv
-from brokkr.mech_math import ms
+from brokkr.mech_math import ms, out_of_bounds
 from brokkr.config import USYS
 from brokkr._exceptions import (
     UnitDimensionError,
     BoundedValueError,
-    CalculatedAttributeError,
-    out_of_bounds
+    CalculatedAttributeError
 )
 from unyt import unyt_array, UnitSystem
 from unyt.dimensions import (
@@ -107,7 +106,7 @@ class Lamina:
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=0, F2=0,
                  F12=0, usys=USYS):
 
-        super().__setattr__('usys', usys)  # usys has to be set first
+        super().__setattr__('usys', usys)
         self.t = t
         self.E1 = E1
         self.E2 = E2
@@ -124,13 +123,6 @@ class Lamina:
     def __setattr__(self, name, attr):
         """Extend __setattr__() to validate units."""
 
-        # make sure value is within limits
-        if (
-            name in self._param_limits
-            and out_of_bounds(attr.value, **self._param_limits.get(name))
-        ):
-                raise BoundedValueError(name, **self._param_limits.get(name))
-
         # set dimensions for required attributes
         if name in self._param_dims:
             correct_dim = self._param_dims.get(name)
@@ -143,11 +135,18 @@ class Lamina:
                 if attr.units.dimensions not in correct_dim:
                     raise UnitDimensionError(
                         name, ' OR '.join([str(i) for i in correct_dim])
-                    )
+                        )
                 else:
                     # units are converted to master unit system for
                     # consistency when creating unit_arrays in `Ply` class
                     attr.convert_to_base(self.usys)
+
+            # make sure value is within limits
+            if name in self._param_limits:
+                if out_of_bounds(attr.value, **self._param_limits.get(name)):
+                    raise BoundedValueError(
+                        name, **self._param_limits.get(name)
+                        )
 
         # catch unit system change and convert all attributes with units
         if name == 'usys':
@@ -251,7 +250,7 @@ class Ply(Lamina):
     _base_attr = tuple(_param_dims)
     _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
                   'laminate', 'failure_theory', 'failure_index', 'usys')
-    __slots__ = _base_attr + _calc_attr + ('__locked')
+    __slots__ = _base_attr + _calc_attr + ('__locked',)
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -279,7 +278,8 @@ class Ply(Lamina):
                  b22, F1=0, F2=0, F12=0, usys=USYS, failure_theory='strain'):
         """Extend ``__init__`` to account for Ply-only attributes."""
 
-        super().__setattr__('usys', usys)
+        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
+                         usys)
         self.laminate = laminate
         self.z = 0
         self.theta = theta
@@ -292,8 +292,6 @@ class Ply(Lamina):
         self.failure_theory = failure_theory
         self.failure_index = 0
 
-        super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
-                         usys)
         self.__update()
 
     def __setattr__(self, name, attr):
@@ -308,7 +306,7 @@ class Ply(Lamina):
                     self.laminate._Laminate__update()
 
             # don't set protected values
-        elif name in self._calc_attr:
+            elif name in self._calc_attr:
                 raise CalculatedAttributeError(name)
 
         else:
@@ -363,10 +361,14 @@ class Ply(Lamina):
 
         # thermal and hygroscopic strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
-        self.e_t = (unyt_array([[self.a11], [self.a22], [0]])
-                    / self.usys['temperature']) * self.laminate.dT
-        self.e_h = (unyt_array([[self.b11], [self.b22], [0]])
-                    / self.usys['dimensionless']) * self.laminate.dM
+        self.e_t = (
+            unyt_array([[self.a11], [self.a22], [0]],
+                       1 / self.usys['temperature'])
+            ) * self.laminate.dT
+        self.e_h = (
+            unyt_array([[self.b11], [self.b22], [0]],
+                       self.usys['dimensionless'])
+            ) * self.laminate.dM
 
         # thermal and hygroscopic stresses in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)

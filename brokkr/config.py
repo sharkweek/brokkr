@@ -47,7 +47,7 @@ us_unit_system = UnitSystem(
     length_unit='inch',
     mass_unit='lb',
     time_unit='s',
-    temperature_unit='degF',
+    temperature_unit='R',
     angle_unit='degree',
     registry=UREG
 )
@@ -59,7 +59,7 @@ si_unit_system = UnitSystem(
     length_unit='m',
     mass_unit='kg',
     time_unit='s',
-    temperature_unit='degC',
+    temperature_unit='K',
     angle_unit='rad',
     registry=UREG
 )
