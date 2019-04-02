@@ -225,14 +225,22 @@ class Laminate(dict):
 
     @__unlock
     def __update(self):
-        """Update the ply and laminate attributes based on laminate stackup."""
+        """Update the ply and laminate attributes based on laminate stackup.
+
+        Notes
+        -----
+        ``unyt_array``s do not yet support matrix multiplication. All matrix
+        multiplication operations have to be performed on the base ``ndarray``s
+        and then have the units applied afterward.
+
+        """
 
         # reset internal values
         self.t = sum([self[i].t for i in self])
-        self.N_t = zeros((3, 1))   # thermal running loads
-        self.M_t = zeros((3, 1))   # thermal running moments
-        self.N_h = zeros((3, 1))   # hygroscopic running loads
-        self.M_h = zeros((3, 1))   # hygroscopic running moments
+        self.N_t = zeros((3, 1))
+        self.M_t = zeros((3, 1))
+        self.N_h = zeros((3, 1))
+        self.M_h = zeros((3, 1))
 
         # calculate ply bottom planes
         zk1 = self.t / 2
@@ -251,7 +259,7 @@ class Laminate(dict):
             ply._Ply__update()  # force ply to update
 
             # NASA-RP-1351, Eq (45) through (47)
-            self.A += ply.Qbar * (ply.t)
+            self.A += ply.Qbar * ply.t
             self.B += (1/2) * ply.Qbar * (ply.zk**2 - ply.zk1**2)
             self.D += (1/3) * ply.Qbar * (ply.zk**3 - ply.zk1**3)
 
@@ -291,32 +299,29 @@ class Laminate(dict):
         self.e_0t, self.k_0t = vsplit((ABD_prime @ thrm_load), 2)
         self.e_0h, self.k_0h = vsplit((ABD_prime @ hygr_load), 2)
 
-        # add ply strains due to mechanical loading (in laminate orientation)
+        # assign mechanical ply strains (in ply orientation)
         # Jones, Eq (4.13)
         for ply in self:
             e_m = self[ply].T @ (self.e_0m + self[ply].z.v * self.k_0m)
-            s_m = self[ply].Q @ e_m
-            super(Ply, self[ply]).__setattr__('e_m', e_m)
-            super(Ply, self[ply]).__setattr__('s_m', s_m)
-
-        # calculate effective laminate properties
-        # NASA, Section 5
+            e_t = self[ply].T @ (self.e_0t + self[ply].z.v * self.k_0t)
+            e_h = self[ply].T @ (self.e_0h + self[ply].z.v * self.k_0h)
+            super(Ply, self[ply]).__setattr__('e_m', unyt_array(e_m))
 
         # calculate effective moduli
         # NASA, Eq. 84
-        numer = det(self.ABD.v)
-        denom = det(matrix_minor(self.ABD.v, (0, 0)))
+        numer = det(self.ABD)
+        denom = det(matrix_minor(self.ABD, (0, 0)))
         self.Ex = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 85
-        denom = det(matrix_minor(self.ABD.v, (1, 1)))
+        denom = det(matrix_minor(self.ABD, (1, 1)))
         self.Ey = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 86
         denom = det(matrix_minor(self.ABD.v, (2, 2)))
         self.Gxy = ((numer / denom) / self.t.v) * self.usys['pressure']
 
-    def append(self, new_ply):
+    def append(self, new_ply, angle=0):
         """Add a new ply to the `Laminate`.
 
         Parameters
@@ -332,6 +337,7 @@ class Laminate(dict):
         """
 
         new_ply = self.check_ply(new_ply)
+        new_ply.theta = angle
         super().__setitem__(len(self)+1, new_ply)
         self.__update()
 
@@ -363,6 +369,9 @@ class Laminate(dict):
             super(Ply, obj).__setattr__('laminate', self)
         else:
             raise TypeError("Laminates may only contain Ply or Lamina objects")
+
+        if obj.usys != self.usys:
+            obj.usys = self.usys
 
         return obj
 
@@ -487,6 +496,31 @@ class Laminate(dict):
 
         self.__update()
 
+    def reorient(self, angle):
+        """Reorient laminate.
+
+        The units of `angle` are assumed to be the same angle units as the
+        laminate. If a sequence is provided, it is assumed to start with the
+        first ply and iterate through to the last in order.
+
+        Parameters
+        ----------
+        angle : float or iterable of floats
+            the angle to rotate the laminate or the sequence of individual
+            lamina orientations
+
+        """
+
+        if type(angle) == tuple or type(angle) == list:
+            if len(angle) != len(self):
+                raise ValueError("`angle` must have values for each lamina")
+            else:
+                for i, j in enumerate(angle):
+                    self[i + 1].theta = angle
+        else:
+            for i in self:
+                self[i].theta = self[i].theta.v + angle
+
     @property
     def is_balanced(self):
         """Return if True if laminate is balanced."""
@@ -510,9 +544,16 @@ class Laminate(dict):
 
     @property
     def ABD(self):
-        """The laminate ABD matrix."""
-        return vstack((hstack((self.A, self.B)),
-                       hstack((self.B, self.D))))
+        """The laminate ABD matrix.
+
+        Notes
+        -----
+        Because A, B, and D matrices each have different units and
+        ``unyt_array``s must have uniform units, the ABD matrix is returned as
+        a dimensionless ``unyt_array``.
+        """
+        return unyt_array(vstack((hstack((self.A.v, self.B.v)),
+                                  hstack((self.B.v, self.D.v)))))
 
     @property
     def layup(self):

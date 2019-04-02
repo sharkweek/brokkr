@@ -101,7 +101,7 @@ class Lamina:
         'nu12': {'mn': 0, 'mx': 1, 'condition': 'g-l'},
         'G12': {'mn': 0, 'mx': None, 'condition': 'g'}
     }
-    __slots__ = tuple(_param_dims) + ('usys',)
+    __slots__ = ('usys', *_param_dims)
 
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=0, F2=0,
                  F12=0, usys=USYS):
@@ -221,9 +221,6 @@ class Ply(Lamina):
     e_m, e_t, e_h : 3x1 unyt.unyt_array
         Ply strains due to mechanical, thermal, and hygroscopic loading (``dim:
          (dimensionless)``)
-    s_m, s_t, s_h : 3x1 unyt.unyt_array
-        Ply stresses due to mechanical, thermal, and hygroscopic loading
-        (``dim: (mass)/((length)*(time)**2)``)
     z : float
         Vertical location of the ply midplane in the laminate (``dim:
         (length)``)
@@ -237,20 +234,18 @@ class Ply(Lamina):
         'theta': (angle,),
         'z': (length,),
         'e_m': (dimensionless,),
-        's_m': (pressure,),
+        's': (pressure,),
         'Q': (pressure,),
         'Qbar': (pressure,),
         'T': (dimensionless,),
         'e_t': (dimensionless,),
         'e_h': (dimensionless,),
-        's_t': (pressure,),
-        's_h': (pressure,)
     }
 
-    _base_attr = tuple(_param_dims)
-    _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's_t', 's_h',
-                  'laminate', 'failure_theory', 'failure_index', 'usys')
-    __slots__ = _base_attr + _calc_attr + ('__locked',)
+    _base_attr = ('theta', 'z', 'usys', *Lamina._param_dims)
+    _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's',
+                  'laminate', 'failure_theory', 'failure_index')
+    __slots__ = _base_attr + _calc_attr + ('e_m', '__locked',)
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -286,9 +281,7 @@ class Ply(Lamina):
         self.e_m = zeros((3, 1))
         self.e_t = zeros((3, 1))
         self.e_h = zeros((3, 1))
-        self.s_m = zeros((3, 1))
-        self.s_t = zeros((3, 1))
-        self.s_h = zeros((3, 1))
+        self.s = zeros((3, 1))
         self.failure_theory = failure_theory
         self.failure_index = 0
 
@@ -316,16 +309,21 @@ class Ply(Lamina):
         r = f'{type(self).__name__}'
         for each in sorted(self._param_dims):
             attr = getattr(self, each)
+
             if issubclass(attr.__class__, ndarray):
                 lines = attr.__str__().splitlines()
                 r += f"\n    {each + ':':<7}{lines[0]}"
+
                 for i in range(1, len(lines)):
                     r += "\n{0:<11}{1:}".format(' ', lines[i])
 
             else:
                 r += f"\n    {each + ':':<7}{attr}"
+
+        r += (
+            f"\n    {'failure theory' + ': '}{getattr(self, 'failure_theory')}"
+            )
         r += f"\n    {'failure index' + ': '}{getattr(self, 'failure_index')}"
-        r += f"\n    {'failure theory' + ': '}{getattr(self, 'failure')}"
 
         return r
 
@@ -357,7 +355,7 @@ class Ply(Lamina):
 
         # the transformed reduced stiffness matrix (laminate coordinate system)
         # Jones, Eq (2.84)
-        self.Qbar = (self.Tinv @ self.Q @ self.Tinv.T) * self.usys['pressure']
+        self.Qbar = self.Tinv @ self.Q @ self.Tinv.T
 
         # thermal and hygroscopic strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)
@@ -366,20 +364,11 @@ class Ply(Lamina):
                        1 / self.usys['temperature'])
             ) * self.laminate.dT
         self.e_h = (
-            unyt_array([[self.b11], [self.b22], [0]],
-                       self.usys['dimensionless'])
+            unyt_array([[self.b11], [self.b22], [0]], dimensionless)
             ) * self.laminate.dM
 
-        # thermal and hygroscopic stresses in laminate and lamina c-systems
-        # NASA-RP-1351 Eq (90), (91), and (95)
-        self.s_t = self.Q @ self.e_t
-        self.s_h = self.Q @ self.e_h
-
         # calculate failure index
-        self.failure_index = self.calc_failure_index(self.failure_theory,
-                                                     self.F1,
-                                                     self.F2,
-                                                     self.F12)
+        #self.failure_index = self.calc_failure_index()
 
     @classmethod
     def from_lamina(cls, lamina, laminate, theta):
@@ -399,6 +388,9 @@ class Ply(Lamina):
         ``Ply`` object
 
         """
+
+        # ensure that unit system is consistent
+        lamina.usys = laminate.usys
 
         return cls(laminate=laminate,
                    theta=theta,
@@ -431,25 +423,27 @@ class Ply(Lamina):
         self.z = new_zk1 + self.t / 2
 
     @property
-    def e(self):
-        """Total strain."""
-        return self.e_m + self.e_t + self.e_h
-
-    @property
-    def s(self):
-        """Total stress."""
-        return self.s_m + self.s_t + self.s_h
+    def S(self):
+        """The compliance matrix."""
+        return inv(self.Q.v) * (1 / self.Q.units)
 
     @staticmethod
-    def calc_failure_index(theory, F1, F2, F12):
+    def calc_failure_index(theory, s1, s2, s3, F1, F2, F12):
         r"""Calculate the failure index for a given failure theory.
 
         Parameters
         ----------
         theory : {'strain', 'stress', 'Tsai-Hill'}
             failure theory for which to calculate a failure index
+        s1, s2, s3 : float
+            applied strain or stress values (``dim: (dimensionless) OR ``dim:
+            (mass)/((length)*(time)**2)``)
         F1, F2, F12 : float
-            strengths of the material
+            strengths of the material (``dim: (dimensionless) OR ``dim:
+            (mass)/((length)*(time)**2)``)
+
+        .. note:: Applied and strength values must have the same
+           dimensionality.
 
         Returns
         -------
@@ -499,6 +493,22 @@ class Ply(Lamina):
            Company, AFWAL-TR-81-3041 VOLUME 3, pp. 8-9, 15 April 1981
 
         """
+
+        if theory == 'strain':
+            fi = 1
+
+        elif theory == 'stress':
+            fi = 1
+
+        elif theory == 'Tsai-Hill':
+            fi = 1
+
+        else:
+            raise ValueError(
+                "`theory` must be 'strain', 'stress', or 'Tsai-Hill'."
+                )
+
+        return fi
 
     @property
     def margin(self):
