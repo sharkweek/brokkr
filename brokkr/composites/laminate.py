@@ -19,12 +19,12 @@ from brokkr._exceptions import (
     UnitDimensionError,
     CalculatedAttributeError,
 )
-from brokkr.config import USYS, UREG
+from brokkr.config import USYS
 from numpy import hstack, vsplit, vstack, zeros
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
-from unyt import UnitSystem, unyt_array
+from unyt import UnitSystem
 from unyt.dimensions import (
     length,
     dimensionless,
