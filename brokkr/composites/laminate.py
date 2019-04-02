@@ -497,7 +497,7 @@ class Laminate(dict):
         self.__update()
 
     def reorient(self, angle):
-        """Reorient laminate
+        """Reorient laminate.
 
         The units of `angle` are assumed to be the same angle units as the
         laminate. If a sequence is provided, it is assumed to start with the
