@@ -355,7 +355,7 @@ class Ply(Lamina):
 
         # the transformed reduced stiffness matrix (laminate coordinate system)
         # Jones, Eq (2.84)
-        self.Qbar = self.Tinv @ self.Q @ self.Tinv.T
+        self.Qbar = (self.Tinv @ self.Q @ self.Tinv.T).v * self.Q.units
 
         # thermal and hygroscopic strains in laminate and lamina c-systems
         # NASA-RP-1351 Eq (90), (91), and (95)

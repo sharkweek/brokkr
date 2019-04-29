@@ -20,11 +20,11 @@ from brokkr._exceptions import (
     CalculatedAttributeError,
 )
 from brokkr.config import USYS
-from numpy import hstack, vsplit, vstack, zeros
+from numpy import hstack, vsplit, vstack, zeros, array
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
-from unyt import UnitSystem
+from unyt import UnitSystem, unyt_array
 from unyt.dimensions import (
     length,
     dimensionless,
@@ -87,6 +87,8 @@ class Laminate(dict):
         'Ex': (pressure,),
         'Ey': (pressure,),
         'Gxy': (pressure,),
+        'nu_xy': (dimensionless,),
+        'nu_yx': (dimensionless,),
         'e_0m': (dimensionless,),
         'e_0t': (dimensionless,),
         'e_0h': (dimensionless,),
@@ -100,8 +102,9 @@ class Laminate(dict):
     }
 
     _base_attr = tuple(_param_dims) + ('usys',)
-    _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
-                  'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
+    _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'nu_xy',
+                  'nu_yx' 'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A',
+                  'B', 'D', 't')
     __slots__ = _base_attr + _calc_attr + ('__locked',)
 
     def __unlock(locked_func):
@@ -303,8 +306,6 @@ class Laminate(dict):
         # Jones, Eq (4.13)
         for ply in self:
             e_m = self[ply].T @ (self.e_0m + self[ply].z.v * self.k_0m)
-            e_t = self[ply].T @ (self.e_0t + self[ply].z.v * self.k_0t)
-            e_h = self[ply].T @ (self.e_0h + self[ply].z.v * self.k_0h)
             super(Ply, self[ply]).__setattr__('e_m', unyt_array(e_m))
 
         # calculate effective moduli
@@ -320,6 +321,20 @@ class Laminate(dict):
         # NASA, Eq. 86
         denom = det(matrix_minor(self.ABD.v, (2, 2)))
         self.Gxy = ((numer / denom) / self.t.v) * self.usys['pressure']
+
+        # NASA, Eq. 88
+        numer = det(matrix_minor(self.ABD.v, (0, 1)))
+        denom = det(matrix_minor(self.ABD.v, (0, 0)))
+        self.nu_xy = (numer / denom) * self.usys['dimensionless']
+
+        # NASA, Eq. 89
+        a_piece = array([[self.A.v[0, 1], self.A.v[0, 2]],
+                         [self.A.v[2, 0], self.A.v[2, 2]]])
+        b_piece = array([self.B.v[0], self.B.v[2]])
+        numer = det(vstack((hstack((a_piece, b_piece)),
+                            hstack((b_piece.T, self.D)))))
+        denom = det(matrix_minor(self.ABD.v, (1, 1)))
+        self.nu_yx = (numer / denom) * self.usys['dimensionless']
 
     def append(self, new_ply, angle=0):
         """Add a new ply to the `Laminate`.
