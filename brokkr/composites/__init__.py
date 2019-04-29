@@ -1,5 +1,8 @@
 """Tools for composite laminates.
 
+When no units are supplied, they are assumed to be in the master unit system
+``brokkr.config.USYS``.
+
 All calculations are performed by using classical laminate theory (CLT) under
 the following assumptions:
 
@@ -24,7 +27,7 @@ References
 
 """
 
-from ._lamina import Lamina, Ply
-from ._laminate import Laminate
+from .lamina import Lamina, Ply
+from .laminate import Laminate
 
 __all__ = ['Lamina', 'Ply', 'Laminate']

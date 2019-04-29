@@ -14,15 +14,26 @@ TODO:
 * [ ] reorganize properties and setters to be adjacent
 """
 
-from ._lamina import Lamina, Ply
-from numpy import hstack, vsplit, vstack, zeros
+from .lamina import Lamina, Ply
+from brokkr._exceptions import (
+    UnitDimensionError,
+    CalculatedAttributeError,
+)
+from brokkr.config import USYS
+from numpy import hstack, vsplit, vstack, zeros, array
 from numpy.linalg import inv, det
 import pandas as pd
 from brokkr.mech_math import matrix_minor
+from unyt import UnitSystem, unyt_array
+from unyt.dimensions import (
+    length,
+    dimensionless,
+    temperature,
+    force,
+    pressure
+)
 
-LAMINATE_BASE = ('dT', 'dM', 'N_m', 'M_m')
-LAMINATE_CALC = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'e_0m',
-                 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A', 'B', 'D', 't')
+__all__ = ['Laminate']
 
 
 class Laminate(dict):
@@ -64,10 +75,37 @@ class Laminate(dict):
     """
 
     # lists of attributes for method filtering
-    __name__ = 'Laminate'
-    __baseattr__ = LAMINATE_BASE
-    __calcattr__ = LAMINATE_CALC
-    __slots__ = LAMINATE_BASE + LAMINATE_CALC + ('__locked',)
+    _param_dims = {
+        'dT': (temperature,),
+        'dM': (dimensionless,),
+        'N_m': (force / length,),
+        'M_m': (force * length / length,),
+        'N_t': (force / length,),
+        'N_h': (force / length,),
+        'M_t': (force * length / length,),
+        'M_h': (force * length / length,),
+        'Ex': (pressure,),
+        'Ey': (pressure,),
+        'Gxy': (pressure,),
+        'nu_xy': (dimensionless,),
+        'nu_yx': (dimensionless,),
+        'e_0m': (dimensionless,),
+        'e_0t': (dimensionless,),
+        'e_0h': (dimensionless,),
+        'k_0m': (dimensionless,),
+        'k_0t': (dimensionless,),
+        'k_0h': (dimensionless,),
+        'A': (pressure * length,),
+        'B': (pressure * length**2,),
+        'D': (pressure * length**3,),
+        't': (length,)
+    }
+
+    _base_attr = tuple(_param_dims) + ('usys',)
+    _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'nu_xy',
+                  'nu_yx' 'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A',
+                  'B', 'D', 't')
+    __slots__ = _base_attr + _calc_attr + ('__locked',)
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -91,9 +129,14 @@ class Laminate(dict):
         return unlocked_func
 
     @__unlock
-    def __init__(self, *plies):
+    def __init__(self, *plies, dT=0, dM=0, N_m=zeros((3, 1)),
+                 M_m=zeros((3, 1)), usys=USYS):
         # create and zero out all properties needed for .__update()
-        self.clear()
+        self.usys = usys
+        self.dT = dT
+        self.dM = dM
+        self.N_m = N_m
+        self.M_m = N_m
 
         # init from CSV
         if len(plies) == 1 and type(plies[0]) == str:
@@ -101,29 +144,63 @@ class Laminate(dict):
 
         # standard init
         else:
-            for ply in plies:
-                # convert to Ply objects
-                ply = self.check_ply(ply)
             # convert plies to dict with ply ids as keys
-            plies = {i+1: j for i, j in enumerate(plies)}
-            super().__init__(plies)
+            ply_dict = {i+1: self.check_ply(j) for i, j in enumerate(plies)}
+            super().__init__(ply_dict)
             self.__update()
 
-    def __setattr__(self, attr, val):
+    def __setattr__(self, name, attr):
         """Extend ``__setattr__`` to update instance when attributes change."""
+
+        def check_dim(name, attr):
+            """Validate dimensions."""
+            if name in self._param_dims:
+                correct_dim = self._param_dims.get(name)
+
+                if hasattr(attr, 'units'):
+                    if attr.units.dimensions not in correct_dim:
+                        raise UnitDimensionError(
+                            name,
+                            ' OR '.join([str(i) for i in correct_dim])
+                        )
+                    else:  # force consistent units
+                        attr.convert_to_base(self.usys)
+
+                else:
+                    attr *= self.usys[correct_dim[0]]  # first dim
+
+            # validate unit system
+            if name == 'usys':
+                # validate unit system
+                if type(attr) != UnitSystem:
+                    raise TypeError(f"`{name}` must be a `UnitSystem`")
+                elif attr['temperature'].base_offset != 0:
+                    raise TypeError(
+                        "Unit system must have an absolute temperature"
+                        + " unit (e.g. R or K)"
+                    )
+
+            return attr
+
         if self.__locked:
-            # udpate laminate after updated properties are set
-            if attr in self.__baseattr__:
-                super().__setattr__(attr, val)
+            # don't set protected values
+            if name in self._calc_attr:
+                raise CalculatedAttributeError(name)
+
+            # validate units
+            if name in self._base_attr:
+                attr = check_dim(name, attr)
+                super().__setattr__(name, attr)
                 self.__update()
 
-            # don't set protected values
-            elif attr in self.__calcattr__:
-                raise AttributeError(self.__name__ + ".%s" % attr
-                                     + "is a derived value and cannot be set")
+            if name == 'usys':
+                if attr != self.usys:
+                    super().__setattr__(name, attr)
+                    self.__update()
 
         else:
-            super().__setattr__(attr, val)
+            attr = check_dim(name, attr)
+            super().__setattr__(name, attr)
 
     def __delitem__(self, key):
         """Extend ``__delitem__`` to update instance when ply is removed."""
@@ -144,23 +221,35 @@ class Laminate(dict):
 
     def __repr__(self):
         """Return the string representation."""
-        return "Laminate layup: " + self.layup.__repr__()
+        repr = 'Laminate:'
+        for ply in self:
+            repr += f'\n    Ply {ply}: {self[ply].theta.v}'
+        return repr
 
     @__unlock
     def __update(self):
-        """Update the ply and laminate attributes based on laminate stackup."""
+        """Update the ply and laminate attributes based on laminate stackup.
+
+        Notes
+        -----
+        ``unyt_array``s do not yet support matrix multiplication. All matrix
+        multiplication operations have to be performed on the base ``ndarray``s
+        and then have the units applied afterward.
+
+        """
 
         # reset internal values
         self.t = sum([self[i].t for i in self])
-        self.N_t = zeros((3, 1))   # thermal running loads
-        self.M_t = zeros((3, 1))   # thermal running moments
-        self.N_h = zeros((3, 1))   # hygroscopic running loads
-        self.M_h = zeros((3, 1))   # hygroscopic running moments
+        self.N_t = zeros((3, 1))
+        self.M_t = zeros((3, 1))
+        self.N_h = zeros((3, 1))
+        self.M_h = zeros((3, 1))
 
         # calculate ply bottom planes
         zk1 = self.t / 2
         for i in [x for x in sorted(self, reverse=True)]:  # count down the top
             zk1 -= self[i].t
+            # bypass lock to avoid recursive updates to self and ply
             super(Ply, self[i]).__setattr__('z', zk1 + self[i].t/2)
 
         # calculate the A, B, and D matricies; thermal and hygroscopic loads
@@ -173,7 +262,7 @@ class Laminate(dict):
             ply._Ply__update()  # force ply to update
 
             # NASA-RP-1351, Eq (45) through (47)
-            self.A += ply.Qbar * (ply.t)
+            self.A += ply.Qbar * ply.t
             self.B += (1/2) * ply.Qbar * (ply.zk**2 - ply.zk1**2)
             self.D += (1/3) * ply.Qbar * (ply.zk**3 - ply.zk1**3)
 
@@ -191,10 +280,10 @@ class Laminate(dict):
 
         # intermediate star matrices
         # NASA-RP-1351 Eq (50)-(52a)
-        A_star = inv(self.A)
-        B_star = - (A_star @ self.B)
-        C_star = self.B @ A_star
-        D_star = self.D - (self.B @ A_star @ self.B)
+        A_star = inv(self.A.v)
+        B_star = - (A_star @ self.B.v)
+        C_star = self.B.v @ A_star
+        D_star = self.D.v - (self.B.v @ A_star @ self.B.v)
 
         D_prime = inv(D_star)
         C_prime = - (D_prime @ C_star)
@@ -206,39 +295,48 @@ class Laminate(dict):
 
         # the midplane strains
         # Jones, (4.108) and (4.109). Also see Section 4.5.4
-        mech_load = vstack((self.N_m, self.M_m))
-        thrm_load = vstack((self.N_t, self.M_t))
-        hygr_load = vstack((self.N_h, self.M_h))
+        mech_load = vstack((self.N_m.v, self.M_m.v))
+        thrm_load = vstack((self.N_t.v, self.M_t.v))
+        hygr_load = vstack((self.N_h.v, self.M_h.v))
         self.e_0m, self.k_0m = vsplit((ABD_prime @ mech_load), 2)
         self.e_0t, self.k_0t = vsplit((ABD_prime @ thrm_load), 2)
         self.e_0h, self.k_0h = vsplit((ABD_prime @ hygr_load), 2)
 
-        # add ply strains due to mechanical loading (in laminate orientation)
+        # assign mechanical ply strains (in ply orientation)
         # Jones, Eq (4.13)
         for ply in self:
-            e_m = self[ply].T @ (self.e_0m + self[ply].z * self.k_0m)
-            s_m = self[ply].Q @ e_m
-            super(Ply, self[ply]).__setattr__('e_m', e_m)
-            super(Ply, self[ply]).__setattr__('s_m', s_m)
-
-        # calculate effective laminate properties
-        # NASA, Section 5
+            e_m = self[ply].T @ (self.e_0m + self[ply].z.v * self.k_0m)
+            super(Ply, self[ply]).__setattr__('e_m', unyt_array(e_m))
 
         # calculate effective moduli
         # NASA, Eq. 84
         numer = det(self.ABD)
         denom = det(matrix_minor(self.ABD, (0, 0)))
-        self.Ex = (numer / denom) / self.t
+        self.Ex = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 85
         denom = det(matrix_minor(self.ABD, (1, 1)))
-        self.Ey = (numer / denom) / self.t
+        self.Ey = ((numer / denom) / self.t.v) * self.usys['pressure']
 
         # NASA, Eq. 86
-        denom = det(matrix_minor(self.ABD, (2, 2)))
-        self.Gxy = (numer / denom) / self.t
+        denom = det(matrix_minor(self.ABD.v, (2, 2)))
+        self.Gxy = ((numer / denom) / self.t.v) * self.usys['pressure']
 
-    def append(self, new_ply):
+        # NASA, Eq. 88
+        numer = det(matrix_minor(self.ABD.v, (0, 1)))
+        denom = det(matrix_minor(self.ABD.v, (0, 0)))
+        self.nu_xy = (numer / denom) * self.usys['dimensionless']
+
+        # NASA, Eq. 89
+        a_piece = array([[self.A.v[0, 1], self.A.v[0, 2]],
+                         [self.A.v[2, 0], self.A.v[2, 2]]])
+        b_piece = array([self.B.v[0], self.B.v[2]])
+        numer = det(vstack((hstack((a_piece, b_piece)),
+                            hstack((b_piece.T, self.D)))))
+        denom = det(matrix_minor(self.ABD.v, (1, 1)))
+        self.nu_yx = (numer / denom) * self.usys['dimensionless']
+
+    def append(self, new_ply, angle=0):
         """Add a new ply to the `Laminate`.
 
         Parameters
@@ -254,6 +352,7 @@ class Laminate(dict):
         """
 
         new_ply = self.check_ply(new_ply)
+        new_ply.theta = angle
         super().__setitem__(len(self)+1, new_ply)
         self.__update()
 
@@ -279,12 +378,15 @@ class Laminate(dict):
 
         if type(obj) == Ply:
             pass
-        elif obj.laminate != self:
-            super(Ply, obj).__setattr__('laminate', self)
         elif type(obj) == Lamina:
             obj = Ply.from_lamina(obj, laminate=self, theta=0)
+        elif obj.laminate != self:
+            super(Ply, obj).__setattr__('laminate', self)
         else:
             raise TypeError("Laminates may only contain Ply or Lamina objects")
+
+        if obj.usys != self.usys:
+            obj.usys = self.usys
 
         return obj
 
@@ -292,6 +394,7 @@ class Laminate(dict):
     def clear(self):
         """Clear laminate of all plies."""
 
+        super().clear()
         self.A = zeros((3, 3))
         self.B = zeros((3, 3))
         self.D = zeros((3, 3))
@@ -307,7 +410,6 @@ class Laminate(dict):
         self.Ex = 0
         self.Ey = 0
         self.Gxy = 0
-        super().clear()
 
     def from_csv(self, inputFile, append=False):
         """Determine laminate properties from input CSV file.
@@ -409,6 +511,31 @@ class Laminate(dict):
 
         self.__update()
 
+    def reorient(self, angle):
+        """Reorient laminate.
+
+        The units of `angle` are assumed to be the same angle units as the
+        laminate. If a sequence is provided, it is assumed to start with the
+        first ply and iterate through to the last in order.
+
+        Parameters
+        ----------
+        angle : float or iterable of floats
+            the angle to rotate the laminate or the sequence of individual
+            lamina orientations
+
+        """
+
+        if type(angle) == tuple or type(angle) == list:
+            if len(angle) != len(self):
+                raise ValueError("`angle` must have values for each lamina")
+            else:
+                for i, j in enumerate(angle):
+                    self[i + 1].theta = angle
+        else:
+            for i in self:
+                self[i].theta = self[i].theta.v + angle
+
     @property
     def is_balanced(self):
         """Return if True if laminate is balanced."""
@@ -432,9 +559,16 @@ class Laminate(dict):
 
     @property
     def ABD(self):
-        """The laminate ABD matrix."""
-        return vstack((hstack((self.A, self.B)),
-                       hstack((self.B, self.D))))
+        """The laminate ABD matrix.
+
+        Notes
+        -----
+        Because A, B, and D matrices each have different units and
+        ``unyt_array``s must have uniform units, the ABD matrix is returned as
+        a dimensionless ``unyt_array``.
+        """
+        return unyt_array(vstack((hstack((self.A.v, self.B.v)),
+                                  hstack((self.B.v, self.D.v)))))
 
     @property
     def layup(self):
