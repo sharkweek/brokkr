@@ -6,16 +6,14 @@ See `brokkr.composites` documentation for relevant assumptions.
 
 TODO:
 -----
-* [ ] add unyt units
 * [ ] Create is_balanced() method
 * [ ] create functions to import Lamina and Laminate properties from Nastran
   BDF
 * [ ] fix calculations for effective laminate properties
-* [ ] reorganize properties and setters to be adjacent
 """
 
 from .lamina import Lamina, Ply
-from brokkr._exceptions import (
+from brokkr.exceptions import (
     UnitDimensionError,
     CalculatedAttributeError,
 )

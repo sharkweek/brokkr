@@ -73,3 +73,21 @@ class Fastener:
         return {'x': self.length / (self.E * self.area),
                 'y': self.length / (self.G * self.area),
                 'z': self.length / (self.G * self.area)}
+
+    @property
+    def x(self):
+        "x-coordinate of Fastener."
+
+        return self.xyz[0]
+
+    @property
+    def y(self):
+        "y-coordinate of Fastener."
+
+        return self.xyz[1]
+
+    @property
+    def z(self):
+        "z-coordinate of Fastener."
+
+        return self.xyz[2]

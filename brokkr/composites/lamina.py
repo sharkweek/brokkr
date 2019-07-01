@@ -12,7 +12,7 @@ from numpy import zeros, cos, sin, ndarray
 from numpy.linalg import inv
 from brokkr.mech_math import ms, out_of_bounds
 from brokkr.config import USYS
-from brokkr._exceptions import (
+from brokkr.exceptions import (
     UnitDimensionError,
     BoundedValueError,
     CalculatedAttributeError

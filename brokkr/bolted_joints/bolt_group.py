@@ -48,7 +48,8 @@ TODO:
 
 """
 
-import numpy as numpy
+import numpy as np
+from numpy import array, zeros
 import math
 import csv
 from .fastener import Fastener
@@ -56,86 +57,54 @@ from .load import Load
 from .loadset import LoadSet
 
 
-class FastenerGroup:
+class FastenerGroup(dict):
     """A fastener group."""
 
     # TODO: follow Niu Stress analysis chapter 9.4
 
-    def __init__(self, *fasteners):
+    def __init__(self, *fasteners, load=None):
         """Initialize the instance."""
 
         # make sure each fastener is a Fastener class
-        if len(self) > 0:
-            for each in fasteners:
-                self.__isFastener(each)
-            self.__fasteners = list(fasteners)
+        for each in fasteners:
+            self.__is_fastener(each)
 
-        self.appliedLoad = None
+        super().__init__({i + 1: j for i, j in enumuerate(fasteners)})
+
+        self.load = load
 
         self.__update()
 
     def __delitem__(self, key):
         """Delete a fastener at the specified index."""
 
-        del self.__fasteners[key]
+        super().__delitem__(key)
         self.__update()
 
-    def __len__(self):
-        """Return number of fasteners in FastenerGroup."""
-
-        return len(self.__fasteners)
-
-    def __getitem__(self, key):
-        """Return a Fastener at a specified index."""
-
-        return self.__fasteners[key]
-
-    def __iter__(self):
-        """Return self as an iterator."""
-
-        self.__counter = 0
-        return iter(self.__fasteners)
-
-    def __isFastener(f):
+    def __is_fastener(f):
         """Check if object is a Fastener."""
 
         if type(f) != Fastener:
-            raise TypeError("FastnerGroups may contain only Fasteners")
+            raise TypeError("`FastenerGroup`s may contain only Fasteners")
         else:
             return True
 
-    def __next__(self):
-        """Iterate to the next item."""
+    def __setitem__(self, key, new_fastener):
+        """Set an item at a specified index to new_fastener."""
 
-        self.__counter += 1
-        if self.__counter < len(self):
-            return self.__fasteners[self.__counter]
-        else:
-            raise StopIteration
-
-    def __setitem__(self, key, newFastener):
-        """Set an item at a specified index to newFastener."""
-
-        self.__isFastener(newFastener)
-        self.__fasteners[key] = newFastener
-        self.__update()
-
-    def append(self, newFastener):
-        """Add a newFastener to group."""
-
-        self.__isFastener(newFastener)
-        self.__fasteners.append(newFastener)
+        self.__is_fastener(new_fastener)
+        self[key] = new_fastener
         self.__update()
 
     def clear(self):
         """Clear the FastenerGroup of all Fasteners."""
 
-        self.__fasteners.clear()
+        super().clear()
         self.__update()
 
     @property
     def cg(self):
-        """Find the center of gravity of the fastener group.
+        """The center of gravity of the fastener group.
 
         The x-component of the CG is calculated
 
@@ -146,23 +115,23 @@ class FastenerGroup:
         Fastener.wt.
         """
 
-        _cg = [0, 0, 0]
-        _sumProduct = [0, 0, 0]
-        _sumWeight = 0
+        cg = zeros((3, 1))
+        sum_product = zeros((3, 1))
+        sum_weight = 0
 
         for fstnr in self:
             # Calculate the sum of the products
-            for i, component in enumerate(fstnr.xyz):
-                _sumProduct[i] += component * fstnr.wt
+            for i, component in enumerate(self[fstnr].xyz):
+                sum_product[i] += component * self[fstnr].wt
 
             # Calculate the sum of the areas
-            _sumWeight += fstnr.wt
+            sum_weight += self[fstnr].wt
 
         # Divide sum of products by sum of areas
-        for i, product in enumerate(_sumProduct):
-            _cg[i] = product / _sumWeight
+        for i, product in enumerate(sum_product):
+            cg[i] = product / sum_weight
 
-        return _cg
+        return cg
 
     @property
     def moi(self):
@@ -177,15 +146,15 @@ class FastenerGroup:
         """Update bolt group to distribute loads."""
 
         # Make sure loads have been assigned to group
-        if type(self.appliedLoad) == Load:
-            self.appliedLoad = LoadSet(self.appliedLoad)
-        elif type(self.appliedLoad) != LoadSet:
+        if type(self.load) == Load:
+            self.load = LoadSet(self.load)
+        elif type(self.load) != LoadSet:
             raise TypeError("Applied load must be a Load or LoadSet")
 
         # Begin Calculations
         _cg = self.cg  # calculate the cg once to save computation time
-        _appLoad = self.appliedLoad.totalForce
-        _appMoment = self.appliedLoad.totalMoment
+        _appLoad = self.load.totalForce
+        _appMoment = self.load.totalMoment
 
         coef_mat = np.zeros((len(self) * 3, len(self) * 3))  # coeff matrix
         soln_mat = np.zeros(len(self) * 3)  # solution matrix

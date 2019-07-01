@@ -130,4 +130,4 @@ def out_of_bounds(val, mn, mx, condition):
         'ge-le': lambda: mn <= val <= mx,
         'l': lambda: mn is None and val < mx,
         'le': lambda: mn is None and val <= mx
-    }.get(condition)()
+    }.get(condition)
