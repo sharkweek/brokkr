@@ -73,7 +73,7 @@ class Laminate(dict):
     """
 
     # lists of attributes for method filtering
-    _param_dims = {
+    _dims = {
         'dT': (temperature,),
         'dM': (dimensionless,),
         'N_m': (force / length,),
@@ -99,7 +99,7 @@ class Laminate(dict):
         't': (length,)
     }
 
-    _base_attr = tuple(_param_dims) + ('usys',)
+    _base_attr = tuple(_dims) + ('usys',)
     _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'nu_xy',
                   'nu_yx' 'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A',
                   'B', 'D', 't')
@@ -152,8 +152,8 @@ class Laminate(dict):
 
         def check_dim(name, attr):
             """Validate dimensions."""
-            if name in self._param_dims:
-                correct_dim = self._param_dims.get(name)
+            if name in self._dims:
+                correct_dim = self._dims.get(name)
 
                 if hasattr(attr, 'units'):
                     if attr.units.dimensions not in correct_dim:

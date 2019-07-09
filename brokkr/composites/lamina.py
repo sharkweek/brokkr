@@ -79,7 +79,7 @@ class Lamina:
 
     """
 
-    _param_dims = {
+    _dims = {
         't': (length,),
         'E1': (pressure,),
         'E2': (pressure,),
@@ -94,14 +94,14 @@ class Lamina:
         'F12': (dimensionless, pressure)
     }
     # define attribute limits for use with `out_of_bounds()`
-    _param_limits = {
+    _limits = {
         't': {'mn': 0, 'mx': None, 'condition': 'g'},
         'E1': {'mn': 0, 'mx': None, 'condition': 'g'},
         'E2': {'mn': 0, 'mx': None, 'condition': 'g'},
         'nu12': {'mn': 0, 'mx': 1, 'condition': 'g-l'},
         'G12': {'mn': 0, 'mx': None, 'condition': 'g'}
     }
-    __slots__ = ('usys', *_param_dims)
+    __slots__ = ('usys', *_dims)
 
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=0, F2=0,
                  F12=0, usys=USYS):
@@ -124,8 +124,8 @@ class Lamina:
         """Extend __setattr__() to validate units."""
 
         # set dimensions for required attributes
-        if name in self._param_dims:
-            correct_dim = self._param_dims.get(name)
+        if name in self._dims:
+            correct_dim = self._dims.get(name)
             # check if object has units
             if not hasattr(attr, 'units'):
                 attr *= self.usys[correct_dim[0]]  # assign first in tuple
@@ -142,10 +142,10 @@ class Lamina:
                     attr.convert_to_base(self.usys)
 
             # make sure value is within limits
-            if name in self._param_limits:
-                if out_of_bounds(attr.value, **self._param_limits.get(name)):
+            if name in self._limits:
+                if out_of_bounds(attr.value, **self._limits.get(name)):
                     raise BoundedValueError(
-                        name, **self._param_limits.get(name)
+                        name, **self._limits.get(name)
                         )
 
         # catch unit system change and convert all attributes with units
@@ -159,7 +159,7 @@ class Lamina:
                     + "(e.g. R or K)"
                 )
 
-            for each in self._param_dims:
+            for each in self._dims:
                 getattr(self, each).convert_to_base(attr)
 
         super().__setattr__(name, attr)
@@ -229,8 +229,8 @@ class Ply(Lamina):
 
     """
 
-    _param_dims = {
-        **Lamina._param_dims,
+    _dims = {
+        **Lamina._dims,
         'theta': (angle,),
         'z': (length,),
         'e_m': (dimensionless,),
@@ -242,7 +242,7 @@ class Ply(Lamina):
         'e_h': (dimensionless,),
     }
 
-    _base_attr = ('theta', 'z', 'usys', *Lamina._param_dims)
+    _base_attr = ('theta', 'z', 'usys', *Lamina._dims)
     _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's',
                   'laminate', 'failure_theory', 'failure_index')
     __slots__ = _base_attr + _calc_attr + ('e_m', '__locked',)
@@ -307,7 +307,7 @@ class Ply(Lamina):
 
     def __repr__(self):
         r = f'{type(self).__name__}'
-        for each in sorted(self._param_dims):
+        for each in sorted(self._dims):
             attr = getattr(self, each)
 
             if issubclass(attr.__class__, ndarray):
