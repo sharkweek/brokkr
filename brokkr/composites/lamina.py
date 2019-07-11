@@ -12,7 +12,7 @@ from numpy import zeros, cos, sin, ndarray
 from numpy.linalg import inv
 from brokkr.mech_math import ms, out_of_bounds
 from brokkr.config import USYS
-from brokkr.exceptions import (
+from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError,
     CalculatedAttributeError
@@ -120,30 +120,30 @@ class Lamina:
         self.F2 = F2
         self.F12 = F12
 
-    def __setattr__(self, name, attr):
+    def __setattr__(self, name, value):
         """Extend __setattr__() to validate units."""
 
         # set dimensions for required attributes
         if name in self._dims:
             correct_dim = self._dims.get(name)
             # check if object has units
-            if not hasattr(attr, 'units'):
-                attr *= self.usys[correct_dim[0]]  # assign first in tuple
+            if not hasattr(value, 'units'):
+                value *= self.usys[correct_dim[0]]  # assign first in tuple
 
             # if units assigned, check units for dimensionality
             else:
-                if attr.units.dimensions not in correct_dim:
+                if value.units.dimensions not in correct_dim:
                     raise UnitDimensionError(
                         name, ' OR '.join([str(i) for i in correct_dim])
                         )
                 else:
                     # units are converted to master unit system for
                     # consistency when creating unit_arrays in `Ply` class
-                    attr.convert_to_base(self.usys)
+                    value.convert_to_base(self.usys)
 
             # make sure value is within limits
             if name in self._limits:
-                if out_of_bounds(attr.value, **self._limits.get(name)):
+                if out_of_bounds(value.value, **self._limits.get(name)):
                     raise BoundedValueError(
                         name, **self._limits.get(name)
                         )
@@ -151,18 +151,18 @@ class Lamina:
         # catch unit system change and convert all attributes with units
         if name == 'usys':
             # validate unit system
-            if type(attr) != UnitSystem:
+            if type(value) != UnitSystem:
                 raise AttributeError(f"`{name}` must be a `UnitSystem`")
-            elif attr['temperature'].base_offset != 0:
+            elif value['temperature'].base_offset != 0:
                 raise AttributeError(
                     "Unit system must have an absolute temperature unit "
                     + "(e.g. R or K)"
                 )
 
             for each in self._dims:
-                getattr(self, each).convert_to_base(attr)
+                getattr(self, each).convert_to_base(value)
 
-        super().__setattr__(name, attr)
+        super().__setattr__(name, value)
 
     def __repr__(self):
         r = f"{type(self).__name__}:"
