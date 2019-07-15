@@ -13,7 +13,7 @@ TODO:
 """
 
 from .lamina import Lamina, Ply
-from brokkr.exceptions import (
+from brokkr.core.exceptions import (
     UnitDimensionError,
     CalculatedAttributeError,
 )
@@ -57,16 +57,16 @@ class Laminate(dict):
         change in temperature
     dM : int or float
         change in moisture
-    N_m, N_t, N_h : 3x1 numpy.array_like
+    N_m, N_t, N_h : 3x1 array_like
         mechanical, thermal, and hygroscopic running loads
-    M_m, M_t, M_h : 3x1 numpy.array_like
+    M_m, M_t, M_h : 3x1 array_like
         mechanical, thermal, and hygroscopic running moments
     Ex, Ey, Gxy : float
         effective laminate moduli
-    e_0m, e_0t, e_0h : 3x1 numpy.array_like
+    e_0m, e_0t, e_0h : 3x1 array_like
         laminate midplane strain due to mechanical, thermal, and hygroscopic
         loading
-    k_0m, k_0t, k_0h : numpy.array_like
+    k_0m, k_0t, k_0h : array_like
         laminate midplane curvature due to mechanical, thermal, and hygroscopic
         loading
 

@@ -1,30 +1,86 @@
 """Base classes for ``brokkr``"""
 
+# standard imports
 from abc import ABCMeta, abstractmethod
+
+# third party imports
+from numpy import array, empty
+from unyt import UnitSystem, unyt_array
+
+# local imports
 from brokkr.config import USYS
 from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError
 )
 from brokkr.core.validation import out_of_bounds
-from numpy import array, empty
-from unyt.array import unyt_array
 
+__all__ = ['abstract_attribute', 'DimensionedABC', 'BaseTensor', 'BaseVector']
 
 def abstract_attribute(obj=None):
-    """Decorator for abstract attributes in ABCs."""
+    """Decorator for abstract attributes.
 
+    It creates abstract attributes that must be defined in all classes that are
+    subclassed from ABCs that use the ``BrokkrABCMeta`` metaclass.
+
+    Parameters
+    ----------
+    obj : optional
+
+    Example
+    -------
+    To use this decorator, subclass attributes should be defined as functions
+    in the ABC. For example::
+
+        class MyABC(metaclass=BrokkrABCMeta):
+            @abstract_attribute
+            def hello(self):
+                pass
+
+        class GoodFoo(MyABC):
+            def __init__(self, hello, world):
+                self.hello = hello
+                self.world = world
+
+        class BadFoo(MyABC):
+            def __init__(self, world):
+                self.world = world
+
+        >>> x = GoodFoo('hello', 'world')
+        >>> x.hello
+        'hello'
+
+        >>> y = BadFoo('world')
+        NotImplementedError: Can't instantiate abstract class BadFoo with
+        abstract attributes: hello
+
+    Alternatively, attributes can be declared as class variables::
+
+        class MyABC(metaclass=BrokkrABCMeta):
+            hello = abstract_attribute()
+
+    This should yield the same results as using the decorator for an empty
+    class method as shown above.
+
+    """
+
+    # assign __is_abstract_attribute__ flag
     if obj is None:
-        obj = object()
+        class Obj: pass  # dummy class for attribute assignment
+        obj = Obj()
+
     obj.__is_abstract_attribute__ = True
+
     return obj
 
 
-class ExtendedABCMeta(ABCMeta):
-    """Extended ABCMeta class that includes abstract attributes."""
+class BrokkrABCMeta(ABCMeta):
+    """Extended ABCMeta class including provisions for abstract attributes."""
 
     def __call__(cls, *args, **kwargs):
         instance = ABCMeta.__call__(cls, *args, **kwargs)
+
+        # create dictionary of abstract attributes not declared in subclass
         abstract_attributes = {
             name
             for name in dir(instance)
@@ -32,6 +88,7 @@ class ExtendedABCMeta(ABCMeta):
                        '__is_abstract_attribute__', False)
         }
 
+        # throw error if any abstract attributes are not declared
         if abstract_attributes:
             raise NotImplementedError(
                 "Can't instantiate abstract class {} with"
@@ -40,33 +97,47 @@ class ExtendedABCMeta(ABCMeta):
                     ', '.join(abstract_attributes)
                 )
             )
+
         return instance
 
 
-class DimensionedABC(metaclass=ExtendedABCMeta):
-    """Abstract base class requiring units to be applied."""
+class DimensionedABC(metaclass=BrokkrABCMeta):
+    """ABC that requires dimensions and limits to specified attributes.
 
-    __slots__ = ['usys']
+    Attributes
+    ----------
+    _dimensions : (class) dict of {str: (unyt.dimension,)}
+        dimensions for each dimensioned attributed
+    _limits : (class) dict of {str: {'mn': float or int, 'mx': float or int,
+        'condition': str}}
+        limits for values that are bounded
+
+        Each key in ``_limits`` represents an attribute bounded by limits. The
+        corresponding dictionary defines the types of limits. See documentation
+        for ``out_of_bounds`` in the ``validation`` module for definitions of
+        ``mn``, ``mx``, and ``condition``.
+    usys : unyt.UnitSystem
+        instance's unit system
+
+    """
+
     _dimensions = {}
     _limits = {}
 
-    @abstract_attribute
-    def usys(self):
-        pass
+    usys = abstract_attribute()
 
     def __setattr__(self, name, value):
+        """Extended to validate dimensioned and limited attributes."""
+
         # set dimensions for required attributes
         if name in self._dimensions:
             dim = self._dimensions.get(name)
 
-        # set dimensions for required attributes
-        if name in dims:
-            dim = self._dimensions.get(name)
             # check if value has units
             if not hasattr(value, 'units'):
-                value *= usys[dim[0]]  # assign first in tuple
+                value *= self.usys[dim[0]]  # assign first in tuple
 
-            # if units assigned, check units for dimensionality
+            # if units are assigned, check dimensionality
             else:
                 if value.units.dimensions not in dim:
                     raise UnitDimensionError(
@@ -74,12 +145,29 @@ class DimensionedABC(metaclass=ExtendedABCMeta):
                         )
                 else:
                     # units are converted to supplied unit system
-                    value.convert_to_base(usys)
+                    value.convert_to_base(self.usys)
 
         # make sure value is within limits
         if name in self._limits:
             if out_of_bounds(value.value, **self._limits.get(name)):
                 raise BoundedValueError(name, **self._limits.get(name))
+
+        # catch unit system change and convert all attributes with units
+        if name == 'usys':
+            # validate unit system
+            if type(value) != UnitSystem:
+                raise AttributeError(f"`{name}` must be a `UnitSystem`")
+            elif value['temperature'].base_offset != 0:
+                raise AttributeError(
+                    "Unit system must have an absolute temperature unit",
+                    "(e.g. R or K)"
+                )
+
+            # convert only for attributes that exist in the instance
+            for each in {x: self._dimensions[x]
+                         for x in self._dimensions
+                         if hasattr(self, x)}:
+                getattr(self, each).convert_to_base(value)
 
         super().__setattr__(name, value)
 
@@ -89,8 +177,8 @@ class BaseTensor(unyt_array):
 
     Parameters
     ----------
-    matrix : numpy.array_like
-        an array-like object with six values
+    matrix : array_like
+        an ``array_like`` object with six values
     units : string or unyt.Units
         the physical units for the tensor
 
@@ -105,7 +193,6 @@ class BaseTensor(unyt_array):
             return new
 
     def __init__(self, matrix):
-        """Initialize `BaseTensor` instance."""
         for i, j in enumerate(array(matrix).ravel()):
             self.set_v_item(i, j)
 
@@ -144,7 +231,7 @@ class BaseTensor(unyt_array):
 
         Parameters
         ----------
-        dim : ``unyt.dimensions`` dimension
+        dim : dimension from ``unyt.dimensions``
             the dimension to compare the instance against
 
         Returns
@@ -162,9 +249,9 @@ class BaseVector(unyt_array):
 
     Parameters
     ----------
-    matrix : numpy.array_like
-        an array-like object with three items
-    units : string or unyt.Unit object
+    matrix : array_like
+        an ``array_like`` object with three items
+    units : str or unyt.Unit
         the physical units for the vector
 
     Notes
@@ -195,7 +282,7 @@ class BaseVector(unyt_array):
 
         Parameters
         ----------
-        dim : ``unyt.dimensions`` dimension
+        dim : dimension from ``unyt.dimensions``
             the dimension to compare the instance against
 
         Returns

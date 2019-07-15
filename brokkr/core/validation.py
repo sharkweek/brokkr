@@ -1,7 +1,7 @@
 """Validation tools for ``brokkr``."""
 
 from brokkr.config import USYS
-from brokkr.exceptions import (
+from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError
 )
