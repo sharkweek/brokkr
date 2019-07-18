@@ -1,10 +1,13 @@
 """Miscellaneous functions used in brokkr."""
 
 import numpy as np
-from .tensors import StrainTensor, StressTensor
-from .vectors import ForceVector, MomentVector, DisplacementVector
 
-__all__ = ['matrix_minor', 'ms', 'out_of_bounds']
+from brokkr.bmath.tensors import StrainTensor, StressTensor
+from brokkr.bmath.vectors import (
+    ForceVector,
+    MomentVector,
+    DisplacementVector
+)
 
 
 def matrix_minor(matrix, indices):
@@ -83,51 +86,3 @@ def ms(applied, allowed, knockdown=1):
     """
     return (applied / (knockdown * allowed)) - 1
 
-
-def out_of_bounds(val, mn, mx, condition):
-    """Check if value satisfies boundary conditions.
-
-    Parameters
-    ----------
-    val : float or int
-        value to evaluate against boundary conditions
-    mn, mx: float or int
-        the minimum and maximum boundaries
-    condition: {'g', 'ge', 'g-l', 'ge-l', 'g-le', 'ge-le', 'l', 'le'}
-        the boundary condition to evaluate
-
-    Returns
-    -------
-    bool
-        True if ``val`` is outside boundaries, False if within boundaries
-
-    Notes
-    -----
-    ``condition`` should may be any of the values defined for each of the
-    boundary conditions described in the table below:
-
-    =========== ==================
-    Value       Boundary Condition
-    =========== ==================
-    ``'g'``     ``val > mn``
-    ``'ge'``    ``val >= mn``
-    ``'g-l'``   ``mn < val < mx``
-    ``'ge-l'``  ``mn <= val < mx``
-    ``'g-le'``  ``mn < val <= mx``
-    ``'ge-le'`` ``mn <= val <= mx``
-    ``'l'``     ``val < mx``
-    ``'le'``    ``val <= mx``
-    =========== ==================
-
-    """
-
-    return not {
-        'g': lambda: val > mn and mx is None,
-        'ge': lambda: val >= mn and mx is None,
-        'g-l': lambda: mn < val < mx,
-        'ge-l': lambda: mn <= val < mx,
-        'g-le': lambda: mn < val <= mx,
-        'ge-le': lambda: mn <= val <= mx,
-        'l': lambda: mn is None and val < mx,
-        'le': lambda: mn is None and val <= mx
-    }.get(condition)

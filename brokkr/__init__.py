@@ -1,4 +1,4 @@
 import brokkr.bolted_joints
 import brokkr.composites
-import brokkr.mech_math
+import brokkr.bmath
 from brokkr.config import *

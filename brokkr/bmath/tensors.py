@@ -4,80 +4,9 @@ from numpy import array, empty
 from unyt.dimensions import pressure, length
 from unyt.array import unyt_array
 
-__all__ = ['BaseTensor', 'StrainTensor', 'StressTensor']
+from brokkr.core.bases import BaseTensor
 
-
-class BaseTensor(unyt_array):
-    """Base 3x3 symmetric tensor.
-
-    Parameters
-    ----------
-    matrix : numpy.array_like
-        an array-like object with six values
-    units : string or unyt.Units
-        the physical units for the tensor
-
-    """
-
-    def __new__(cls, matrix, units):
-        """Create `BaseTensor` instance."""
-        if array(matrix).size != 6:
-            raise TypeError("`matrix` must have six values")
-        else:
-            new = unyt_array(empty((3, 3)), units).view(cls)
-            return new
-
-    def __init__(self, matrix):
-        """Initialize `BaseTensor` instance."""
-        for i, j in enumerate(array(matrix).ravel()):
-            self.set_v_item(i, j)
-
-    @property
-    def voigt(self):
-        """The Voigt representation of the array."""
-        # create the indexing tuple for returning specific items in self
-        voigt = [0, 1, 2, 1, 0, 0], [0, 1, 2, 2, 2, 1]
-
-        return self[voigt].reshape((6, 1))
-
-    def set_v_item(self, vindex, new_val):
-        """Set an item in-place using Voigt index.
-
-        Parameters
-        ----------
-        vindex : int
-            the Voigt index of the item to set
-        new_val : float
-            the new value for the specified ``vindex``
-
-        """
-
-        i = [((0, 0),),
-             ((1, 1),),
-             ((2, 2),),
-             ([1, 2], [2, 1]),
-             ([2, 0], [0, 2]),
-             ([0, 1], [1, 0])]
-
-        for j, k in i[vindex]:
-            self[j, k] = new_val
-
-    def has_dimension(self, dim):
-        """Check if dimensions of vector match `dim`.
-
-        Parameters
-        ----------
-        dim : ``unyt.dimensions`` dimension
-            the dimension to compare the instance against
-
-        Returns
-        -------
-        bool
-            True if instance's dimension matches ``dim``; False otherwise.
-
-        """
-
-        return self.units.dimensions == dim
+__all__ = ['StrainTensor', 'StressTensor']
 
 
 class StressTensor(BaseTensor):

@@ -1,3 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\aperez\\AppData\\Local\\Continuum\\Anaconda3\\python.exe"
+    "python.pythonPath": "/anaconda3/bin/python",
+    "restructuredtext.linter.disabled": true,
+    "restructuredtext.confPath": "${workspaceFolder}/docs/source"
 }

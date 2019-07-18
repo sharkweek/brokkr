@@ -8,7 +8,7 @@ from numpy import array, empty
 from unyt import UnitSystem, unyt_array
 
 # local imports
-from brokkr.config import USYS
+from brokkr.config import DEFAULT_USYS
 from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError
@@ -265,7 +265,7 @@ class BaseVector(unyt_array):
         """Create `BaseVector` instance."""
         new = array(matrix)
         if new.size != 3:
-            raise TypeError("`matrix` must have six values")
+            raise TypeError("`matrix` must have 3 values")
         else:
             vector = unyt_array(new, units).view(cls)
             vector.resize((3, 1))

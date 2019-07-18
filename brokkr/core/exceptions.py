@@ -136,7 +136,6 @@ class BoundedValueError(Exception):
         for each in args:
             self.__setattr__(each, args[each])
 
-
     def __str__(self):
         return (
             f"`{self.name}` must be a number {self.mn_eq}{self.mn}{self.nd}"
@@ -148,13 +147,18 @@ class CoefficientError(BoundedValueError):
     """Error for values that must be between 0 and 1.
 
     .. warning:: ``CoefficientError`` will accept all ``condition`` values
-        that ``BoundedValueError`` accepts, but should limited to ``3``
+        that ``BoundedValueError`` accepts, but should be limited to ``3``
         through ``6``. Use ``BoundedValueError`` for any other conditions.
 
     """
 
     def __init__(cls, name, condition):
-        super().__init__(name, 0, 1, condition)
+        coeff_cond = ('g-l', 'ge-l', 'g-le', 'ge-le')
+        if condition in coeff_cond:
+            super().__init__(name, 0, 1, condition)
+        else:
+            raise ValueError("`condition` must be",
+                             ', '.join('`{0}`'.format(w) for w in words))
 
 class CalculatedAttributeError(AttributeError):
     """Error for calculated values."""

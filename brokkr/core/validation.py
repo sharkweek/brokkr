@@ -1,12 +1,12 @@
 """Validation tools for ``brokkr``."""
 
-from brokkr.config import USYS
+from brokkr.config import DEFAULT_USYS
 from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError
 )
 
-def check_dimension(key, obj, dims, usys=USYS):
+def check_dimension(key, obj, dims, usys=DEFAULT_USYS):
     """Validate dimensionality of an object."""
 
     # set dimensions for required objibutes
@@ -32,7 +32,7 @@ def check_dimension(key, obj, dims, usys=USYS):
     return obj
 
 
-def check_limit(key, obj, limits, usys=USYS):
+def check_limit(key, obj, limits, usys=DEFAULT_USYS):
     """Check that a value is within certain limits."""
 
     if key in limits:
@@ -48,34 +48,29 @@ def out_of_bounds(val, mn, mx, condition):
     Parameters
     ----------
     val : float or int
-        value to evaluate against boundary conditions
+        Value to evaluate against boundary conditions
     mn, mx: float or int
-        the minimum and maximum boundaries
+        Minimum and maximum boundaries
     condition: {'g', 'ge', 'g-l', 'ge-l', 'g-le', 'ge-le', 'l', 'le'}
-        the boundary condition to evaluate
+        Boundary condition to evaluate. Conditions are defined:
+
+        =========== ==================
+        Value       Boundary Condition
+        =========== ==================
+        ``'g'``     ``val > mn``
+        ``'ge'``    ``val >= mn``
+        ``'g-l'``   ``mn < val < mx``
+        ``'ge-l'``  ``mn <= val < mx``
+        ``'g-le'``  ``mn < val <= mx``
+        ``'ge-le'`` ``mn <= val <= mx``
+        ``'l'``     ``val < mx``
+        ``'le'``    ``val <= mx``
+        =========== ==================
 
     Returns
     -------
     bool
-        True if ``val`` is outside boundaries, False if within boundaries
-
-    Notes
-    -----
-    ``condition`` should may be any of the values defined for each of the
-    boundary conditions described in the table below:
-
-    =========== ==================
-    Value       Boundary Condition
-    =========== ==================
-    ``'g'``     ``val > mn``
-    ``'ge'``    ``val >= mn``
-    ``'g-l'``   ``mn < val < mx``
-    ``'ge-l'``  ``mn <= val < mx``
-    ``'g-le'``  ``mn < val <= mx``
-    ``'ge-le'`` ``mn <= val <= mx``
-    ``'l'``     ``val < mx``
-    ``'le'``    ``val <= mx``
-    =========== ==================
+        True if ``val`` satisfies ``condition``; false otherwise
 
     """
 

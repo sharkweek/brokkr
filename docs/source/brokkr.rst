@@ -2,7 +2,7 @@ brokkr
 ======
 .. automodule:: brokkr
 
-Variables
+Global Variables
 ---------
 USYS
 UREG

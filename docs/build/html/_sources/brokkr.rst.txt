@@ -1,45 +1,15 @@
 brokkr
-=============
+======
 .. automodule:: brokkr
 
-Tensors
--------
-.. automodule:: brokkr._tensor
-
-.. py:module:: brokkr
-.. autoclass:: Tensor
-    :members:
-    :show-inheritance:
-
-.. autoclass:: Stress
-    :members:
-    :show-inheritance:
-
-.. autoclass:: Strain
-    :members:
-    :show-inheritance:
-
-Vectors
--------
-.. automodule:: brokkr._vector
-.. autoclass:: Vector
-    :members:
-    :show-inheritance:
-
-.. autoclass:: Force
-    :members:
-    :show-inheritance:
-
-.. autoclass:: Moment
-    :members:
-    :show-inheritance:
-
-.. autoclass:: Displacement
-    :members:
-    :show-inheritance:
-
-Functions
+Global Variables
 ---------
-.. automodule:: brokkr.bmath
-.. autofunction:: ms
-.. autofunction:: matrix_minor
+USYS
+UREG
+
+Additional Namespace Objects
+----------------------------
+In addition to the variables/objects/etc. listed above, the following entities
+are avaialble from the top level ``brokkr`` namespace.
+
+* list of stuff

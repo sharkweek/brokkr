@@ -12,16 +12,9 @@ TODO:
 * [ ] fix calculations for effective laminate properties
 """
 
-from .lamina import Lamina, Ply
-from brokkr.core.exceptions import (
-    UnitDimensionError,
-    CalculatedAttributeError,
-)
-from brokkr.config import USYS
 from numpy import hstack, vsplit, vstack, zeros, array
 from numpy.linalg import inv, det
 import pandas as pd
-from brokkr.mech_math import matrix_minor
 from unyt import UnitSystem, unyt_array
 from unyt.dimensions import (
     length,
@@ -29,6 +22,14 @@ from unyt.dimensions import (
     temperature,
     force,
     pressure
+)
+
+from brokkr.config import DEFAULT_USYS
+from brokkr.bmath import matrix_minor
+from brokkr.composites.lamina import Lamina, Ply
+from brokkr.core.exceptions import (
+    UnitDimensionError,
+    CalculatedAttributeError,
 )
 
 __all__ = ['Laminate']
@@ -73,7 +74,7 @@ class Laminate(dict):
     """
 
     # lists of attributes for method filtering
-    _dims = {
+    _dimensions = {
         'dT': (temperature,),
         'dM': (dimensionless,),
         'N_m': (force / length,),
@@ -99,11 +100,11 @@ class Laminate(dict):
         't': (length,)
     }
 
-    _base_attr = tuple(_dims) + ('usys',)
+    _base_attr = (*_dimensions, 'usys')
     _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'nu_xy',
                   'nu_yx' 'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A',
                   'B', 'D', 't')
-    __slots__ = _base_attr + _calc_attr + ('__locked',)
+    __slots__ = (*_base_attr, *_calc_attr, '__locked')
 
     def __unlock(locked_func):
         """Decorate methods to unlock attributes.
@@ -128,7 +129,7 @@ class Laminate(dict):
 
     @__unlock
     def __init__(self, *plies, dT=0, dM=0, N_m=zeros((3, 1)),
-                 M_m=zeros((3, 1)), usys=USYS):
+                 M_m=zeros((3, 1)), usys=DEFAULT_USYS):
         # create and zero out all properties needed for .__update()
         self.usys = usys
         self.dT = dT
@@ -152,8 +153,8 @@ class Laminate(dict):
 
         def check_dim(name, attr):
             """Validate dimensions."""
-            if name in self._dims:
-                correct_dim = self._dims.get(name)
+            if name in self._dimensions:
+                correct_dim = self._dimensions.get(name)
 
                 if hasattr(attr, 'units'):
                     if attr.units.dimensions not in correct_dim:

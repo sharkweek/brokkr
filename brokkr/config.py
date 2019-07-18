@@ -1,8 +1,21 @@
+"""Congifuration file for ``brokkr`` package.
+
+Contains global variables and unit system definitions for ``brokkr``. Default
+unit system is the US unit system.
+
+========= ======
+Dimension Unit
+========= ======
+mass      pound
+length    inch
+time      second
+========= ======
+
+"""
+
 from unyt import UnitSystem, lbf, psi, inch, ft
 from unyt.dimensions import length, force, dimensionless
 from unyt.unit_registry import default_unit_registry
-
-__all__ = ['UREG', 'us_unit_system', 'si_unit_system', 'USYS']
 
 UREG = default_unit_registry
 UREG.add(
@@ -64,4 +77,4 @@ si_unit_system = UnitSystem(
     registry=UREG
 )
 
-USYS = us_unit_system
+DEFAULT_USYS = us_unit_system

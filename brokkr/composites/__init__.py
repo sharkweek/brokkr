@@ -27,7 +27,7 @@ References
 
 """
 
-from .lamina import Lamina, Ply
-from .laminate import Laminate
+from brokkr.composites.lamina import Lamina, Ply
+from brokkr.composites.laminate import Laminate
 
 __all__ = ['Lamina', 'Ply', 'Laminate']

@@ -23,7 +23,8 @@ units discussion
 
 Requirements
 ------------
-<required packages>
+unyt
+numpy
 
 
 Contents
@@ -33,6 +34,10 @@ Contents
    :caption: Table of Contents
 
    brokkr
+   brokkr.core
+   brokkr.core.bases
+   brokkr.core.exceptions
+   brokkr.core.validation
    brokkr.bolted_joints
    brokkr.composites
 

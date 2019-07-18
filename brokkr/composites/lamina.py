@@ -10,13 +10,7 @@ TODO:
 
 from numpy import zeros, cos, sin, ndarray
 from numpy.linalg import inv
-from brokkr.mech_math import ms, out_of_bounds
-from brokkr.config import USYS
-from brokkr.core.exceptions import (
-    UnitDimensionError,
-    BoundedValueError,
-    CalculatedAttributeError
-)
+
 from unyt import unyt_array, UnitSystem
 from unyt.dimensions import (
     length,
@@ -26,11 +20,21 @@ from unyt.dimensions import (
     angle
 )
 
+from brokkr.core.bases import DimensionedABC
+from brokkr.core.validation import out_of_bounds
+from brokkr.bmath import ms
+from brokkr.config import DEFAULT_USYS
+from brokkr.core.exceptions import (
+    UnitDimensionError,
+    BoundedValueError,
+    CalculatedAttributeError
+)
+
 
 __all__ = ['Lamina', 'Ply']
 
 
-class Lamina:
+class Lamina(DimensionedABC):
     """An individual lamina.
 
     The ``Lamina`` class exists for material property assignment. To consider
@@ -79,7 +83,7 @@ class Lamina:
 
     """
 
-    _dims = {
+    _dimensions = {
         't': (length,),
         'E1': (pressure,),
         'E2': (pressure,),
@@ -101,10 +105,10 @@ class Lamina:
         'nu12': {'mn': 0, 'mx': 1, 'condition': 'g-l'},
         'G12': {'mn': 0, 'mx': None, 'condition': 'g'}
     }
-    __slots__ = ('usys', *_dims)
+    __slots__ = ('usys', *_dimensions)
 
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=0, F2=0,
-                 F12=0, usys=USYS):
+                 F12=0, usys=DEFAULT_USYS):
 
         super().__setattr__('usys', usys)
         self.t = t
@@ -119,50 +123,6 @@ class Lamina:
         self.F1 = F1
         self.F2 = F2
         self.F12 = F12
-
-    def __setattr__(self, name, value):
-        """Extend __setattr__() to validate units."""
-
-        # set dimensions for required attributes
-        if name in self._dims:
-            correct_dim = self._dims.get(name)
-            # check if object has units
-            if not hasattr(value, 'units'):
-                value *= self.usys[correct_dim[0]]  # assign first in tuple
-
-            # if units assigned, check units for dimensionality
-            else:
-                if value.units.dimensions not in correct_dim:
-                    raise UnitDimensionError(
-                        name, ' OR '.join([str(i) for i in correct_dim])
-                        )
-                else:
-                    # units are converted to master unit system for
-                    # consistency when creating unit_arrays in `Ply` class
-                    value.convert_to_base(self.usys)
-
-            # make sure value is within limits
-            if name in self._limits:
-                if out_of_bounds(value.value, **self._limits.get(name)):
-                    raise BoundedValueError(
-                        name, **self._limits.get(name)
-                        )
-
-        # catch unit system change and convert all attributes with units
-        if name == 'usys':
-            # validate unit system
-            if type(value) != UnitSystem:
-                raise AttributeError(f"`{name}` must be a `UnitSystem`")
-            elif value['temperature'].base_offset != 0:
-                raise AttributeError(
-                    "Unit system must have an absolute temperature unit "
-                    + "(e.g. R or K)"
-                )
-
-            for each in self._dims:
-                getattr(self, each).convert_to_base(value)
-
-        super().__setattr__(name, value)
 
     def __repr__(self):
         r = f"{type(self).__name__}:"
@@ -229,8 +189,8 @@ class Ply(Lamina):
 
     """
 
-    _dims = {
-        **Lamina._dims,
+    _dimensions = {
+        **Lamina._dimensions,
         'theta': (angle,),
         'z': (length,),
         'e_m': (dimensionless,),
@@ -242,7 +202,7 @@ class Ply(Lamina):
         'e_h': (dimensionless,),
     }
 
-    _base_attr = ('theta', 'z', 'usys', *Lamina._dims)
+    _base_attr = ('theta', 'z', 'usys', *Lamina._dimensions)
     _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's',
                   'laminate', 'failure_theory', 'failure_index')
     __slots__ = _base_attr + _calc_attr + ('e_m', '__locked',)
@@ -270,7 +230,7 @@ class Ply(Lamina):
 
     @__unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
-                 b22, F1=0, F2=0, F12=0, usys=USYS, failure_theory='strain'):
+                 b22, F1=0, F2=0, F12=0, usys=DEFAULT_USYS, failure_theory='strain'):
         """Extend ``__init__`` to account for Ply-only attributes."""
 
         super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
@@ -307,7 +267,7 @@ class Ply(Lamina):
 
     def __repr__(self):
         r = f'{type(self).__name__}'
-        for each in sorted(self._dims):
+        for each in sorted(self._dimensions):
             attr = getattr(self, each)
 
             if issubclass(attr.__class__, ndarray):
@@ -322,7 +282,7 @@ class Ply(Lamina):
 
         r += (
             f"\n    {'failure theory' + ': '}{getattr(self, 'failure_theory')}"
-            )
+        )
         r += f"\n    {'failure index' + ': '}{getattr(self, 'failure_index')}"
 
         return r
@@ -513,4 +473,9 @@ class Ply(Lamina):
     @property
     def margin(self):
         """The margin of safety."""
-        return ms(1, self.failure_index)
+        try:
+            ms_ = ms(1, self.failure_index)
+        except ZeroDivisionError as zde:
+            ms_ = None
+
+        return ms_

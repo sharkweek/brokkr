@@ -17,33 +17,36 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Bolted Joints" href="brokkr.bolted_joints.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -80,6 +83,10 @@
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html">brokkr</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bolted_joints.html">Bolted Joints</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Composites (<code class="docutils literal notranslate"><span class="pre">brokkr.composites</span></code>)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-brokkr.composites">Summary</a></li>
@@ -155,159 +162,89 @@
 <div class="section" id="module-brokkr.composites">
 <span id="summary"></span><h2>Summary<a class="headerlink" href="#module-brokkr.composites" title="Permalink to this headline">¶</a></h2>
 <p>Tools for composite laminates.</p>
+<p>When no units are supplied, they are assumed to be in the master unit system
+<code class="docutils literal notranslate"><span class="pre">brokkr.config.USYS</span></code>.</p>
 <p>All calculations are performed by using classical laminate theory (CLT) under
 the following assumptions:</p>
 <ul class="simple">
-<li>Lamina are generally orthotropic.</li>
-<li>Lamina properties and values are assumed to be in the lamina coordinate
-system (i.e. 12-plane).</li>
-<li>Lamina angles (<code class="docutils literal notranslate"><span class="pre">Lamina.theta</span></code>) are in degrees, measured from the laminate
-x-axis to the lamina 1-axis.</li>
-<li>The laminate z-direction is upward, away from the bottom surface.</li>
-<li>Reported strain values are in engineering strain.</li>
-<li>All loads and moments are running values supplied as force or moment per unit
-width.</li>
-<li>Unit systems are consistent (i.e. SI, US, or Imperial).</li>
-<li>Equations and symbol conventions are per NASA-RP-1351 <a class="footnote-reference" href="#id3" id="id1">[4]</a> and Jones <a class="footnote-reference" href="#id4" id="id2">[5]</a>.</li>
+<li><p>Lamina are generally orthotropic.</p></li>
+<li><p>Lamina properties and values are assumed to be in the lamina coordinate
+system (i.e. 12-plane).</p></li>
+<li><p>Lamina angles (<code class="docutils literal notranslate"><span class="pre">Lamina.theta</span></code>) are in degrees, measured from the laminate
+x-axis to the lamina 1-axis.</p></li>
+<li><p>The laminate z-direction is upward, away from the bottom surface.</p></li>
+<li><p>Reported strain values are in engineering strain.</p></li>
+<li><p>All loads and moments are running values supplied as force or moment per unit
+width.</p></li>
+<li><p>Unit systems are consistent (i.e. SI, US, or Imperial).</p></li>
+<li><p>Equations and symbol conventions are per NASA-RP-1351 <a class="footnote-reference brackets" href="#id3" id="id1">4</a> and Jones <a class="footnote-reference brackets" href="#id4" id="id2">5</a>.</p></li>
 </ul>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[4]</a></td><td>Nettles, A.T., “Basic Mechanics of Laminated Composite Plates”, NASA
-Marshall Space Flight Center, Alabama, NASA-RP-1351, October 1994</td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id4" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[5]</a></td><td>Jones, Robert M. “Mechanics Of Composite Materials”, Taylor &amp; Francis,
-Inc., 1999</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">4</a></span></dt>
+<dd><p>Nettles, A.T., “Basic Mechanics of Laminated Composite Plates”, NASA
+Marshall Space Flight Center, Alabama, NASA-RP-1351, October 1994</p>
+</dd>
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">5</a></span></dt>
+<dd><p>Jones, Robert M. “Mechanics Of Composite Materials”, Taylor &amp; Francis,
+Inc., 1999</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="brokkr.composites.Lamina">
-<em class="property">class </em><code class="descclassname">brokkr.composites.</code><code class="descname">Lamina</code><span class="sig-paren">(</span><em>t</em>, <em>E1</em>, <em>E2</em>, <em>nu12</em>, <em>G12</em>, <em>a11</em>, <em>a22</em>, <em>b11</em>, <em>b22</em>, <em>F1=1</em>, <em>F2=1</em>, <em>F12=1</em>, <em>ftype='strain'</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Lamina" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Lamina</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">E1</em>, <em class="sig-param">E2</em>, <em class="sig-param">nu12</em>, <em class="sig-param">G12</em>, <em class="sig-param">a11</em>, <em class="sig-param">a22</em>, <em class="sig-param">b11</em>, <em class="sig-param">b22</em>, <em class="sig-param">F1=0</em>, <em class="sig-param">F2=0</em>, <em class="sig-param">F12=0</em>, <em class="sig-param">usys=us Unit System  Base Units:   length: inch   mass: lb   time: s   temperature: R   angle: degree   current_mks: A   luminous_intensity: cd  Other Units:   force: lbf   pressure: psi</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Lamina" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An individual lamina.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for material property assignment. To consider
 loading, thermal effects, or deflection, see the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> and <code class="docutils literal notranslate"><span class="pre">Laminate</span></code>
 classes.</p>
-<dl class="attribute">
-<dt id="brokkr.composites.Lamina.t">
-<code class="descname">t</code><a class="headerlink" href="#brokkr.composites.Lamina.t" title="Permalink to this definition">¶</a></dt>
-<dd><p>lamina thickness</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">E1, E2, G12</code></dt>
-<dd><p>elastic moduli in the lamina 1-, 2-, and 12-directions</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="brokkr.composites.Lamina.nu12">
-<code class="descname">nu12</code><a class="headerlink" href="#brokkr.composites.Lamina.nu12" title="Permalink to this definition">¶</a></dt>
-<dd><p>Poisson’s ratio in the 12-plane</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">a11, a22</code></dt>
-<dd><p>coefficients of thermal expansion (CTE) in the lamina 1- and 2-
-directions</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">b11, b22</code></dt>
-<dd><p>coefficients of hygroscopic expansion (CTE) in the lamina 1- and 3-
-directions</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">F1, F2, F12</code></dt>
-<dd><p>lamina strengths in each direction</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="brokkr.composites.Lamina.ftype">
-<code class="descname">ftype</code><a class="headerlink" href="#brokkr.composites.Lamina.ftype" title="Permalink to this definition">¶</a></dt>
-<dd><p>lamina strength type</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">{‘strain’, ‘stress’}</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="brokkr.composites.Lamina.is_fully_defined">
-<code class="descname">is_fully_defined</code><a class="headerlink" href="#brokkr.composites.Lamina.is_fully_defined" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if lamina is fully defined with proper attr data types.</p>
-</dd></dl>
-
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – lamina thickness (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(length)</span></code>)</p></li>
+<li><p><strong>E2</strong><strong>, </strong><strong>G12</strong> (<em>E1</em><em>,</em>) – <dl class="simple">
+<dt>elastic moduli in the lamina 1-, 2-, and 12-directions (<a href="#id5"><span class="problematic" id="id6">``</span></a>dim:</dt><dd><p>(mass)/((length)*(time)**2)``)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>nu12</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Poisson’s ratio in the 12-plane (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span></code>)</p></li>
+<li><p><strong>a22</strong> (<em>a11</em><em>,</em>) – coefficients of thermal expansion (CTE) in the lamina 1- and 2-
+directions (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span></code>)</p></li>
+<li><p><strong>b22</strong> (<em>b11</em><em>,</em>) – coefficients of hygroscopic expansion (CTE) in the lamina 1- and 3-
+directions (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span></code>)</p></li>
+<li><p><strong>F2</strong><strong>, </strong><strong>F12</strong> (<em>F1</em><em>,</em>) – <dl class="simple">
+<dt>lamina strengths in each direction; may be in strain or stress (<a href="#id7"><span class="problematic" id="id8">``</span></a>dim:</dt><dd><p>(dimensionless) or (mass)/((length)*(time)**2)``)</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>usys</strong> (<em>unyt.UnitSystem</em>) – the unit system for all dimensioned parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="brokkr.core.exceptions.html#brokkr.core.exceptions.BoundedValueError" title="brokkr.core.exceptions.BoundedValueError"><strong>BoundedValueError</strong></a> – if assigned attribute value is not within required boundaries</p></li>
+<li><p><a class="reference internal" href="brokkr.core.exceptions.html#brokkr.core.exceptions.UnitDimensionError" title="brokkr.core.exceptions.UnitDimensionError"><strong>UnitDimensionError</strong></a> – if assigned attribute units have incorrect dimensionality</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Parameters may be entered including or not including units. If units are
+not included, they will be assigned from the default unit system
+(<code class="docutils literal notranslate"><span class="pre">usys</span></code>). Dimensionless units such as strain and percent moisture gain
+are assigned a <code class="docutils literal notranslate"><span class="pre">dimensionless</span></code> unit. Calculated attributes produce the
+appropriate units based on the base attributes.</p>
+<p>Parameters that are entered with units, are checked for the correct
+dimensionality and converted to the default unit system before being stored
+in the instance for consistency.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="brokkr.composites.Ply">
-<em class="property">class </em><code class="descclassname">brokkr.composites.</code><code class="descname">Ply</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr.composites._lamina.Lamina</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Ply</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr.composites.lamina.Lamina</span></code></p>
 <p>A Ply for use in a Laminate.</p>
 <p>Extended <code class="docutils literal notranslate"><span class="pre">Lamina</span></code>. While the <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for defining
 material properties, the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> class is intended to extend its
@@ -318,7 +255,7 @@ constituent items of a <code class="docutils literal notranslate"><span class="p
 <div class="line"><strong>Attribute Types</strong></div>
 <div class="line">Not all attributes of are able to be directly modified. Attributes are
 divided into ‘base’ and ‘calculated’ values categories and are
-prescribed by the class attributes <code class="docutils literal notranslate"><span class="pre">__baseattr__</span></code> and <code class="docutils literal notranslate"><span class="pre">__calcattr__</span></code>,
+prescribed by the class attributes <code class="docutils literal notranslate"><span class="pre">_base_attr</span></code> and <code class="docutils literal notranslate"><span class="pre">_calc_attr</span></code>,
 respectively. Base attributes may be set freely, while calculated
 attributes are ‘locked’ and updated based on the values of base
 attributes.</div>
@@ -329,199 +266,142 @@ attributes.</div>
 </div>
 <blockquote>
 <div><ul class="simple">
-<li>Ply z, zk, and zk1 are all measured assuming that positive is upward,
-TOWARD the top surface of the laminate.</li>
-<li>Theta is in degrees, measured from the laminate x-axis to the lamina
-1- axis.</li>
+<li><p>Ply z, zk, and zk1 are all measured assuming that positive is upward,
+TOWARD the top surface of the laminate.</p></li>
+<li><p>Theta is in degrees, measured from the laminate x-axis to the lamina
+1- axis.</p></li>
 </ul>
 </div></blockquote>
-<dl class="attribute">
-<dt id="brokkr.composites.Ply.laminate">
-<code class="descname">laminate</code><a class="headerlink" href="#brokkr.composites.Ply.laminate" title="Permalink to this definition">¶</a></dt>
-<dd><p>the Laminate object the Ply belongs to</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#brokkr.composites.Laminate" title="brokkr.composites.Laminate">Laminate</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">t, E1, E2, nu12, G12, a11, a22, b11, F1, F2, F12, ftype</code></dt>
-<dd><p>See <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> attribute definitions</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="brokkr.composites.Ply.theta">
-<code class="descname">theta</code><a class="headerlink" href="#brokkr.composites.Ply.theta" title="Permalink to this definition">¶</a></dt>
-<dd><p>the angle the Ply is oriented in w.r.t. the Laminate coordinate system</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>laminate</strong> (<a class="reference internal" href="#brokkr.composites.Laminate" title="brokkr.composites.Laminate"><em>Laminate</em></a>) – the Laminate object the Ply belongs to</p></li>
+<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – the angle the Ply is oriented in w.r.t. the Laminate coordinate system
+(<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(angle)</span></code>)</p></li>
+<li><p><strong>failure_theory</strong> (<em>{'strain'</em><em>, </em><em>'stress'</em><em>, </em><em>'Tsai-Hill'}</em>) – The failure theory for calculating the failure index</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.Q">
-<code class="descname">Q</code><a class="headerlink" href="#brokkr.composites.Ply.Q" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ply stiffness matrix in the Ply coordinate system</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">Q</code><a class="headerlink" href="#brokkr.composites.Ply.Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ply stiffness matrix in the Ply coordinate system (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(mass)</span>
+<span class="pre">/((length)*(time)**2)</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 unyt.unyt_array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.Qbar">
-<code class="descname">Qbar</code><a class="headerlink" href="#brokkr.composites.Ply.Qbar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ply stiffness matrix in the Laminate coordinate system</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">Qbar</code><a class="headerlink" href="#brokkr.composites.Ply.Qbar" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Ply stiffness matrix in the Laminate coordinate system (<a href="#id9"><span class="problematic" id="id10">``</span></a>dim:</dt><dd><p>(mass)/((length)*(time)**2)``)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 unyt.unyt_array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.T">
-<code class="descname">T</code><a class="headerlink" href="#brokkr.composites.Ply.T" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ply transformation matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">T</code><a class="headerlink" href="#brokkr.composites.Ply.T" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ply transformation matrix (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 unyt.unyt_array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.Tinv">
-<code class="descname">Tinv</code><a class="headerlink" href="#brokkr.composites.Ply.Tinv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inverse of the Ply transformation matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">Tinv</code><a class="headerlink" href="#brokkr.composites.Ply.Tinv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inverse of the Ply transformation matrix (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 unyt.unyt_array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">e_m, e_t, e_h</code></dt>
-<dd><p>Ply strains due to mechanical, thermal, and hygroscopic loading</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt>
-<code class="descname">s_m, s_t, s_h</code></dt>
-<dd><p>Ply stresses due to mechanical, thermal, and hygroscopic loading</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.ndarray</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">e_m, e_t, e_h</code></dt>
+<dd><dl class="simple">
+<dt>Ply strains due to mechanical, thermal, and hygroscopic loading (<a href="#id11"><span class="problematic" id="id12">``</span></a>dim:</dt><dd><p>(dimensionless)``)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 unyt.unyt_array</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.z">
-<code class="descname">z</code><a class="headerlink" href="#brokkr.composites.Ply.z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Vertical location of the ply midplane in the laminate</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="brokkr.composites.Ply.failure_theory">
-<code class="descname">failure_theory</code><a class="headerlink" href="#brokkr.composites.Ply.failure_theory" title="Permalink to this definition">¶</a></dt>
-<dd><p>The failure theory for calculating the failure index</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">{‘strain’, ‘stress’, ‘Tsai-Hill’}</td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">z</code><a class="headerlink" href="#brokkr.composites.Ply.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertical location of the ply midplane in the laminate (<code class="docutils literal notranslate"><span class="pre">dim:</span>
+<span class="pre">(length)</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Ply.failure_index">
-<code class="descname">failure_index</code><a class="headerlink" href="#brokkr.composites.Ply.failure_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>the failure index</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<code class="sig-name descname">failure_index</code><a class="headerlink" href="#brokkr.composites.Ply.failure_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>the failure index (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">dimensionless</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
+<dt id="brokkr.composites.Ply.S">
+<em class="property">property </em><code class="sig-name descname">S</code><a class="headerlink" href="#brokkr.composites.Ply.S" title="Permalink to this definition">¶</a></dt>
+<dd><p>The compliance matrix.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="brokkr.composites.Ply.calc_failure_index">
-<em class="property">static </em><code class="descname">calc_failure_index</code><span class="sig-paren">(</span><em>theory</em>, <em>F1</em>, <em>F2</em>, <em>F12</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply.calc_failure_index" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">calc_failure_index</code><span class="sig-paren">(</span><em class="sig-param">theory</em>, <em class="sig-param">s1</em>, <em class="sig-param">s2</em>, <em class="sig-param">s3</em>, <em class="sig-param">F1</em>, <em class="sig-param">F2</em>, <em class="sig-param">F12</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply.calc_failure_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the failure index for a given failure theory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>theory</strong> (<em>{'strain'</em><em>, </em><em>'stress'</em><em>, </em><em>'Tsai-Hill'}</em>) – failure theory for which to calculate a failure index</li>
-<li><strong>F2</strong><strong>, </strong><strong>F12</strong> (<em>F1</em><em>,</em>) – strengths of the material</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theory</strong> (<em>{'strain'</em><em>, </em><em>'stress'</em><em>, </em><em>'Tsai-Hill'}</em>) – failure theory for which to calculate a failure index</p></li>
+<li><p><strong>s2</strong><strong>, </strong><strong>s3</strong> (<em>s1</em><em>,</em>) – applied strain or stress values (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span> <span class="pre">OR</span> <span class="pre">``dim:</span>
+<span class="pre">(mass)/((length)*(time)**2)</span></code>)</p></li>
+<li><p><strong>F2</strong><strong>, </strong><strong>F12</strong> (<em>F1</em><em>,</em>) – strengths of the material (<code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">(dimensionless)</span> <span class="pre">OR</span> <span class="pre">``dim:</span>
+<span class="pre">(mass)/((length)*(time)**2)</span></code>)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The failure index</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
+<p>:param .. note:: Applied and strength values must have the same: dimensionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The failure index</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>A ply is considered to fail if the failure index for an applied load
 is equal to or greater than one. Failure indicies for each failure
 theory are calculated according to the following equations per the
-BJSFM User Manual <a class="footnote-reference" href="#id6" id="id5">[6]</a>.</p>
+BJSFM User Manual <a class="footnote-reference brackets" href="#id14" id="id13">6</a>.</p>
 <p>Max strain (<code class="docutils literal notranslate"><span class="pre">theory='strain'</span></code>):</p>
 <div class="math notranslate nohighlight">
 \[\mathrm{FI} = \mathrm{min}
@@ -541,75 +421,58 @@ BJSFM User Manual <a class="footnote-reference" href="#id6" id="id5">[6]</a>.</p
 + \left( \frac{\tau_{12}}{F_{12}} \right)^{2}
 - \frac{\sigma_1 \sigma_2}{F_1^2}\]</div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Modified Tsai-Wu and Hoffman criteria are not supported
+<p class="admonition-title">Note</p>
+<p>Modified Tsai-Wu and Hoffman criteria are not supported
 as they require separate strength values for tension and compression</p>
 </div>
 <p class="rubric">References</p>
-<table class="docutils footnote" frame="void" id="id6" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[6]</a></td><td>Ogonowski, J.M, <em>Effect of Variances and Manufacturing
+<dl class="footnote brackets">
+<dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id13">6</a></span></dt>
+<dd><p>Ogonowski, J.M, <em>Effect of Variances and Manufacturing
 Tolerances on the Design Strength and Life of Mechanically Fastened
 Composite Joints, Volume 3 - Bolted Joint Stress Field Model
 (BJSFM) Computer Program User’s Manual</em>, McDonnell Aircraft
-Company, AFWAL-TR-81-3041 VOLUME 3, pp. 8-9, 15 April 1981</td></tr>
-</tbody>
-</table>
+Company, AFWAL-TR-81-3041 VOLUME 3, pp. 8-9, 15 April 1981</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="brokkr.composites.Ply.e">
-<code class="descname">e</code><a class="headerlink" href="#brokkr.composites.Ply.e" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total strain.</p>
-</dd></dl>
-
-<dl class="classmethod">
+<dl class="method">
 <dt id="brokkr.composites.Ply.from_lamina">
-<em class="property">classmethod </em><code class="descname">from_lamina</code><span class="sig-paren">(</span><em>lamina</em>, <em>laminate</em>, <em>theta</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply.from_lamina" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_lamina</code><span class="sig-paren">(</span><em class="sig-param">lamina</em>, <em class="sig-param">laminate</em>, <em class="sig-param">theta</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Ply.from_lamina" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Ply object from a Lamina object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>lamina</strong> (<a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina"><em>Lamina</em></a>) – <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> from which to create <code class="docutils literal notranslate"><span class="pre">Ply</span></code></li>
-<li><strong>laminate</strong> (<a class="reference internal" href="#brokkr.composites.Laminate" title="brokkr.composites.Laminate"><em>Laminate</em></a>) – <code class="docutils literal notranslate"><span class="pre">Laminate</span></code> object the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> belongs to</li>
-<li><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – <code class="docutils literal notranslate"><span class="pre">Ply</span></code> orientation w.r.t. the <code class="docutils literal notranslate"><span class="pre">Laminate</span></code> coordinate system</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lamina</strong> (<a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina"><em>Lamina</em></a>) – <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> from which to create <code class="docutils literal notranslate"><span class="pre">Ply</span></code></p></li>
+<li><p><strong>laminate</strong> (<a class="reference internal" href="#brokkr.composites.Laminate" title="brokkr.composites.Laminate"><em>Laminate</em></a>) – <code class="docutils literal notranslate"><span class="pre">Laminate</span></code> object the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> belongs to</p></li>
+<li><p><strong>theta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – <code class="docutils literal notranslate"><span class="pre">Ply</span></code> orientation w.r.t. the <code class="docutils literal notranslate"><span class="pre">Laminate</span></code> coordinate system</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><code class="docutils literal notranslate"><span class="pre">Ply</span></code> object</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">Ply</span></code> object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Ply.margin">
-<code class="descname">margin</code><a class="headerlink" href="#brokkr.composites.Ply.margin" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">margin</code><a class="headerlink" href="#brokkr.composites.Ply.margin" title="Permalink to this definition">¶</a></dt>
 <dd><p>The margin of safety.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="brokkr.composites.Ply.s">
-<code class="descname">s</code><a class="headerlink" href="#brokkr.composites.Ply.s" title="Permalink to this definition">¶</a></dt>
-<dd><p>Total stress.</p>
-</dd></dl>
-
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Ply.zk">
-<code class="descname">zk</code><a class="headerlink" href="#brokkr.composites.Ply.zk" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">zk</code><a class="headerlink" href="#brokkr.composites.Ply.zk" title="Permalink to this definition">¶</a></dt>
 <dd><p>The vertical location of the lamina’s top plane.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Ply.zk1">
-<code class="descname">zk1</code><a class="headerlink" href="#brokkr.composites.Ply.zk1" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">zk1</code><a class="headerlink" href="#brokkr.composites.Ply.zk1" title="Permalink to this definition">¶</a></dt>
 <dd><p>The vertical location of the lamina’s bottom plane.</p>
 </dd></dl>
 
@@ -617,155 +480,129 @@ Company, AFWAL-TR-81-3041 VOLUME 3, pp. 8-9, 15 April 1981</td></tr>
 
 <dl class="class">
 <dt id="brokkr.composites.Laminate">
-<em class="property">class </em><code class="descclassname">brokkr.composites.</code><code class="descname">Laminate</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Laminate</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></p>
 <p>A composite laminate made up of multiple orthotropic lamina objects.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Laminate</span></code> instances contain <code class="docutils literal notranslate"><span class="pre">Ply</span></code> instances and used for calculating
 the effects on individual lamina in a laminate stackup. All calculations
 adhere to classical laminate theory (CLT).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>*plies</strong> (<a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina"><em>Lamina</em></a><em>, </em><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply"><em>Ply</em></a><em>, or </em><em>string</em>) – lamina or plies that make up the laminate ordered from the bottom
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>*plies</strong> (<a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina"><em>Lamina</em></a><em>, </em><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply"><em>Ply</em></a><em>, or </em><em>string</em>) – lamina or plies that make up the laminate ordered from the bottom
 surface to the top surface. In creating the Laminate, either a
 sequence of objects or a file path to a CSV file containing all the
-appropriate data can be supplied.</td>
-</tr>
-</tbody>
-</table>
+appropriate data can be supplied.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="brokkr.composites.Laminate.t">
-<code class="descname">t</code><a class="headerlink" href="#brokkr.composites.Laminate.t" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">t</code><a class="headerlink" href="#brokkr.composites.Laminate.t" title="Permalink to this definition">¶</a></dt>
 <dd><p>total thickness of the laminate</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Laminate.dT">
-<code class="descname">dT</code><a class="headerlink" href="#brokkr.composites.Laminate.dT" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dT</code><a class="headerlink" href="#brokkr.composites.Laminate.dT" title="Permalink to this definition">¶</a></dt>
 <dd><p>change in temperature</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="brokkr.composites.Laminate.dM">
-<code class="descname">dM</code><a class="headerlink" href="#brokkr.composites.Laminate.dM" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dM</code><a class="headerlink" href="#brokkr.composites.Laminate.dM" title="Permalink to this definition">¶</a></dt>
 <dd><p>change in moisture</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">N_m, N_t, N_h</code></dt>
+<code class="sig-name descname">N_m, N_t, N_h</code></dt>
 <dd><p>mechanical, thermal, and hygroscopic running loads</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">M_m, M_t, M_h</code></dt>
+<code class="sig-name descname">M_m, M_t, M_h</code></dt>
 <dd><p>mechanical, thermal, and hygroscopic running moments</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">Ex, Ey, Gxy</code></dt>
+<code class="sig-name descname">Ex, Ey, Gxy</code></dt>
 <dd><p>effective laminate moduli</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">e_0m, e_0t, e_0h</code></dt>
+<code class="sig-name descname">e_0m, e_0t, e_0h</code></dt>
 <dd><p>laminate midplane strain due to mechanical, thermal, and hygroscopic
 loading</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">3x1 numpy.array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>3x1 array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt>
-<code class="descname">k_0m, k_0t, k_0h</code></dt>
+<code class="sig-name descname">k_0m, k_0t, k_0h</code></dt>
 <dd><p>laminate midplane curvature due to mechanical, thermal, and hygroscopic
 loading</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numpy.array_like</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.ABD">
-<code class="descname">ABD</code><a class="headerlink" href="#brokkr.composites.Laminate.ABD" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ABD</code><a class="headerlink" href="#brokkr.composites.Laminate.ABD" title="Permalink to this definition">¶</a></dt>
 <dd><p>The laminate ABD matrix.</p>
+<p class="rubric">Notes</p>
+<p>Because A, B, and D matrices each have different units and
+<code class="docutils literal notranslate"><span class="pre">unyt_array``s</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">uniform</span> <span class="pre">units,</span> <span class="pre">the</span> <span class="pre">ABD</span> <span class="pre">matrix</span> <span class="pre">is</span> <span class="pre">returned</span> <span class="pre">as</span>
+<span class="pre">a</span> <span class="pre">dimensionless</span> <span class="pre">``unyt_array</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="brokkr.composites.Laminate.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>new_ply</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.append" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">new_ply</em>, <em class="sig-param">angle=0</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new ply to the <cite>Laminate</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_ply</strong> (<cite>Lamina</cite> or <cite>Ply</cite>) – the ply to be added to the laminate</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_ply</strong> (<cite>Lamina</cite> or <cite>Ply</cite>) – the ply to be added to the laminate</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Added plies are assumed to be placed on TOP SURFACE of existing
 laminate.</p>
@@ -773,149 +610,156 @@ laminate.</p>
 
 <dl class="method">
 <dt id="brokkr.composites.Laminate.check_ply">
-<code class="descname">check_ply</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.check_ply" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_ply</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.check_ply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if object is a <cite>Ply</cite> or <cite>Lamina</cite> object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<em>any</em>) – the object to be type checked</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the original <cite>Ply</cite> or converted <cite>Lamina</cite> object</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply">Ply</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> – if <cite>obj</cite> is neither a <cite>Ply</cite> or <cite>Lamina</cite> object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obj</strong> (<em>any</em>) – the object to be type checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the original <cite>Ply</cite> or converted <cite>Lamina</cite> object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply">Ply</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.7)"><strong>TypeError</strong></a> – if <cite>obj</cite> is neither a <cite>Ply</cite> or <cite>Lamina</cite> object</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.e_0">
-<code class="descname">e_0</code><a class="headerlink" href="#brokkr.composites.Laminate.e_0" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">e_0</code><a class="headerlink" href="#brokkr.composites.Laminate.e_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total midplane strain.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="brokkr.composites.Laminate.flip">
-<code class="descname">flip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.flip" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">flip</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.flip" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flip the stacking sequence of the Lamina.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="brokkr.composites.Laminate.from_csv">
-<code class="descname">from_csv</code><span class="sig-paren">(</span><em>inputFile</em>, <em>append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.from_csv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_csv</code><span class="sig-paren">(</span><em class="sig-param">inputFile</em>, <em class="sig-param">append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine laminate properties from input CSV file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inputFile</strong> (<em>string</em>) – file path to CSV file</li>
-<li><strong>append</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – flag indicating whether to clear the laminate before adding plies
-from the input file; default is <code class="docutils literal notranslate"><span class="pre">False</span></code></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputFile</strong> (<em>string</em>) – file path to CSV file</p></li>
+<li><p><strong>append</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – flag indicating whether to clear the laminate before adding plies
+from the input file; default is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>The CSV is assumed to have the plies listed in ascending order (i.e.
 the bottom ply is listed first) and must have the following headers:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="18%" />
-<col width="82%" />
+<col style="width: 18%" />
+<col style="width: 82%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Header</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Header</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">t</span></code></td>
-<td>thickness</td>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">t</span></code></p></td>
+<td><p>thickness</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">theta</span></code></td>
-<td>angle of ply relative to laminate</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theta</span></code></p></td>
+<td><p>angle of ply relative to laminate</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">E1</span></code></td>
-<td>modulus in lamina 1-direction</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">E1</span></code></p></td>
+<td><p>modulus in lamina 1-direction</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">E2</span></code></td>
-<td>modulus in lamina 2-direction</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">E2</span></code></p></td>
+<td><p>modulus in lamina 2-direction</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">nu12</span></code></td>
-<td>Poisson’s ratio</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nu12</span></code></p></td>
+<td><p>Poisson’s ratio</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">G12</span></code></td>
-<td>shear modulus</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">G12</span></code></p></td>
+<td><p>shear modulus</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">a11</span></code></td>
-<td>coeff. of thermal expansion in 1-direction</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a11</span></code></p></td>
+<td><p>coeff. of thermal expansion in 1-direction</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">a22</span></code></td>
-<td>coeff. of thermal expansion in 2-direction</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">a22</span></code></p></td>
+<td><p>coeff. of thermal expansion in 2-direction</p></td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">b11</span></code></td>
-<td>coeff. of hygroscopic expansion in 1-direction</td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">b11</span></code></p></td>
+<td><p>coeff. of hygroscopic expansion in 1-direction</p></td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">b22</span></code></td>
-<td>coeff. of hygroscopic expansion in 1-direction</td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">b22</span></code></p></td>
+<td><p>coeff. of hygroscopic expansion in 1-direction</p></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.is_balanced">
-<code class="descname">is_balanced</code><a class="headerlink" href="#brokkr.composites.Laminate.is_balanced" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_balanced</code><a class="headerlink" href="#brokkr.composites.Laminate.is_balanced" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if True if laminate is balanced.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.is_symmetric">
-<code class="descname">is_symmetric</code><a class="headerlink" href="#brokkr.composites.Laminate.is_symmetric" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_symmetric</code><a class="headerlink" href="#brokkr.composites.Laminate.is_symmetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if True if laminate is symmetric.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.k_0">
-<code class="descname">k_0</code><a class="headerlink" href="#brokkr.composites.Laminate.k_0" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">k_0</code><a class="headerlink" href="#brokkr.composites.Laminate.k_0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Total laminate curvature.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="brokkr.composites.Laminate.layup">
-<code class="descname">layup</code><a class="headerlink" href="#brokkr.composites.Laminate.layup" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">layup</code><a class="headerlink" href="#brokkr.composites.Laminate.layup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Laminate layup.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="brokkr.composites.Laminate.pop">
-<code class="descname">pop</code><span class="sig-paren">(</span><em>key</em>, <em>renumber=True</em>, <em>as_lamina=False</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.pop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pop</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">renumber=True</em>, <em class="sig-param">as_lamina=False</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.pop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove item from Laminate and return Ply.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – index of the ply to be removed and returned</li>
-<li><strong>renumber</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, renumber remaining plies. (<code class="docutils literal notranslate"><span class="pre">default=True</span></code>)</li>
-<li><strong>as_lamina</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, return the ply as a <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> object, otherwise, return
-as a <code class="docutils literal notranslate"><span class="pre">Ply</span></code> object. (<code class="docutils literal notranslate"><span class="pre">default=False</span></code>)</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – index of the ply to be removed and returned</p></li>
+<li><p><strong>renumber</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, renumber remaining plies. (<code class="docutils literal notranslate"><span class="pre">default=True</span></code>)</p></li>
+<li><p><strong>as_lamina</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, return the ply as a <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> object, otherwise, return
+as a <code class="docutils literal notranslate"><span class="pre">Ply</span></code> object. (<code class="docutils literal notranslate"><span class="pre">default=False</span></code>)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>Ply</strong> – Description of returned object.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply">Ply</a> or <a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina">Lamina</a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Ply</strong> – Description of returned object.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#brokkr.composites.Ply" title="brokkr.composites.Ply">Ply</a> or <a class="reference internal" href="#brokkr.composites.Lamina" title="brokkr.composites.Lamina">Lamina</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.composites.Laminate.reorient">
+<code class="sig-name descname">reorient</code><span class="sig-paren">(</span><em class="sig-param">angle</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Laminate.reorient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorient laminate.</p>
+<p>The units of <cite>angle</cite> are assumed to be the same angle units as the
+laminate. If a sequence is provided, it is assumed to start with the
+first ply and iterate through to the last in order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>angle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> or </em><em>iterable of floats</em>) – the angle to rotate the laminate or the sequence of individual
+lamina orientations</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -932,7 +776,7 @@ as a <code class="docutils literal notranslate"><span class="pre">Ply</span></co
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="brokkr.bolted_joints.html" class="btn btn-neutral" title="Bolted Joints" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="brokkr.bolted_joints.html" class="btn btn-neutral float-left" title="Bolted Joints" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -958,27 +802,16 @@ as a <code class="docutils literal notranslate"><span class="pre">Ply</span></co
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
