@@ -11,24 +11,25 @@ TODO:
 from numpy import zeros, cos, sin, ndarray
 from numpy.linalg import inv
 
-from unyt import unyt_array, UnitSystem
 from unyt.dimensions import (
     length,
     pressure,
     dimensionless,
     temperature,
-    angle
+    angle,
 )
+from unyt import unyt_array, UnitSystem
 
-from brokkr.core.bases import DimensionedABC
-from brokkr.core.validation import out_of_bounds
 from brokkr.bmath import ms
 from brokkr.config import DEFAULT_USYS
+from brokkr.core.bases import DimensionedABC
+from brokkr.core.decorators import unlock
 from brokkr.core.exceptions import (
-    UnitDimensionError,
     BoundedValueError,
-    CalculatedAttributeError
+    DerivedAttributeError,
+    UnitDimensionError,
 )
+from brokkr.core.validation import out_of_bounds
 
 
 __all__ = ['Lamina', 'Ply']
@@ -190,47 +191,29 @@ class Ply(Lamina):
     """
 
     _dimensions = {
-        **Lamina._dimensions,
-        'theta': (angle,),
-        'z': (length,),
+        'e_h': (dimensionless,),
         'e_m': (dimensionless,),
-        's': (pressure,),
+        'e_t': (dimensionless,),
         'Q': (pressure,),
         'Qbar': (pressure,),
+        's': (pressure,),
         'T': (dimensionless,),
-        'e_t': (dimensionless,),
-        'e_h': (dimensionless,),
+        'theta': (angle,),
+        'z': (length,),
+        **Lamina._dimensions,
     }
 
-    _base_attr = ('theta', 'z', 'usys', *Lamina._dimensions)
-    _calc_attr = ('Q', 'Qbar', 'T', 'Tinv', 'e_t', 'e_h', 's',
-                  'laminate', 'failure_theory', 'failure_index')
-    __slots__ = _base_attr + _calc_attr + ('e_m', '__locked',)
+    _base_attr = ('theta', 'usys', *Lamina._dimensions)
+    _calc_attr = ('e_h', 'e_m', 'e_t', 'failure_index', 'failure_theory',
+                  'laminate', 'Q', 'Qbar', 's', 'T', 'Tinv', 'z', 'zk', 'zk1')
+    __slots__ = ('__locked', 'e_h', 'e_m', 'e_t', 'failure_index',
+                 'failure_theory', 'laminate', 'Q', 'Qbar', 's', 'T', 'theta',
+                 'Tinv', 'usys', 'z', *Lamina._dimensions)
 
-    def __unlock(locked_func):
-        """Decorate methods to unlock attributes.
-
-        Parameters
-        ----------
-        locked_func : bool
-            The function to unlock.
-
-        Returns
-        -------
-        function
-            An unlocked function.
-
-        """
-
-        def unlocked_func(self, *args, **kwargs):
-            super().__setattr__('_Ply__locked', False)
-            locked_func(self, *args, **kwargs)
-            super().__setattr__('_Ply__locked', True)
-        return unlocked_func
-
-    @__unlock
+    @unlock
     def __init__(self, laminate, t, theta, E1, E2, nu12, G12, a11, a22, b11,
-                 b22, F1=0, F2=0, F12=0, usys=DEFAULT_USYS, failure_theory='strain'):
+                 b22, F1=0, F2=0, F12=0, usys=DEFAULT_USYS,
+                 failure_theory='strain'):
         """Extend ``__init__`` to account for Ply-only attributes."""
 
         super().__init__(t, E1, E2, nu12, G12, a11, a22, b22, b22, F1, F2, F12,
@@ -245,7 +228,7 @@ class Ply(Lamina):
         self.failure_theory = failure_theory
         self.failure_index = 0
 
-        self.__update()
+        self._update()
 
     def __setattr__(self, name, attr):
         """Extend ``__setattr__`` to protect calculated attributes."""
@@ -254,13 +237,13 @@ class Ply(Lamina):
             # udpate ply and laminate after updated properties are set
             if name in self._base_attr:
                 super().__setattr__(name, attr)
-                self.__update()
+                self._update()
                 if self.laminate:
-                    self.laminate._Laminate__update()
+                    self.laminate._update()
 
             # don't set protected values
             elif name in self._calc_attr:
-                raise CalculatedAttributeError(name)
+                raise DerivedAttributeError(name)
 
         else:
             super().__setattr__(name, attr)
@@ -283,12 +266,13 @@ class Ply(Lamina):
         r += (
             f"\n    {'failure theory' + ': '}{getattr(self, 'failure_theory')}"
         )
+
         r += f"\n    {'failure index' + ': '}{getattr(self, 'failure_index')}"
 
         return r
 
-    @__unlock
-    def __update(self):
+    @unlock
+    def _update(self):
         """Update calculated attributes."""
 
         # on-axis reduced stiffness matrix, Q
@@ -326,9 +310,6 @@ class Ply(Lamina):
         self.e_h = (
             unyt_array([[self.b11], [self.b22], [0]], dimensionless)
             ) * self.laminate.dM
-
-        # calculate failure index
-        #self.failure_index = self.calc_failure_index()
 
     @classmethod
     def from_lamina(cls, lamina, laminate, theta):
@@ -475,7 +456,7 @@ class Ply(Lamina):
         """The margin of safety."""
         try:
             ms_ = ms(1, self.failure_index)
-        except ZeroDivisionError as zde:
+        except ZeroDivisionError:
             ms_ = None
 
         return ms_

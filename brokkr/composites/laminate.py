@@ -27,9 +27,10 @@ from unyt.dimensions import (
 from brokkr.config import DEFAULT_USYS
 from brokkr.bmath import matrix_minor
 from brokkr.composites.lamina import Lamina, Ply
+from brokkr.core.decorators import unlock
 from brokkr.core.exceptions import (
     UnitDimensionError,
-    CalculatedAttributeError,
+    DerivedAttributeError,
 )
 
 __all__ = ['Laminate']
@@ -75,62 +76,44 @@ class Laminate(dict):
 
     # lists of attributes for method filtering
     _dimensions = {
-        'dT': (temperature,),
-        'dM': (dimensionless,),
-        'N_m': (force / length,),
-        'M_m': (force * length / length,),
-        'N_t': (force / length,),
-        'N_h': (force / length,),
-        'M_t': (force * length / length,),
-        'M_h': (force * length / length,),
-        'Ex': (pressure,),
-        'Ey': (pressure,),
-        'Gxy': (pressure,),
-        'nu_xy': (dimensionless,),
-        'nu_yx': (dimensionless,),
-        'e_0m': (dimensionless,),
-        'e_0t': (dimensionless,),
-        'e_0h': (dimensionless,),
-        'k_0m': (dimensionless,),
-        'k_0t': (dimensionless,),
-        'k_0h': (dimensionless,),
         'A': (pressure * length,),
         'B': (pressure * length**2,),
         'D': (pressure * length**3,),
+        'dM': (dimensionless,),
+        'dT': (temperature,),
+        'e_0h': (dimensionless,),
+        'e_0m': (dimensionless,),
+        'e_0t': (dimensionless,),
+        'Ex': (pressure,),
+        'Ey': (pressure,),
+        'Gxy': (pressure,),
+        'k_0h': (dimensionless,),
+        'k_0m': (dimensionless,),
+        'k_0t': (dimensionless,),
+        'M_h': (force * length / length,),
+        'M_m': (force * length / length,),
+        'M_t': (force * length / length,),
+        'N_h': (force / length,),
+        'N_m': (force / length,),
+        'N_t': (force / length,),
+        'nu_xy': (dimensionless,),
+        'nu_yx': (dimensionless,),
         't': (length,)
     }
 
-    _base_attr = (*_dimensions, 'usys')
-    _calc_attr = ('N_t', 'N_h', 'M_t', 'M_h', 'Ex', 'Ey', 'Gxy', 'nu_xy',
-                  'nu_yx' 'e_0m', 'e_0t', 'e_0h', 'k_0m', 'k_0t', 'k_0h', 'A',
-                  'B', 'D', 't')
-    __slots__ = (*_base_attr, *_calc_attr, '__locked')
+    _base_attr = ('dM', 'dT', 'M_m', 'N_m', 'usys')
+    _calc_attr = ('A', 'B', 'D', 'ABD', 'e_0h', 'e_0m', 'e_0t', 'Ex', 'Ey', 'Gxy',
+                  'k_0h', 'k_0m', 'k_0t', 'M_h', 'M_t', 'N_h', 'N_t', 'nu_xy',
+                  'nu_yx', 't')
+    _free_attr = ('__locked', )
+    __slots__ = ('dM', 'dT', 'M_m', 'N_m', 'usys', 'A', 'B', 'D', 'e_0h',
+                 'e_0m', 'e_0t', 'Ex', 'Ey', 'Gxy', 'k_0h', 'k_0m', 'k_0t',
+                 'M_h', 'M_t', 'N_h', 'N_t', 'nu_xy', 'nu_yx', 't'. '__locked')
 
-    def __unlock(locked_func):
-        """Decorate methods to unlock attributes.
-
-        Parameters
-        ----------
-        locked_func : bool
-            The function to unlock.
-
-        Returns
-        -------
-        function
-            An unlocked function.
-
-        """
-
-        def unlocked_func(self, *args, **kwargs):
-            super().__setattr__('_Laminate__locked', False)
-            locked_func(self, *args, **kwargs)
-            super().__setattr__('_Laminate__locked', True)
-        return unlocked_func
-
-    @__unlock
+    @unlock
     def __init__(self, *plies, dT=0, dM=0, N_m=zeros((3, 1)),
                  M_m=zeros((3, 1)), usys=DEFAULT_USYS):
-        # create and zero out all properties needed for .__update()
+        # create and zero out all properties needed for ._update()
         self.usys = usys
         self.dT = dT
         self.dM = dM
@@ -146,7 +129,7 @@ class Laminate(dict):
             # convert plies to dict with ply ids as keys
             ply_dict = {i+1: self.check_ply(j) for i, j in enumerate(plies)}
             super().__init__(ply_dict)
-            self.__update()
+            self._update()
 
     def __setattr__(self, name, attr):
         """Extend ``__setattr__`` to update instance when attributes change."""
@@ -184,18 +167,18 @@ class Laminate(dict):
         if self.__locked:
             # don't set protected values
             if name in self._calc_attr:
-                raise CalculatedAttributeError(name)
+                raise DerivedAttributeError(name)
 
             # validate units
             if name in self._base_attr:
                 attr = check_dim(name, attr)
                 super().__setattr__(name, attr)
-                self.__update()
+                self._update()
 
             if name == 'usys':
                 if attr != self.usys:
                     super().__setattr__(name, attr)
-                    self.__update()
+                    self._update()
 
         else:
             attr = check_dim(name, attr)
@@ -204,14 +187,14 @@ class Laminate(dict):
     def __delitem__(self, key):
         """Extend ``__delitem__`` to update instance when ply is removed."""
         super().__delitem__(key)
-        self.__update()
+        self._update()
 
     def __setitem__(self, key, new_ply):
         """Extend ``__setitem__`` to ensure added item is a ``Ply``."""
         if key in self:
             new_ply = self.check_ply(new_ply)
             super().__setitem__(key, new_ply)
-            self.__update()
+            self._update()
         else:
             raise KeyError(
                 "Ply %s does not exist in laminate. Use 'append' to add a ply"
@@ -225,8 +208,8 @@ class Laminate(dict):
             repr += f'\n    Ply {ply}: {self[ply].theta.v}'
         return repr
 
-    @__unlock
-    def __update(self):
+    @unlock
+    def _update(self):
         """Update the ply and laminate attributes based on laminate stackup.
 
         Notes
@@ -258,7 +241,7 @@ class Laminate(dict):
 
         for i in self:
             ply = self[i]
-            ply._Ply__update()  # force ply to update
+            ply._update()  # force ply to update
 
             # NASA-RP-1351, Eq (45) through (47)
             self.A += ply.Qbar * ply.t
@@ -353,7 +336,7 @@ class Laminate(dict):
         new_ply = self.check_ply(new_ply)
         new_ply.theta = angle
         super().__setitem__(len(self)+1, new_ply)
-        self.__update()
+        self._update()
 
     def check_ply(self, obj):
         """Check if object is a `Ply` or `Lamina` object.
@@ -389,7 +372,7 @@ class Laminate(dict):
 
         return obj
 
-    @__unlock
+    @unlock
     def clear(self):
         """Clear laminate of all plies."""
 
@@ -462,7 +445,7 @@ class Laminate(dict):
             # user the super() method to avoid updating laminate for every ply
             super().__setitem__(start + i + 1, ply)
 
-        self.__update()
+        self._update()
 
     def pop(self, key, renumber=True, as_lamina=False):
         """Remove item from Laminate and return Ply.
@@ -493,7 +476,7 @@ class Laminate(dict):
             for i in range(len(plies)):
                 super().__setitem__(i+1, plies[i])
 
-        self.__update()
+        self._update()
 
         if not as_lamina:
             return p
@@ -508,7 +491,7 @@ class Laminate(dict):
         for i in range(len(plies)):
             self[ids[i]] = plies[i]
 
-        self.__update()
+        self._update()
 
     def reorient(self, angle):
         """Reorient laminate.
@@ -530,7 +513,7 @@ class Laminate(dict):
                 raise ValueError("`angle` must have values for each lamina")
             else:
                 for i, j in enumerate(angle):
-                    self[i + 1].theta = angle
+                    self[i + 1].theta = angle[j]
         else:
             for i in self:
                 self[i].theta = self[i].theta.v + angle

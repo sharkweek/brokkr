@@ -160,14 +160,14 @@ class CoefficientError(BoundedValueError):
             raise ValueError("`condition` must be",
                              ', '.join('`{0}`'.format(w) for w in words))
 
-class CalculatedAttributeError(AttributeError):
-    """Error for calculated values."""
+class DerivedAttributeError(AttributeError):
+    """Error for derived values."""
 
     def __init__(self, attr_name):
         self.attr_name = attr_name
 
     def __str__(self):
         return (
-            f"`{self.attr_name}` is a calculated attribute and cannot be"
+            f"`{self.attr_name}` is a derived attribute and cannot be"
             + "set manually."
         )

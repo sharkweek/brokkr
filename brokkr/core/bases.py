@@ -9,6 +9,7 @@ from unyt import UnitSystem, unyt_array
 
 # local imports
 from brokkr.config import DEFAULT_USYS
+from brokkr.core.decorators import abstract_attribute
 from brokkr.core.exceptions import (
     UnitDimensionError,
     BoundedValueError
@@ -16,62 +17,6 @@ from brokkr.core.exceptions import (
 from brokkr.core.validation import out_of_bounds
 
 __all__ = ['abstract_attribute', 'DimensionedABC', 'BaseTensor', 'BaseVector']
-
-def abstract_attribute(obj=None):
-    """Decorator for abstract attributes.
-
-    It creates abstract attributes that must be defined in all classes that are
-    subclassed from ABCs that use the ``BrokkrABCMeta`` metaclass.
-
-    Parameters
-    ----------
-    obj : optional
-
-    Example
-    -------
-    To use this decorator, subclass attributes should be defined as functions
-    in the ABC. For example::
-
-        class MyABC(metaclass=BrokkrABCMeta):
-            @abstract_attribute
-            def hello(self):
-                pass
-
-        class GoodFoo(MyABC):
-            def __init__(self, hello, world):
-                self.hello = hello
-                self.world = world
-
-        class BadFoo(MyABC):
-            def __init__(self, world):
-                self.world = world
-
-        >>> x = GoodFoo('hello', 'world')
-        >>> x.hello
-        'hello'
-
-        >>> y = BadFoo('world')
-        NotImplementedError: Can't instantiate abstract class BadFoo with
-        abstract attributes: hello
-
-    Alternatively, attributes can be declared as class variables::
-
-        class MyABC(metaclass=BrokkrABCMeta):
-            hello = abstract_attribute()
-
-    This should yield the same results as using the decorator for an empty
-    class method as shown above.
-
-    """
-
-    # assign __is_abstract_attribute__ flag
-    if obj is None:
-        class Obj: pass  # dummy class for attribute assignment
-        obj = Obj()
-
-    obj.__is_abstract_attribute__ = True
-
-    return obj
 
 
 class BrokkrABCMeta(ABCMeta):
@@ -170,6 +115,29 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
                 getattr(self, each).convert_to_base(value)
 
         super().__setattr__(name, value)
+
+
+class CalculatedABC(metaclass=BrokkrABCMeta):
+    _base_attr = []
+    _calc_attr = []
+
+    __locked = abstract_attribute()
+
+    def __setattr__(self, name, value):
+        """Extended to protect calculated attributes."""
+
+        if self.__locked:
+            # udpate ply and laminate after updated properties are set
+            if name in self._base_attr:
+                super().__setattr__(name, value)
+                self._update()
+
+            # don't set protected values
+            elif name in self._calc_attr:
+                raise DerivedAttributeError(name)
+
+        else:
+            super().__setattr__(name, value)
 
 
 class BaseTensor(unyt_array):
