@@ -22,7 +22,7 @@ from unyt import unyt_array, UnitSystem
 
 from brokkr.bmath import ms
 from brokkr.config import DEFAULT_USYS
-from brokkr.core.bases import DimensionedABC
+from brokkr.core.bases import DimensionedABC, CalculatedABC
 from brokkr.core.decorators import unlock
 from brokkr.core.exceptions import (
     BoundedValueError,
@@ -230,16 +230,14 @@ class Ply(Lamina):
 
         self._update()
 
-    def __setattr__(self, name, attr):
+    def __setattr__(self, name, attr, update_laminate=True):
         """Extend ``__setattr__`` to protect calculated attributes."""
 
         if self.__locked:
             # udpate ply and laminate after updated properties are set
             if name in self._base_attr:
                 super().__setattr__(name, attr)
-                self._update()
-                if self.laminate:
-                    self.laminate._update()
+                self._update(update_laminate)
 
             # don't set protected values
             elif name in self._calc_attr:
@@ -272,7 +270,7 @@ class Ply(Lamina):
         return r
 
     @unlock
-    def _update(self):
+    def _update(self, update_laminate=False):
         """Update calculated attributes."""
 
         # on-axis reduced stiffness matrix, Q
@@ -310,6 +308,9 @@ class Ply(Lamina):
         self.e_h = (
             unyt_array([[self.b11], [self.b22], [0]], dimensionless)
             ) * self.laminate.dM
+
+        if update_laminate and self.laminate:
+            self.laminate._update()
 
     @classmethod
     def from_lamina(cls, lamina, laminate, theta):

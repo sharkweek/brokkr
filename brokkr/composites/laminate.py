@@ -108,7 +108,7 @@ class Laminate(dict):
     _free_attr = ('__locked', )
     __slots__ = ('dM', 'dT', 'M_m', 'N_m', 'usys', 'A', 'B', 'D', 'e_0h',
                  'e_0m', 'e_0t', 'Ex', 'Ey', 'Gxy', 'k_0h', 'k_0m', 'k_0t',
-                 'M_h', 'M_t', 'N_h', 'N_t', 'nu_xy', 'nu_yx', 't'. '__locked')
+                 'M_h', 'M_t', 'N_h', 'N_t', 'nu_xy', 'nu_yx', 't', '__locked')
 
     @unlock
     def __init__(self, *plies, dT=0, dM=0, N_m=zeros((3, 1)),
