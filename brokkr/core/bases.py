@@ -11,12 +11,14 @@ from unyt import UnitSystem, unyt_array
 from brokkr.config import DEFAULT_USYS
 from brokkr.core.decorators import abstract_attribute
 from brokkr.core.exceptions import (
+    BoundedValueError,
+    DerivedAttributeError,
     UnitDimensionError,
-    BoundedValueError
 )
 from brokkr.core.validation import out_of_bounds
 
-__all__ = ['abstract_attribute', 'DimensionedABC', 'BaseTensor', 'BaseVector']
+__all__ = ['abstract_attribute', 'DimensionedABC', 'CalculatedABC',
+           'BaseTensor', 'BaseVector']
 
 
 class BrokkrABCMeta(ABCMeta):
@@ -47,11 +49,11 @@ class BrokkrABCMeta(ABCMeta):
 
 
 class DimensionedABC(metaclass=BrokkrABCMeta):
-    """ABC that requires dimensions and limits to specified attributes.
+    """ABC that requires dimensions and limits for specified attributes.
 
     Attributes
     ----------
-    _dimensions : (class) dict of {str: (unyt.dimension,)}
+    _dimensions : (class) dict of {str: (unyt.dimension, )}
         dimensions for each dimensioned attributed
     _limits : (class) dict of {str: {'mn': float or int, 'mx': float or int,
         'condition': str}}
@@ -118,6 +120,62 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
 
 
 class CalculatedABC(metaclass=BrokkrABCMeta):
+    """ABC for classes with derived attributes.
+
+    For objects possessing attributes that are interdependent, this ABC provides
+    functionality to 'lock' certain derived attributes. This is useful for
+    situations in which adding many ``@property`` decorators may be cumbersome.
+    It also may provide quicker processing time due to values being stored in
+    instance attributes rather than having to be recalculated each time the
+    property is called.
+
+    Attributes
+    ----------
+    _base_attr : list or tuple of str
+        base attributes
+    _calc_attr : list or tuple of str
+        derived or 'calculated' attributes
+    _free_attr : list or tuple of str
+        free attributes that are independent of any other attribute
+
+    Notes
+    -----
+    The :func:`~brokkr.core.decorators.unlock` decorator must be used with
+    with the :meth:`~brokkr.core.CalculatedABC._update`.
+
+    Example
+    -------
+    An object defining a circle would have a base attribute for ``radius`` and
+    a derived attribute for ``area``::
+
+        class Circle(CalculatedABC):
+            _base_attr = ['radius']
+            _calc_attr = ['area']
+            _free_attr = ['__locked']
+
+            __slots__ = ['radius', 'area', '__locked']
+
+            def __init__(self, radius):
+                self.radius = radius
+
+                self._update()
+
+            @unlock
+            def _update(self):
+                self.area = 3.14 * self.radius ** 2
+
+        >>> x = Circle(5)
+        >>> x.radius
+        ... 5
+        >>> x.area
+        ... 25
+
+        >>> x.area = 4
+        ... DerivedAttributeError: `area` is a derived attribute and cannot be
+            set manually.
+
+    """
+
     _base_attr = []
     _calc_attr = []
 
@@ -138,6 +196,10 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
 
         else:
             super().__setattr__(name, value)
+
+    @abstractmethod
+    def _update(self):
+        pass
 
 
 class BaseTensor(unyt_array):

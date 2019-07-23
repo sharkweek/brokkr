@@ -83,6 +83,7 @@
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html">brokkr</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
@@ -196,7 +197,7 @@ Inc., 1999</p>
 <dl class="class">
 <dt id="brokkr.composites.Lamina">
 <em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Lamina</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">E1</em>, <em class="sig-param">E2</em>, <em class="sig-param">nu12</em>, <em class="sig-param">G12</em>, <em class="sig-param">a11</em>, <em class="sig-param">a22</em>, <em class="sig-param">b11</em>, <em class="sig-param">b22</em>, <em class="sig-param">F1=0</em>, <em class="sig-param">F2=0</em>, <em class="sig-param">F12=0</em>, <em class="sig-param">usys=us Unit System  Base Units:   length: inch   mass: lb   time: s   temperature: R   angle: degree   current_mks: A   luminous_intensity: cd  Other Units:   force: lbf   pressure: psi</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Lamina" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC" title="brokkr.core.bases.DimensionedABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr.core.bases.DimensionedABC</span></code></a></p>
 <p>An individual lamina.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for material property assignment. To consider
 loading, thermal effects, or deflection, see the <code class="docutils literal notranslate"><span class="pre">Ply</span></code> and <code class="docutils literal notranslate"><span class="pre">Laminate</span></code>
@@ -233,9 +234,9 @@ directions (<code class="docutils literal notranslate"><span class="pre">dim:</s
 <p class="rubric">Notes</p>
 <p>Parameters may be entered including or not including units. If units are
 not included, they will be assigned from the default unit system
-(<code class="docutils literal notranslate"><span class="pre">usys</span></code>). Dimensionless units such as strain and percent moisture gain
-are assigned a <code class="docutils literal notranslate"><span class="pre">dimensionless</span></code> unit. Calculated attributes produce the
-appropriate units based on the base attributes.</p>
+(:attr: <code class="docutils literal notranslate"><span class="pre">usys</span></code>). Dimensionless units such as strain and percent moisture
+gain are assigned a <code class="docutils literal notranslate"><span class="pre">dimensionless</span></code> unit. Calculated attributes produce
+the appropriate units based on the base attributes.</p>
 <p>Parameters that are entered with units, are checked for the correct
 dimensionality and converted to the default unit system before being stored
 in the instance for consistency.</p>

@@ -74,9 +74,9 @@ class Lamina(DimensionedABC):
     -----
     Parameters may be entered including or not including units. If units are
     not included, they will be assigned from the default unit system
-    (``usys``). Dimensionless units such as strain and percent moisture gain
-    are assigned a ``dimensionless`` unit. Calculated attributes produce the
-    appropriate units based on the base attributes.
+    (:attr: ``usys``). Dimensionless units such as strain and percent moisture
+    gain are assigned a ``dimensionless`` unit. Calculated attributes produce
+    the appropriate units based on the base attributes.
 
     Parameters that are entered with units, are checked for the correct
     dimensionality and converted to the default unit system before being stored

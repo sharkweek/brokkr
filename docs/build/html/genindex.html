@@ -83,6 +83,7 @@
               <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html">brokkr</a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
@@ -181,10 +182,16 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC._dimensions">_dimensions (brokkr.core.bases.DimensionedABC attribute)</a>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._base_attr">_base_attr (brokkr.core.bases.CalculatedABC attribute)</a>
+</li>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._calc_attr">_calc_attr (brokkr.core.bases.CalculatedABC attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC._dimensions">_dimensions (brokkr.core.bases.DimensionedABC attribute)</a>
+</li>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._free_attr">_free_attr (brokkr.core.bases.CalculatedABC attribute)</a>
+</li>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC._limits">_limits (brokkr.core.bases.DimensionedABC attribute)</a>
 </li>
   </ul></td>
@@ -207,26 +214,32 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor">BaseTensor (class in brokkr.core.bases)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.BaseTensor">BaseTensor (class in brokkr.bmath.tensors)</a>
 
       <ul>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.BaseTensor">(class in brokkr.mech_math.tensors)</a>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor">(class in brokkr.core.bases)</a>
 </li>
       </ul></li>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector">BaseVector (class in brokkr.core.bases)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.BaseVector">BaseVector (class in brokkr.bmath.vectors)</a>
 
       <ul>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.BaseVector">(class in brokkr.mech_math.vectors)</a>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector">(class in brokkr.core.bases)</a>
 </li>
       </ul></li>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.BoundedValueError">BoundedValueError</a>
 </li>
       <li><a href="brokkr.html#module-brokkr">brokkr (module)</a>
 </li>
-      <li><a href="brokkr.composites.html#module-brokkr.composites">brokkr.composites (module)</a>
+      <li><a href="brokkr.bmath.html#module-brokkr.bmath">brokkr.bmath (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bmath.html#module-brokkr.bmath.tensors">brokkr.bmath.tensors (module)</a>
+</li>
+      <li><a href="brokkr.bmath.html#module-brokkr.bmath.vectors">brokkr.bmath.vectors (module)</a>
+</li>
+      <li><a href="brokkr.composites.html#module-brokkr.composites">brokkr.composites (module)</a>
+</li>
       <li><a href="brokkr.core.html#module-brokkr.core">brokkr.core (module)</a>
 </li>
       <li><a href="brokkr.core.bases.html#module-brokkr.core.bases">brokkr.core.bases (module)</a>
@@ -234,12 +247,6 @@
       <li><a href="brokkr.core.exceptions.html#module-brokkr.core.exceptions">brokkr.core.exceptions (module)</a>
 </li>
       <li><a href="brokkr.core.validation.html#module-brokkr.core.validation">brokkr.core.validation (module)</a>
-</li>
-      <li><a href="brokkr.mech_math.html#module-brokkr.mech_math">brokkr.mech_math (module)</a>
-</li>
-      <li><a href="brokkr.mech_math.html#module-brokkr.mech_math.tensors">brokkr.mech_math.tensors (module)</a>
-</li>
-      <li><a href="brokkr.mech_math.html#module-brokkr.mech_math.vectors">brokkr.mech_math.vectors (module)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -249,14 +256,10 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.calc_failure_index">calc_failure_index() (brokkr.composites.Ply static method)</a>
 </li>
-      <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.CalculatedAttributeError">CalculatedAttributeError</a>
-</li>
-      <li><a href="brokkr.core.validation.html#brokkr.core.validation.check_dimension">check_dimension() (in module brokkr.core.validation)</a>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC">CalculatedABC (class in brokkr.core.bases)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.validation.html#brokkr.core.validation.check_limit">check_limit() (in module brokkr.core.validation)</a>
-</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.check_ply">check_ply() (brokkr.composites.Laminate method)</a>
 </li>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.CoefficientError">CoefficientError</a>
@@ -267,12 +270,14 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC">DimensionedABC (class in brokkr.core.bases)</a>
+      <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.DerivedAttributeError">DerivedAttributeError</a>
 </li>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.DisplacementVector">DisplacementVector (class in brokkr.mech_math.vectors)</a>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC">DimensionedABC (class in brokkr.core.bases)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.DisplacementVector">DisplacementVector (class in brokkr.bmath.vectors)</a>
+</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.dM">dM (brokkr.composites.Laminate attribute)</a>
 </li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.dT">dT (brokkr.composites.Laminate attribute)</a>
@@ -297,7 +302,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.ForceVector">ForceVector (class in brokkr.mech_math.vectors)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.ForceVector">ForceVector (class in brokkr.bmath.vectors)</a>
 </li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.from_csv">from_csv() (brokkr.composites.Laminate method)</a>
 </li>
@@ -309,14 +314,14 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.has_dimension">has_dimension() (brokkr.core.bases.BaseTensor method)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.BaseTensor.has_dimension">has_dimension() (brokkr.bmath.tensors.BaseTensor method)</a>
 
       <ul>
+        <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.BaseVector.has_dimension">(brokkr.bmath.vectors.BaseVector method)</a>
+</li>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.has_dimension">(brokkr.core.bases.BaseTensor method)</a>
+</li>
         <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector.has_dimension">(brokkr.core.bases.BaseVector method)</a>
-</li>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.BaseTensor.has_dimension">(brokkr.mech_math.tensors.BaseTensor method)</a>
-</li>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.BaseVector.has_dimension">(brokkr.mech_math.vectors.BaseVector method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -361,9 +366,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.margin">margin() (brokkr.composites.Ply property)</a>
 </li>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.matrix_minor">matrix_minor() (in module brokkr.bmath)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.MomentVector">MomentVector (class in brokkr.mech_math.vectors)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.MomentVector">MomentVector (class in brokkr.bmath.vectors)</a>
+</li>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.ms">ms() (in module brokkr.bmath)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -385,7 +394,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.pop">pop() (brokkr.composites.Laminate method)</a>
 </li>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.StressTensor.principal">principal() (brokkr.mech_math.tensors.StressTensor property)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StressTensor.principal">principal() (brokkr.bmath.tensors.StressTensor property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -409,10 +418,10 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector.resultant">resultant() (brokkr.core.bases.BaseVector property)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.vectors.BaseVector.resultant">resultant() (brokkr.bmath.vectors.BaseVector property)</a>
 
       <ul>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.vectors.BaseVector.resultant">(brokkr.mech_math.vectors.BaseVector property)</a>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector.resultant">(brokkr.core.bases.BaseVector property)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -423,19 +432,19 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.S">S() (brokkr.composites.Ply property)</a>
 </li>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.set_v_item">set_v_item() (brokkr.core.bases.BaseTensor method)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.BaseTensor.set_v_item">set_v_item() (brokkr.bmath.tensors.BaseTensor method)</a>
 
       <ul>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.BaseTensor.set_v_item">(brokkr.mech_math.tensors.BaseTensor method)</a>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.set_v_item">(brokkr.core.bases.BaseTensor method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.StrainTensor">StrainTensor (class in brokkr.mech_math.tensors)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StrainTensor">StrainTensor (class in brokkr.bmath.tensors)</a>
 </li>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.StressTensor">StressTensor (class in brokkr.mech_math.tensors)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StressTensor">StressTensor (class in brokkr.bmath.tensors)</a>
 </li>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.StrainTensor.stype">stype() (brokkr.mech_math.tensors.StrainTensor property)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StrainTensor.stype">stype() (brokkr.bmath.tensors.StrainTensor property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -469,15 +478,15 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.voigt">voigt() (brokkr.core.bases.BaseTensor property)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.BaseTensor.voigt">voigt() (brokkr.bmath.tensors.BaseTensor property)</a>
 
       <ul>
-        <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.BaseTensor.voigt">(brokkr.mech_math.tensors.BaseTensor property)</a>
+        <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.voigt">(brokkr.core.bases.BaseTensor property)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.mech_math.html#brokkr.mech_math.tensors.StressTensor.vonMises">vonMises() (brokkr.mech_math.tensors.StressTensor method)</a>
+      <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StressTensor.vonMises">vonMises() (brokkr.bmath.tensors.StressTensor property)</a>
 </li>
   </ul></td>
 </tr></table>

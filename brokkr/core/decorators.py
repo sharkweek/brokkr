@@ -1,5 +1,7 @@
 """Decorators for ``brokkr``."""
 
+from unyt import UnitSystem
+
 from brokkr.core.exceptions import (
     BoundedValueError,
     UnitDimensionError,
@@ -14,7 +16,9 @@ def abstract_attribute(obj=None):
 
     Parameters
     ----------
-    obj : optional
+    obj : var or function, optional
+        the variable to assign an abstract attribute to or the function being
+        decorated to behave as an abstract attribute.
 
     Example
     -------
@@ -37,11 +41,11 @@ def abstract_attribute(obj=None):
 
         >>> x = GoodFoo('hello', 'world')
         >>> x.hello
-        'hello'
+        ... 'hello'
 
         >>> y = BadFoo('world')
-        NotImplementedError: Can't instantiate abstract class BadFoo with
-        abstract attributes: hello
+        ... NotImplementedError: Can't instantiate abstract class BadFoo with
+            abstract attributes: hello
 
     Alternatively, attributes can be declared as class variables::
 
@@ -104,7 +108,7 @@ def validate_attr(method):
 
     """
 
-    def validated_method(self, name, value):
+    def validated_setattr(self, name, value):
         # set dimensions for required attributes
         if name in self._dimensions:
             dim = self._dimensions.get(name)
@@ -144,4 +148,4 @@ def validate_attr(method):
 
         method(self, name, value)
 
-    return validated_method
+    return validated_setattr

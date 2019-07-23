@@ -1,11 +1,11 @@
-``mech_math``
+``brokkr.bmath``
 =============
 
-.. automodule:: brokkr.mech_math
+.. automodule:: brokkr.bmath
 
 Tensors
 -------
-.. automodule:: brokkr.mech_math.tensors
+.. automodule:: brokkr.bmath.tensors
 
 .. autoclass:: BaseTensor
     :members:
@@ -21,7 +21,7 @@ Tensors
 
 Vectors
 -------
-.. automodule:: brokkr.mech_math.vectors
+.. automodule:: brokkr.bmath.vectors
 .. autoclass:: BaseVector
     :members:
     :show-inheritance:
@@ -40,5 +40,6 @@ Vectors
 
 Functions
 ---------
-.. autofunction:: ms
-.. autofunction:: matrix_minor
+.. autofunction:: brokkr.bmath.ms
+
+.. autofunction:: brokkr.bmath.matrix_minor

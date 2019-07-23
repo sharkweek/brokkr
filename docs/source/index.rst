@@ -34,6 +34,7 @@ Contents
    :caption: Table of Contents
 
    brokkr
+   brokkr.bmath.rst
    brokkr.core
    brokkr.core.bases
    brokkr.core.exceptions

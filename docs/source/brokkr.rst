@@ -4,8 +4,11 @@ brokkr
 
 Global Variables
 ---------
-USYS
-UREG
+.. :py:const:`brokkr.USYS`
+   Master unit system.
+
+.. :py:const:`brokkr.UREG`
+   Master unit resgistry.
 
 Additional Namespace Objects
 ----------------------------

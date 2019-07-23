@@ -26,6 +26,7 @@ class StressTensor(BaseTensor):
         else:
             raise TypeError("`units` must be pressure units.")
 
+    @property
     def vonMises(self):
         r"""The equivalent von Mises stress of the stress tensor.
 
