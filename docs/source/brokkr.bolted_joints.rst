@@ -1,5 +1,5 @@
-Bolted Joints
-=============
+Bolted Joints (``bolted_joints``)
+=================================
 
 bolted\_joints.bolt module
 --------------------------

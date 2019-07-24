@@ -1,13 +1,15 @@
-brokkr
-======
+``brokkr``
+==========
 .. automodule:: brokkr
 
 Global Variables
 ----------------
-   .. :py:const:`brokkr.USYS`
+.. attribute:: DEFAULT_USYS
+
    Master unit system.
 
-   .. :py:const:`brokkr.UREG`
+.. attribute:: UREG
+
    Master unit resgistry.
 
 Additional Namespace Objects

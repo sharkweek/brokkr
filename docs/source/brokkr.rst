@@ -4,10 +4,12 @@
 
 Global Variables
 ----------------
-   .. :py:const:`brokkr.DEFAULT_USYS`
+.. attribute:: DEFAULT_USYS
+
    Master unit system.
 
-   .. :py:const:`brokkr.UREG`
+.. attribute:: UREG
+
    Master unit resgistry.
 
 Additional Namespace Objects

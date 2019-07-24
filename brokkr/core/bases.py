@@ -61,9 +61,10 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
     usys : unyt.Unit_System
         the unit system in which to evaluate dimensions
 
-        .. note:: If an attribute is given a value without units, the default
-           unit for the dimensions of that attribute defined in :attr:`_limits`
-           is assigned automatically.
+        .. note::
+            If an attribute is given a value without units, the default unit
+            for the dimensions of that attribute defined in :attr:`_limits` is
+            assigned automatically.
 
     Attributes
     ----------
@@ -96,15 +97,15 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
 
         >>> u = Displacement(5, 15)
         >>> u.x
-        ... unyt_quantity(5, 'inch')
+        unyt_quantity(5, 'inch')
         >>> u.t
-        ... unyt_quantity(15, 's')
+        unyt_quantity(15, 's')
 
         >>> u.x = 1 * unyt.Unit('psi')
-        ... UnitDimensionError: `x` must have units with dimensions (length)
+        UnitDimensionError: `x` must have units with dimensions (length)
 
         >>> u.t = 1
-        ... BoundedValueError: `t` must be a number >=10 and <=20
+        BoundedValueError: `t` must be a number >=10 and <=20
 
     """
 
@@ -178,10 +179,15 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
     _free_attr : list or tuple of str
         free attributes that are independent of any other attribute
 
+    Methods
+    -------
+    _update()
+        updates all derived attributes based on values of base attributes
+
     Notes
     -----
     The :func:`~brokkr.core.decorators.unlock` decorator must be used with
-    with the :meth:`~brokkr.core.CalculatedABC._update`.
+    with the :meth:`~brokkr.core.CalculatedABC._update` method.
 
     It is generally recommended that subclasses created from
     :class:`~brokkr.core.bases.CalculatedABC` contain a :attr:`__slots__`
@@ -193,11 +199,11 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
     a derived attribute for ``area``::
 
         class Circle(CalculatedABC):
-            _base_attr = ['radius']
-            _calc_attr = ['area']
-            _free_attr = ['__locked']
+            _base_attr = ('radius')
+            _calc_attr = ('area')
+            _free_attr = ('__locked')
 
-            __slots__ = ['radius', 'area', '__locked']
+            __slots__ = ('radius', 'area', '__locked')
 
             def __init__(self, radius):
                 self.radius = radius
@@ -210,18 +216,19 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
 
         >>> x = Circle(5)
         >>> x.radius
-        ... 5
+        5
         >>> x.area
-        ... 25
+        25
 
         >>> x.area = 4
-        ... DerivedAttributeError: `area` is a derived attribute and cannot be
-            set manually.
+        DerivedAttributeError: `area` is a derived attribute and cannot be
+        set manually.
 
     """
 
-    _base_attr = []
-    _calc_attr = []
+    _base_attr = (,)
+    _calc_attr = (,)
+    _free_attr = (,)
 
     __locked = abstract_attribute()
 
