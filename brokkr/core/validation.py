@@ -18,9 +18,9 @@ def out_of_bounds(val, mn, mx, condition):
     condition: {'g', 'ge', 'g-l', 'ge-l', 'g-le', 'ge-le', 'l', 'le'}
         Boundary condition to evaluate. Conditions are defined:
 
-        =========== ==================
+        =========== ===================
         Value       Boundary Condition
-        =========== ==================
+        =========== ===================
         ``'g'``     ``val > mn``
         ``'ge'``    ``val >= mn``
         ``'g-l'``   ``mn < val < mx``
@@ -29,7 +29,7 @@ def out_of_bounds(val, mn, mx, condition):
         ``'ge-le'`` ``mn <= val <= mx``
         ``'l'``     ``val < mx``
         ``'le'``    ``val <= mx``
-        =========== ==================
+        =========== ===================
 
     Returns
     -------
@@ -47,4 +47,4 @@ def out_of_bounds(val, mn, mx, condition):
         'ge-le': lambda: mn <= val <= mx,
         'l': lambda: mn is None and val < mx,
         'le': lambda: mn is None and val <= mx
-    }.get(condition)
+    }.get(condition)()

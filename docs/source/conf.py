@@ -73,6 +73,7 @@ exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
+highlight_language = 'python3'
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -114,7 +114,7 @@ class BoundedValueError(Exception):
                 'mn': str(mn) + ' ',
                 'mn_eq': '>=',
                 'mx': str(mx) + ' ',
-                'mx_eq': '<= ',
+                'mx_eq': '<=',
                 'nd': 'and '
             },
             'l': {

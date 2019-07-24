@@ -51,10 +51,25 @@ class BrokkrABCMeta(ABCMeta):
 class DimensionedABC(metaclass=BrokkrABCMeta):
     """ABC that requires dimensions and limits for specified attributes.
 
+    Dimensions for subclass attributes are limited by the dimensionality (i.e.
+    length, time, force, etc.) definitions provided by the :attr:`_dimensions`
+    attribute. Value limits (e.g. >0 or >=1, etc.) can also be defined by use of
+    the :attr:`_limits` attribute.
+
+    Parameters
+    ----------
+    usys : unyt.Unit_System
+        the unit system in which to evaluate dimensions
+
+        .. note:: If an attribute is given a value without units, the default
+           unit for the dimensions of that attribute defined in :attr:`_limits`
+           is assigned automatically.
+
     Attributes
     ----------
     _dimensions : (class) dict of {str: (unyt.dimension, )}
-        dimensions for each dimensioned attributed
+        dimensions for each dimensioned attributed. (For dimensions types see
+        :py:mod:`unyt.dimensions`.)
     _limits : (class) dict of {str: {'mn': float or int, 'mx': float or int,
         'condition': str}}
         limits for values that are bounded
@@ -63,8 +78,33 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
         corresponding dictionary defines the types of limits. See documentation
         for ``out_of_bounds`` in the ``validation`` module for definitions of
         ``mn``, ``mx``, and ``condition``.
-    usys : unyt.UnitSystem
-        instance's unit system
+
+    Example
+    -------
+    ::
+
+        class Displacement(DimensionedABC):
+            _dimensions = {'x': (unyt.dimensions.length, ),
+                           't': (unyt.dimensions.time, )}
+            _limits = {'x': {'mn': 0, 'mx': None, 'condition': 'g'},
+                       't': {'mn': 10, 'mx': 20, 'condition': 'ge-le'}}
+
+            def __init__(self, x, t, usys=DEFAULT_USYS):
+                self.usys = usys
+                self.x = x
+                self.t = t
+
+        >>> u = Displacement(5, 15)
+        >>> u.x
+        ... unyt_quantity(5, 'inch')
+        >>> u.t
+        ... unyt_quantity(15, 's')
+
+        >>> u.x = 1 * unyt.Unit('psi')
+        ... UnitDimensionError: `x` must have units with dimensions (length)
+
+        >>> u.t = 1
+        ... BoundedValueError: `t` must be a number >=10 and <=20
 
     """
 
@@ -96,7 +136,7 @@ class DimensionedABC(metaclass=BrokkrABCMeta):
 
         # make sure value is within limits
         if name in self._limits:
-            if out_of_bounds(value.value, **self._limits.get(name)):
+            if out_of_bounds(val=value.value, **self._limits.get(name)):
                 raise BoundedValueError(name, **self._limits.get(name))
 
         # catch unit system change and convert all attributes with units
@@ -142,6 +182,10 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
     -----
     The :func:`~brokkr.core.decorators.unlock` decorator must be used with
     with the :meth:`~brokkr.core.CalculatedABC._update`.
+
+    It is generally recommended that subclasses created from
+    :class:`~brokkr.core.bases.CalculatedABC` contain a :attr:`__slots__`
+    attribute, given that the class is designed for computing speed.
 
     Example
     -------
@@ -199,6 +243,7 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
 
     @abstractmethod
     def _update(self):
+        """Updates all derived attributes based on the base attributes."""
         pass
 
 
