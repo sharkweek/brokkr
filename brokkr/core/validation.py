@@ -6,6 +6,8 @@ from brokkr.core.exceptions import (
     BoundedValueError
 )
 
+__all__ = ['out_of_bounds']
+
 def out_of_bounds(val, mn, mx, condition):
     """Check if value satisfies boundary conditions.
 

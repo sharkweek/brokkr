@@ -85,18 +85,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html"><code class="docutils literal notranslate"><span class="pre">brokkr</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Bolted Joints</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-bolt-module">bolted_joints.bolt module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-bolt-group-module">bolted_joints.bolt_group module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-fastener-module">bolted_joints.fastener module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-lap-joint-module">bolted_joints.lap_joint module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-load-module">bolted_joints.load module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bolted-joints-loadset-module">bolted_joints.loadset module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr.bolted_joints.bolt"><code class="docutils literal notranslate"><span class="pre">bolt</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bolt-group-module"><code class="docutils literal notranslate"><span class="pre">bolt_group</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fastener-module"><code class="docutils literal notranslate"><span class="pre">fastener</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr.bolted_joints.lap_joint"><code class="docutils literal notranslate"><span class="pre">lap_joint</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr.bolted_joints.load"><code class="docutils literal notranslate"><span class="pre">load</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-brokkr.bolted_joints.loadset"><code class="docutils literal notranslate"><span class="pre">loadset</span></code> module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.composites.html">Composites (<code class="docutils literal notranslate"><span class="pre">brokkr.composites</span></code>)</a></li>
@@ -164,28 +162,280 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bolted-joints">
-<h1>Bolted Joints<a class="headerlink" href="#bolted-joints" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="bolted-joints-bolt-module">
-<h2>bolted_joints.bolt module<a class="headerlink" href="#bolted-joints-bolt-module" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="module-brokkr.bolted_joints">
+<span id="bolted-joints"></span><h1>Bolted Joints<a class="headerlink" href="#module-brokkr.bolted_joints" title="Permalink to this headline">¶</a></h1>
+<p>Bolted joints module.</p>
+<div class="section" id="module-brokkr.bolted_joints.bolt">
+<span id="bolt-module"></span><h2><code class="docutils literal notranslate"><span class="pre">bolt</span></code> module<a class="headerlink" href="#module-brokkr.bolted_joints.bolt" title="Permalink to this headline">¶</a></h2>
+<p>Calculate the flexibility of a fastener in a lap joint.</p>
+<dl class="class">
+<dt id="brokkr.bolted_joints.bolt.Bolt">
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.bolted_joints.bolt.</code><code class="sig-name descname">Bolt</code><span class="sig-paren">(</span><em class="sig-param">dia</em>, <em class="sig-param">bolt_type</em>, <em class="sig-param">e</em>, <em class="sig-param">c=1</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A class representing a single fastner.</p>
+<dl class="attribute">
+<dt id="brokkr.bolted_joints.bolt.Bolt.dia">
+<code class="sig-name descname">dia</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.dia" title="Permalink to this definition">¶</a></dt>
+<dd><p>shank diameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr.bolted_joints.bolt.Bolt.bolt_type">
+<code class="sig-name descname">bolt_type</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.bolt_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>fastener type. Maybe either ‘rivet’ or ‘bolt’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr.bolted_joints.bolt.Bolt.e">
+<code class="sig-name descname">e</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.e" title="Permalink to this definition">¶</a></dt>
+<dd><p>Young’s modulus</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr.bolted_joints.bolt.Bolt.c">
+<code class="sig-name descname">c</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.c" title="Permalink to this definition">¶</a></dt>
+<dd><p>flexibility</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="brokkr.bolted_joints.bolt.Bolt.k">
+<code class="sig-name descname">k</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.k" title="Permalink to this definition">¶</a></dt>
+<dd><p>stiffness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.boeing">
+<code class="sig-name descname">boeing</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em>, <em class="sig-param">e1</em>, <em class="sig-param">e2</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.boeing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the flexibility using the Boeing method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">c</code></dt>
+<dd><p>Return the fastener flexibility based on the chosen method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.flex_method">
+<em class="property">property </em><code class="sig-name descname">flex_method</code><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.flex_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the fastener flexibility method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.grumman">
+<code class="sig-name descname">grumman</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em>, <em class="sig-param">e1</em>, <em class="sig-param">e2</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.grumman" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the flexibility using the Grumman method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.huth">
+<code class="sig-name descname">huth</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em>, <em class="sig-param">e1</em>, <em class="sig-param">e2</em>, <em class="sig-param">mat1</em>, <em class="sig-param">mat2</em>, <em class="sig-param">lap_type='single'</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.huth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the flexibility using the Huth/Airbus method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">k</code></dt>
+<dd><p>Return the fastener stiffness based on the flexibility method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.swift">
+<code class="sig-name descname">swift</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em>, <em class="sig-param">e1</em>, <em class="sig-param">e2</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.swift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the bolt stiffness using the Swift/Douglas method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.tate">
+<code class="sig-name descname">tate</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em>, <em class="sig-param">e1</em>, <em class="sig-param">e2</em>, <em class="sig-param">nu_b</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.tate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the flexibility using the Tate and Rosenfeld method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.bolt.Bolt.vought">
+<code class="sig-name descname">vought</code><span class="sig-paren">(</span><em class="sig-param">t1</em>, <em class="sig-param">t2</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.bolt.Bolt.vought" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the flexibility using the Vought method.</p>
+<p>Note: only applies for aluminum sheets joined by steel fasteners</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="bolted-joints-bolt-group-module">
-<h2>bolted_joints.bolt_group module<a class="headerlink" href="#bolted-joints-bolt-group-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bolt-group-module">
+<h2><code class="docutils literal notranslate"><span class="pre">bolt_group</span></code> module<a class="headerlink" href="#bolt-group-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="bolted-joints-fastener-module">
-<h2>bolted_joints.fastener module<a class="headerlink" href="#bolted-joints-fastener-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fastener-module">
+<h2><code class="docutils literal notranslate"><span class="pre">fastener</span></code> module<a class="headerlink" href="#fastener-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="bolted-joints-lap-joint-module">
-<h2>bolted_joints.lap_joint module<a class="headerlink" href="#bolted-joints-lap-joint-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-brokkr.bolted_joints.lap_joint">
+<span id="lap-joint-module"></span><h2><code class="docutils literal notranslate"><span class="pre">lap_joint</span></code> module<a class="headerlink" href="#module-brokkr.bolted_joints.lap_joint" title="Permalink to this headline">¶</a></h2>
+<p>Calculate the bearing load distribution on a lap joint</p>
+<p>The lap joint is defined by a user-supplied <a href="#id1"><span class="problematic" id="id2">*</span></a>.csv file. The joint is assumed to
+belayed out like the diagram below.</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>Lap 2</p>
+</div></blockquote>
+<p>2—–4—–6—–8—-&gt; P2
+|     |     |     |
+B1    B2    B3    B4
+|     |     |     |</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Pin &lt;—-1—–3—–5—–7—-&gt; P1</dt><dd><p>Lap 1</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The bolts are shown as <cite>Bi</cite>, the nodes on the top lap are odd, and the
+nodes on the lower lap are even. The input load is <cite>Pin</cite> and the output loads
+are given by <cite>P1</cite> for the bottom lap and <cite>P2</cite> for the top lap.</p>
+<dl class="simple">
+<dt>Required modules:</dt><dd><ul class="simple">
+<li><p>math</p></li>
+<li><p>csv</p></li>
+<li><p>numpy</p></li>
+<li><p>mechpy.bolt_flex</p></li>
+</ul>
+</dd>
+</dl>
+<p>Inputs:</p>
+<blockquote>
+<div><p>The <a href="#id3"><span class="problematic" id="id4">*</span></a>.csv should be organized by fastener</p>
+</div></blockquote>
+<dl class="simple">
+<dt># TODO: cleanup table samples</dt><dd><dl class="simple">
+<dt>fasteners</dt><dd><p>ID    Thickness 1    Thickness 2    Modulus    Pitch    Diameter    Bolt Type    Nu
+1    t11    t12    e1    pitch1    d1    type1    nu_b_1
+2    t21    t22    e2    pitch2    d2    type2    nu_b_2
+3    t31    t32    e3    pitch3    d3    type3    nu_b_3
+4    t41    t42    e4    pitch4    d4    type4    nu_b_4</p>
+</dd>
+<dt>joint info</dt><dd><p>p_in        input load
+p_out1      lap 1 output load
+p_out2      lap 2 output load
+width       joint width
+e1          lap 1 modulus
+e2          lap 2 modulus
+mat1        lap 1 material type
+mat2        lap 2 material type
+nu1         lap 1 poisson’s ratio
+nu2         lap2 poisson’s ratio
+joint_type  single or double shear</p>
+</dd>
+</dl>
+</dd>
+<dt># TODO: add complete list of formulations</dt><dd><dl class="simple">
+<dt>stiffness formulation</dt><dd><ul class="simple">
+<li><p>‘Huth’</p></li>
+<li><p>etc.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Assumptions:</dt><dd><ul class="simple">
+<li><p>For stepped joints, the step occurs halfway between the fasteners</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="class">
+<dt id="brokkr.bolted_joints.lap_joint.Joint">
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.bolted_joints.lap_joint.</code><code class="sig-name descname">Joint</code><span class="sig-paren">(</span><em class="sig-param">bolt_path</em>, <em class="sig-param">joint_path</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.lap_joint.Joint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class defining the joint sections</p>
+</dd></dl>
+
 </div>
-<div class="section" id="bolted-joints-load-module">
-<h2>bolted_joints.load module<a class="headerlink" href="#bolted-joints-load-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-brokkr.bolted_joints.load">
+<span id="load-module"></span><h2><code class="docutils literal notranslate"><span class="pre">load</span></code> module<a class="headerlink" href="#module-brokkr.bolted_joints.load" title="Permalink to this headline">¶</a></h2>
+<p>A load class.</p>
+<dl class="class">
+<dt id="brokkr.bolted_joints.load.Load">
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.bolted_joints.load.</code><code class="sig-name descname">Load</code><span class="sig-paren">(</span><em class="sig-param">xyz=[0, 0, 0], force=[0, 0, 0], moment=[0, 0, 0]</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.load.Load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Load class containing location, force, and moment vectors.</p>
+</dd></dl>
+
 </div>
-<div class="section" id="bolted-joints-loadset-module">
-<h2>bolted_joints.loadset module<a class="headerlink" href="#bolted-joints-loadset-module" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-brokkr.bolted_joints.loadset">
+<span id="loadset-module"></span><h2><code class="docutils literal notranslate"><span class="pre">loadset</span></code> module<a class="headerlink" href="#module-brokkr.bolted_joints.loadset" title="Permalink to this headline">¶</a></h2>
+<p>Load sets for bolted joint calculations.</p>
+<dl class="class">
+<dt id="brokkr.bolted_joints.loadset.LoadSet">
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.bolted_joints.loadset.</code><code class="sig-name descname">LoadSet</code><span class="sig-paren">(</span><em class="sig-param">*loads</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A set of loads.</p>
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.append">
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">newLoad</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new load to the load set.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.clear">
+<code class="sig-name descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the load set of loads.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.get_from_csv">
+<code class="sig-name descname">get_from_csv</code><span class="sig-paren">(</span><em class="sig-param">fileName</em>, <em class="sig-param">clear=False</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.get_from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import applied loads from a CSV.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.insert">
+<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">newLoad</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert new load at specified index.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.sumLocation">
+<em class="property">property </em><code class="sig-name descname">sumLocation</code><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.sumLocation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return __sumLocation attribute.</p>
+<p>__sumLocation is kept private to ensure that, whenever it is changed,
+the set is updated and the total moment is accurate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.totalForce">
+<em class="property">property </em><code class="sig-name descname">totalForce</code><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.totalForce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return __totalForce.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="brokkr.bolted_joints.loadset.LoadSet.totalMoment">
+<em class="property">property </em><code class="sig-name descname">totalMoment</code><a class="headerlink" href="#brokkr.bolted_joints.loadset.LoadSet.totalMoment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return __totalMoment.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

@@ -1,5 +1,7 @@
 """Exceptions for ``brokkr``"""
 
+__all__ = ['UnitDimensionError', 'BoundedValueError', 'CoefficientError',
+           'DerivedAttributeError']
 
 class UnitDimensionError(Exception):
     """Error raised if wrong unit type is assigned.

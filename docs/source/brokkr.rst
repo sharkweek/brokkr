@@ -4,13 +4,15 @@
 
 Global Variables
 ----------------
-.. attribute:: DEFAULT_USYS
-
-   Master unit system.
-
-.. attribute:: UREG
-
-   Master unit resgistry.
+==========================  ================================================
+Variable                    Description
+==========================  ================================================
+``DEFAULT_USYS``            Default unit system. This unit system is assumed
+                            for all ``brokkr`` objects if none is supplied.
+``UREG``                    Master unit registry
+``US_USYS``                 US unit system
+``SI_USYS``                 SI unit system
+==========================  ================================================
 
 Additional Namespace Objects
 ----------------------------

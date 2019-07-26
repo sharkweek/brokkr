@@ -1,7 +1,7 @@
 """Tools for composite laminates.
 
 When no units are supplied, they are assumed to be in the master unit system
-``brokkr.config.USYS``.
+``brokkr.config.DEFAULT_USYS``.
 
 All calculations are performed by using classical laminate theory (CLT) under
 the following assumptions:

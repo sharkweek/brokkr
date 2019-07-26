@@ -1,5 +1,5 @@
 ``brokkr.bmath``
-=============
+================
 
 .. automodule:: brokkr.bmath
 

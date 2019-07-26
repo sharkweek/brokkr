@@ -8,6 +8,8 @@ from brokkr.core.exceptions import (
 )
 from brokkr.core.validation import out_of_bounds
 
+__all__ = ['abstract_attribute', 'unlock', 'validate_attr']
+
 def abstract_attribute(obj=None):
     """Decorator for abstract attributes.
 

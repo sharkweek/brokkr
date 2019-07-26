@@ -1,0 +1,1 @@
+"""Bolted joints module."""

@@ -84,7 +84,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html"><code class="docutils literal notranslate"><span class="pre">brokkr</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
@@ -163,8 +162,10 @@
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -186,13 +187,15 @@
 </li>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._calc_attr">_calc_attr (brokkr.core.bases.CalculatedABC attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC._dimensions">_dimensions (brokkr.core.bases.DimensionedABC attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._free_attr">_free_attr (brokkr.core.bases.CalculatedABC attribute)</a>
 </li>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC._limits">_limits (brokkr.core.bases.DimensionedABC attribute)</a>
+</li>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC._update">_update() (brokkr.core.bases.CalculatedABC method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -204,10 +207,12 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.abstract_attribute">abstract_attribute() (in module brokkr.core.bases)</a>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.append">append() (brokkr.bolted_joints.loadset.LoadSet method)</a>
+
+      <ul>
+        <li><a href="brokkr.composites.html#brokkr.composites.Laminate.append">(brokkr.composites.Laminate method)</a>
 </li>
-      <li><a href="brokkr.composites.html#brokkr.composites.Laminate.append">append() (brokkr.composites.Laminate method)</a>
-</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -226,17 +231,33 @@
         <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseVector">(class in brokkr.core.bases)</a>
 </li>
       </ul></li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.boeing">boeing() (brokkr.bolted_joints.bolt.Bolt method)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt">Bolt (class in brokkr.bolted_joints.bolt)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.bolt_type">bolt_type (brokkr.bolted_joints.bolt.Bolt attribute)</a>
+</li>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.BoundedValueError">BoundedValueError</a>
 </li>
       <li><a href="brokkr.html#module-brokkr">brokkr (module)</a>
 </li>
       <li><a href="brokkr.bmath.html#module-brokkr.bmath">brokkr.bmath (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.bmath.html#module-brokkr.bmath.tensors">brokkr.bmath.tensors (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.bmath.html#module-brokkr.bmath.vectors">brokkr.bmath.vectors (module)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#module-brokkr.bolted_joints">brokkr.bolted_joints (module)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.bolt">brokkr.bolted_joints.bolt (module)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.lap_joint">brokkr.bolted_joints.lap_joint (module)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.load">brokkr.bolted_joints.load (module)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.loadset">brokkr.bolted_joints.loadset (module)</a>
 </li>
       <li><a href="brokkr.composites.html#module-brokkr.composites">brokkr.composites (module)</a>
 </li>
@@ -254,13 +275,19 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.composites.html#brokkr.composites.Ply.calc_failure_index">calc_failure_index() (brokkr.composites.Ply static method)</a>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.c">c (brokkr.bolted_joints.bolt.Bolt attribute)</a>
 </li>
-      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC">CalculatedABC (class in brokkr.core.bases)</a>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.c">c() (brokkr.bolted_joints.bolt.Bolt property)</a>
+</li>
+      <li><a href="brokkr.composites.html#brokkr.composites.Ply.calc_failure_index">calc_failure_index() (brokkr.composites.Ply static method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.core.bases.html#brokkr.core.bases.CalculatedABC">CalculatedABC (class in brokkr.core.bases)</a>
+</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.check_ply">check_ply() (brokkr.composites.Laminate method)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.clear">clear() (brokkr.bolted_joints.loadset.LoadSet method)</a>
 </li>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.CoefficientError">CoefficientError</a>
 </li>
@@ -270,9 +297,9 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.html#brokkr.DEFAULT_USYS">DEFAULT_USYS (in module brokkr)</a>
-</li>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.DerivedAttributeError">DerivedAttributeError</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.dia">dia (brokkr.bolted_joints.bolt.Bolt attribute)</a>
 </li>
       <li><a href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC">DimensionedABC (class in brokkr.core.bases)</a>
 </li>
@@ -290,6 +317,10 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.e">e (brokkr.bolted_joints.bolt.Bolt attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.e_0">e_0() (brokkr.composites.Laminate property)</a>
 </li>
   </ul></td>
@@ -300,6 +331,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.failure_index">failure_index (brokkr.composites.Ply attribute)</a>
 </li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.flex_method">flex_method() (brokkr.bolted_joints.bolt.Bolt property)</a>
+</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.flip">flip() (brokkr.composites.Laminate method)</a>
 </li>
   </ul></td>
@@ -309,6 +342,18 @@
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.from_csv">from_csv() (brokkr.composites.Laminate method)</a>
 </li>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.from_lamina">from_lamina() (brokkr.composites.Ply class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.get_from_csv">get_from_csv() (brokkr.bolted_joints.loadset.LoadSet method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.grumman">grumman() (brokkr.bolted_joints.bolt.Bolt method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -327,16 +372,30 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.huth">huth() (brokkr.bolted_joints.bolt.Bolt method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.composites.html#brokkr.composites.Laminate.is_balanced">is_balanced() (brokkr.composites.Laminate property)</a>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.insert">insert() (brokkr.bolted_joints.loadset.LoadSet method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.composites.html#brokkr.composites.Laminate.is_balanced">is_balanced() (brokkr.composites.Laminate property)</a>
+</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.is_symmetric">is_symmetric() (brokkr.composites.Laminate property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.lap_joint.Joint">Joint (class in brokkr.bolted_joints.lap_joint)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -344,6 +403,12 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.k">k (brokkr.bolted_joints.bolt.Bolt attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.k">k() (brokkr.bolted_joints.bolt.Bolt property)</a>
+</li>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.k_0">k_0() (brokkr.composites.Laminate property)</a>
 </li>
   </ul></td>
@@ -354,11 +419,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Lamina">Lamina (class in brokkr.composites)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate">Laminate (class in brokkr.composites)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.layup">layup() (brokkr.composites.Laminate property)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.load.Load">Load (class in brokkr.bolted_joints.load)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet">LoadSet (class in brokkr.bolted_joints.loadset)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -440,13 +509,17 @@
         <li><a href="brokkr.core.bases.html#brokkr.core.bases.BaseTensor.set_v_item">(brokkr.core.bases.BaseTensor method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StrainTensor">StrainTensor (class in brokkr.bmath.tensors)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StressTensor">StressTensor (class in brokkr.bmath.tensors)</a>
 </li>
       <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StrainTensor.stype">stype() (brokkr.bmath.tensors.StrainTensor property)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.sumLocation">sumLocation() (brokkr.bolted_joints.loadset.LoadSet property)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.swift">swift() (brokkr.bolted_joints.bolt.Bolt method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -456,11 +529,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Laminate.t">t (brokkr.composites.Laminate attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.T">T (brokkr.composites.Ply attribute)</a>
 </li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.tate">tate() (brokkr.bolted_joints.bolt.Bolt method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.composites.html#brokkr.composites.Ply.Tinv">Tinv (brokkr.composites.Ply attribute)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.totalForce">totalForce() (brokkr.bolted_joints.loadset.LoadSet property)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.loadset.LoadSet.totalMoment">totalMoment() (brokkr.bolted_joints.loadset.LoadSet property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -469,10 +548,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.core.exceptions.html#brokkr.core.exceptions.UnitDimensionError">UnitDimensionError</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="brokkr.html#brokkr.UREG">UREG (in module brokkr)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -489,6 +564,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="brokkr.bmath.html#brokkr.bmath.tensors.StressTensor.vonMises">vonMises() (brokkr.bmath.tensors.StressTensor property)</a>
+</li>
+      <li><a href="brokkr.bolted_joints.html#brokkr.bolted_joints.bolt.Bolt.vought">vought() (brokkr.bolted_joints.bolt.Bolt method)</a>
 </li>
   </ul></td>
 </tr></table>

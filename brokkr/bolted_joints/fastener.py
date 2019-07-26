@@ -9,6 +9,7 @@ from unyt.dimensions import (
     pressure
 )
 
+__all__ = ['Fastener']
 
 class Fastener:
     """A fastener.
@@ -70,9 +71,6 @@ class Fastener:
         self.E = E
         self.G = G
         self.length = length
-
-    def __setattr__(self, attr, val):
-
 
     @property
     def x(self):

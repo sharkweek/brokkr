@@ -7,8 +7,7 @@ Welcome to ``brokkr``'s documentation!
 
 How to Use This Documentation
 -----------------------------
-Attributes and parameters with units are documented with ``dim: unit``
-available for
+Attributes and parameters with units are documented with ``(dim: unit)``
 
 
 Module Overview
@@ -23,8 +22,8 @@ units discussion
 
 Requirements
 ------------
-unyt
-numpy
+* `unyt <https://github.com/yt-project/unyt>`_
+* `Numpy <https://numpy.org/>`_
 
 
 Contents

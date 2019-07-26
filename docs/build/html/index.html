@@ -84,7 +84,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html"><code class="docutils literal notranslate"><span class="pre">brokkr</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
@@ -159,8 +158,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">brokkr</span></code> is a pure Python package for mechanical and structural engineering.</p>
 <div class="section" id="how-to-use-this-documentation">
 <h2>How to Use This Documentation<a class="headerlink" href="#how-to-use-this-documentation" title="Permalink to this headline">¶</a></h2>
-<p>Attributes and parameters with units are documented with <code class="docutils literal notranslate"><span class="pre">dim:</span> <span class="pre">unit</span></code>
-available for</p>
+<p>Attributes and parameters with units are documented with <code class="docutils literal notranslate"><span class="pre">(dim:</span> <span class="pre">unit)</span></code></p>
 </div>
 <div class="section" id="module-overview">
 <h2>Module Overview<a class="headerlink" href="#module-overview" title="Permalink to this headline">¶</a></h2>
@@ -172,8 +170,10 @@ available for</p>
 </div>
 <div class="section" id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>unyt
-numpy</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/yt-project/unyt">unyt</a></p></li>
+<li><p><a class="reference external" href="https://numpy.org/">Numpy</a></p></li>
+</ul>
 </div>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
@@ -191,24 +191,16 @@ numpy</p>
 <li class="toctree-l2"><a class="reference internal" href="brokkr.bmath.html#functions">Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.core.exceptions.html#module-brokkr.core.exceptions">Module Contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.core.validation.html#module-brokkr.core.validation">Module Contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bolted_joints.html">Bolted Joints</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-bolt-module">bolted_joints.bolt module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-bolt-group-module">bolted_joints.bolt_group module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-fastener-module">bolted_joints.fastener module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-lap-joint-module">bolted_joints.lap_joint module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-load-module">bolted_joints.load module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolted-joints-loadset-module">bolted_joints.loadset module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.bolt"><code class="docutils literal notranslate"><span class="pre">bolt</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#bolt-group-module"><code class="docutils literal notranslate"><span class="pre">bolt_group</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#fastener-module"><code class="docutils literal notranslate"><span class="pre">fastener</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.lap_joint"><code class="docutils literal notranslate"><span class="pre">lap_joint</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.load"><code class="docutils literal notranslate"><span class="pre">load</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="brokkr.bolted_joints.html#module-brokkr.bolted_joints.loadset"><code class="docutils literal notranslate"><span class="pre">loadset</span></code> module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.composites.html">Composites (<code class="docutils literal notranslate"><span class="pre">brokkr.composites</span></code>)</a><ul>

@@ -17,6 +17,8 @@ from unyt import UnitSystem, lbf, psi, inch, ft
 from unyt.dimensions import length, force, dimensionless
 from unyt.unit_registry import default_unit_registry
 
+__all__ = ['UREG', 'DEFAULT_USYS', 'SI_USYS', 'US_USYS']
+
 UREG = default_unit_registry
 UREG.add(
     symbol='strain',
@@ -55,7 +57,7 @@ UREG.add(
     tex_repr=r'\rm{ft \cdot lb_{f}}'
 )
 
-us_unit_system = UnitSystem(
+US_USYS = UnitSystem(
     name='us',
     length_unit='inch',
     mass_unit='lb',
@@ -64,10 +66,10 @@ us_unit_system = UnitSystem(
     angle_unit='degree',
     registry=UREG
 )
-us_unit_system['force'] = lbf
-us_unit_system['pressure'] = psi
+US_USYS['force'] = lbf
+US_USYS['pressure'] = psi
 
-si_unit_system = UnitSystem(
+SI_USYS = UnitSystem(
     name='si',
     length_unit='m',
     mass_unit='kg',
@@ -77,4 +79,4 @@ si_unit_system = UnitSystem(
     registry=UREG
 )
 
-DEFAULT_USYS = us_unit_system
+DEFAULT_USYS = SI_USYS

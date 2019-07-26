@@ -17,8 +17,7 @@ from brokkr.core.exceptions import (
 )
 from brokkr.core.validation import out_of_bounds
 
-__all__ = ['abstract_attribute', 'DimensionedABC', 'CalculatedABC',
-           'BaseTensor', 'BaseVector']
+__all__ = ['DimensionedABC', 'CalculatedABC', 'BaseTensor', 'BaseVector']
 
 
 class BrokkrABCMeta(ABCMeta):
@@ -172,11 +171,11 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
 
     Attributes
     ----------
-    _base_attr : list or tuple of str
+    _base_attr : list, tuple, or set of str
         base attributes
-    _calc_attr : list or tuple of str
+    _calc_attr : list, tuple, or set of str
         derived or 'calculated' attributes
-    _free_attr : list or tuple of str
+    _free_attr : list, tuple, or set of str
         free attributes that are independent of any other attribute
 
     Methods
@@ -226,9 +225,9 @@ class CalculatedABC(metaclass=BrokkrABCMeta):
 
     """
 
-    _base_attr = (,)
-    _calc_attr = (,)
-    _free_attr = (,)
+    _base_attr = tuple()
+    _calc_attr = tuple()
+    _free_attr = tuple()
 
     __locked = abstract_attribute()
 

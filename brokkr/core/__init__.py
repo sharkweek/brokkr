@@ -1,24 +1,6 @@
-""" ``brokkr.core``
+"""Core building blocks for other ``brokkr`` submodules."""
 
-summary statement
-
-Summary
--------
-extended summary
-
-Routine Listings
-----------------
-
-See Also
---------
-
-Notes
------
-
-References
-----------
-
-Examples
---------
-
-"""
+import brokkr.core.bases
+import brokkr.core.decorators
+import brokkr.core.exceptions
+import brokkr.core.validation

@@ -20,3 +20,5 @@ delcache:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	find ../../ -type d -d -name __pycache__ -exec rm -rf {} \;
+	open build/html/index.html
