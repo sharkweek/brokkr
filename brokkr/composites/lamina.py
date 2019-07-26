@@ -111,7 +111,8 @@ class Lamina(DimensionedABC):
     def __init__(self, t, E1, E2, nu12, G12, a11, a22, b11, b22, F1=0, F2=0,
                  F12=0, usys=DEFAULT_USYS):
 
-        super().__setattr__('usys', usys)
+        #super().__setattr__('usys', usys)
+        self.usys = usys
         self.t = t
         self.E1 = E1
         self.E2 = E2

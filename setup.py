@@ -6,8 +6,9 @@ setup(
     description="mechanical engineering toolbox",
     author='Andy Perez',
     packages=[
+        'brokkr/bolted_joints',
+        'brokkr/bmath',
         'brokkr/composites',
-        'brokkr/bolted_joints'
     ],
     license="MIT",
     long_description=open('README.md').read(),
@@ -17,7 +18,7 @@ setup(
         'mechanics',
         'statics',
         'materials',
-        'structures'
+        'structures',
     ],
     classifiers=[
         "Programming Language :: Python",
@@ -26,12 +27,12 @@ setup(
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
-        "Development Status :: 3 - Alpha"
+        "Development Status :: 3 - Alpha",
     ],
     install_requires=[
         'numpy',
         'pandas',
-        'unyt>=2.0.0'
+        'unyt>=2.0.0',
     ],
     python_requires='>=3.5'
 )

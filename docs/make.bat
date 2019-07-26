@@ -26,6 +26,10 @@ if errorlevel 9009 (
 )
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+REM Clear all `__pycache__` folders created when Sphinx is run
+FOR /d /r ..\ %%d IN ("__pycache__") DO @IF EXIST "%%d" rd /s /q "%%d"
+REM Open homepage when completed
+start ./build/html/index.html
 goto end
 
 :help

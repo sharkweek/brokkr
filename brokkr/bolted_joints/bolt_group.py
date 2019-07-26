@@ -1,50 +1,43 @@
-"""Take user-supplied fastener information fastener information (i.e. location,
+"""Analyze bolted joint load distribution.
+
+Take user-supplied fastener information fastener information (i.e. location,
 diameter, etc.) and applied loads for a 3D fastener group and solve for the
 loads applied to each fastener.
 
-Version:
-    Python 3.x
+Notes
+-----
+On running the script, the user is requested to input the file path for
+input files conatining the the necessary fastener and loading information.
 
-Required modules:
-    - np
-    - math
-    - csv
+Fastener and applied loads information must be in a .CSV file. The
+fastener information .CSV must contain the following fields and headers:
+* ID (int): fastener ID (must be unique integers)
+* x, y, z (float): X, Y, and Z coordinates for each fastener
+* dia (float): fastener diameter
+* E (float): Young's Modulus
+* G (float): shear modulus
+* l (float): grip length
 
-Inputs:
-    On running the script, the user is requested to input the file path for
-    input files conatining the the necessary fastener and loading information.
+The applied loads .CSV must contain the following fields and headers
+(in order):
+* ID (int) - load ID (each ID must be unique)
+* x, y, z (float): X, Y, and Z coordinates for each applied load
+* fx, fy, fz (float): X, Y, and Z force components for each applied load
+* mx, my, mz (float): X, Y, and Z moment components for each applied load
 
-    Fastener and applied loads information must be in a .CSV file. The
-    fastener information .CSV must contain the following fields and headers:
-        ID (int): fastener ID (must be unique integers)
-        x, y, z (float): X, Y, and Z coordinates for each fastener
-        dia (float): fastener diameter
-        E (float): Young's Modulus
-        G (float): shear modulus
-        l (float): grip length
+Assumptions
+-----------
+* rigid body mechanics (see TODO)
+* unit system remains consistent (i.e. US or SI)
 
-    The applied loads .CSV must contain the following fields and headers
-    (in order):
-        ID (int) - load ID (each ID must be unique)
-        x, y, z (float): X, Y, and Z coordinates for each applied load
-        fx, fy, fz (float): X, Y, and Z force components for each applied load
-        mx, my, mz (float): X, Y, and Z moment components for each applied
-            load
 
-Assumptions:
-    - rigid body mechanics (see TODO)
-    - unit system remains consistent (i.e. US or SI)
-
-Returns:
-    fastener_loads.csv (file): CSV containing all the force vectors for each
-        fastener
-
-TODO:
-    - Script currently accepts fastener moduli, but conservatively assumes
-      rigid body mechanics. Functionality needs to be added to calculate loads
-      based on fastener stiffness
-    - Add 'Totals' row to end of output file
-    - report values smaller than 1e-9 as zeros
+TODOs
+-----
+* Script currently accepts fastener moduli, but conservatively assumes rigid
+body mechanics. Functionality needs to be added to calculate loads based on
+fastener stiffness
+* Add 'Totals' row to end of output file
+* report values smaller than 1e-9 as zeros
 
 """
 
@@ -69,7 +62,7 @@ class FastenerGroup(dict):
         for each in fasteners:
             self.__is_fastener(each)
 
-        super().__init__({i + 1: j for i, j in enumuerate(fasteners)})
+        super().__init__({i + 1: j for i, j in enumerate(fasteners)})
 
         self.load = load
 

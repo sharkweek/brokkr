@@ -84,7 +84,6 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="brokkr.html"><code class="docutils literal notranslate"><span class="pre">brokkr</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.bmath.html"><code class="docutils literal notranslate"><span class="pre">brokkr.bmath</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="brokkr.core.html">Summary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.bases.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.bases</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.exceptions.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.exceptions</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="brokkr.core.validation.html"><code class="docutils literal notranslate"><span class="pre">brokkr.core.validation</span></code></a></li>
@@ -164,7 +163,7 @@
 <span id="summary"></span><h2>Summary<a class="headerlink" href="#module-brokkr.composites" title="Permalink to this headline">¶</a></h2>
 <p>Tools for composite laminates.</p>
 <p>When no units are supplied, they are assumed to be in the master unit system
-<code class="docutils literal notranslate"><span class="pre">brokkr.config.USYS</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">brokkr.config.DEFAULT_USYS</span></code>.</p>
 <p>All calculations are performed by using classical laminate theory (CLT) under
 the following assumptions:</p>
 <ul class="simple">
@@ -196,7 +195,7 @@ Inc., 1999</p>
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="brokkr.composites.Lamina">
-<em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Lamina</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">E1</em>, <em class="sig-param">E2</em>, <em class="sig-param">nu12</em>, <em class="sig-param">G12</em>, <em class="sig-param">a11</em>, <em class="sig-param">a22</em>, <em class="sig-param">b11</em>, <em class="sig-param">b22</em>, <em class="sig-param">F1=0</em>, <em class="sig-param">F2=0</em>, <em class="sig-param">F12=0</em>, <em class="sig-param">usys=us Unit System  Base Units:   length: inch   mass: lb   time: s   temperature: R   angle: degree   current_mks: A   luminous_intensity: cd  Other Units:   force: lbf   pressure: psi</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Lamina" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">brokkr.composites.</code><code class="sig-name descname">Lamina</code><span class="sig-paren">(</span><em class="sig-param">t</em>, <em class="sig-param">E1</em>, <em class="sig-param">E2</em>, <em class="sig-param">nu12</em>, <em class="sig-param">G12</em>, <em class="sig-param">a11</em>, <em class="sig-param">a22</em>, <em class="sig-param">b11</em>, <em class="sig-param">b22</em>, <em class="sig-param">F1=0</em>, <em class="sig-param">F2=0</em>, <em class="sig-param">F12=0</em>, <em class="sig-param">usys=si Unit System  Base Units:   length: m   mass: kg   time: s   temperature: K   angle: rad   current_mks: A   luminous_intensity: cd  Other Units:</em><span class="sig-paren">)</span><a class="headerlink" href="#brokkr.composites.Lamina" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="brokkr.core.bases.html#brokkr.core.bases.DimensionedABC" title="brokkr.core.bases.DimensionedABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">brokkr.core.bases.DimensionedABC</span></code></a></p>
 <p>An individual lamina.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Lamina</span></code> class exists for material property assignment. To consider

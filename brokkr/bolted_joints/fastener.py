@@ -1,6 +1,5 @@
 """A fastener class for bolted joint calculations."""
 
-from brokkr.config import USYS
 from unyt import (
     unyt_array
 )
@@ -8,6 +7,8 @@ from unyt.dimensions import (
     length,
     pressure
 )
+
+from brokkr.config import DEFAULT_USYS
 
 __all__ = ['Fastener']
 
@@ -33,7 +34,7 @@ class Fastener:
         method for calculating fastener flexibility
         (``default='Huth-bolt-metal'``)
     usys : unyt.UnitSystem
-        fastener unit system (``default=USYS``)
+        fastener unit system (``default=DEFAULT_USYS``)
     """
 
     _flex_types = ['Huth-bolt-metal', 'Huth-rivet-metal', 'Huth-bolt-graphite',
@@ -63,7 +64,7 @@ class Fastener:
                  G,
                  length,
                  flex_method='Huth-bolt-metal',
-                 usys=USYS):
+                 usys=DEFAULT_USYS):
         """Create a `Fastener`."""
 
         self.xyz = xyz
