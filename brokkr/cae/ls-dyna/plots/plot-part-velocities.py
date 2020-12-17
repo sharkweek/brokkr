@@ -3,14 +3,15 @@ import plotly.graph_objects as go
 from lasso.dyna import Binout
 
 # get results data
-binout = Binout('binout')
+binout = Binout(input('Binout path: '))
 velocity_fields = [x for x in binout.read('matsum') if 'rbvelocity' in x]
 
-# Update part list based on the model
 # parts[[matsum_id, part_id, title]]
-parts = [[0, 1, 'Part 1'],
-         [1, 2, 'Part 2'],
-         [2, 3, 'Part 3']]
+legend = binout.read('matsum', 'legend')
+titles = [legend[i:i + 80].strip() for i in range(0, len(legend), 80)]
+parts = [list(x) for x in zip(range(0, len(titles)),
+                              binout.read('matsum', 'ids'),
+                              titles)]
 
 # create and populate dataframe with part data
 parts_df = pd.DataFrame(
@@ -26,6 +27,7 @@ for part in parts:
              'direction': [field[0]],
              'trace': [go.Scatter(x=binout.read('matsum', 'time'),
                                   y=binout.read('matsum', field).T[part[0]],
+                                  line={"width": 1},
                                   name=field[0])]})
         parts_df = parts_df.append(df, ignore_index=True)
 
@@ -50,7 +52,9 @@ for part in parts:
             'part_title': [part[2]],
             'direction': ['resultant'],
             'trace': [go.Scatter(x=binout.read('matsum', 'time'),
-                                 y=temp_df['resultant'])]
+                                 y=temp_df['resultant'],
+                                 line={"width": 1},
+                                 name='resultant')]
         }
     ), ignore_index=True)
 
@@ -108,6 +112,7 @@ fig.update_layout(updatemenus=[{'active': 0,
                                 'y': 1.17,
                                 'showactive': True}])
 
+# label dropdown menus
 fig.add_annotation({'text': 'By Part: ',
                     'xanchor': 'right',
                     'x': 0.05,
@@ -123,11 +128,13 @@ fig.add_annotation({'text': 'By Direction: ',
                     'yref': 'paper',
                     'showarrow': False})
 
-# update initial state of figure
 fig.update_traces({'visible': False})
 
 # print figure
 fig.write_html(
     binout.read('glstat', 'title').strip().replace(' ', '-').lower()
-    + '-part-velocities.html'
+        + '-part-velocities.html',
+    include_mathjax='cdn',
+    default_width=800,
+    default_height=500
 )
