@@ -10,21 +10,7 @@ velocity_fields = [x for x in binout.read('matsum') if 'rbvelocity' in x]
 # parts[[matsum_id, part_id, title]]
 parts = [[0, 1, 'Part 1'],
          [1, 2, 'Part 2'],
-         [2, 3, 'Part 3'],
-         [3, 4, 'Front Panel'],
-         [4, 5, 'Front Ramp'],
-         [5, 6, 'Aero Stack'],
-         [6, 7, 'Side Buildup'],
-         [7, 8, 'Sides'],
-         [8, 9, 'Attach Flange'],
-         [9, 10, 'Radomes'],
-         [10, 11, 'Core 2'],
-         [11, 12, 'Core 1'],
-         [12, 14, 'Side Buildup Ramp'],
-         [13, 15, 'Liner 1'],
-         [14, 16, 'Closeout Ribs'],
-         [15, 17, 'Liner 2'],
-         [16, 18, 'Liner 3']]
+         [2, 3, 'Part 3']]
 
 # create and populate dataframe with part data
 parts_df = pd.DataFrame(
