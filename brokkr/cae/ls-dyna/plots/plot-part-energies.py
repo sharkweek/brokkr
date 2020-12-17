@@ -3,14 +3,16 @@ import plotly.graph_objects as go
 from lasso.dyna import Binout
 
 # get results data
-binout = Binout('binout')
+binout = Binout(input('Binout path: '))
 energy_fields_m = [x for x in binout.read('matsum') if x[-6:] == 'energy']
 energy_fields_g = [x for x in binout.read('glstat') if x[-6:] == 'energy']
 
 # parts[[matsum_id, part_id, title]]
-parts = [[0, 1, 'Part 1'],
-         [1, 2, 'Part 2'],
-         [2, 3, 'Part 3']]
+legend = binout.read('matsum', 'legend')
+titles = [legend[i:i + 80].strip() for i in range(0, len(legend), 80)]
+parts = [list(x) for x in zip(range(0, len(titles)),
+                              binout.read('matsum', 'ids'),
+                              titles)]
 
 # create and populate dataframe with part data
 parts_df = pd.DataFrame(columns=['matsum_id', 'pid', 'part_title', 'type',
@@ -38,7 +40,7 @@ for field in energy_fields_g:
             'type': [field[:-7]],
             'trace': [go.Scatter(x=binout.read('glstat', 'time'),
                                  y=binout.read('glstat', field),
-                                 name="global_" + field[:-7])]
+                                 name=field[:-7])]
         })
     )
 
@@ -70,7 +72,7 @@ for trace in parts_df.trace:
 dropdown_bypart = [{'label': x,
                     'method': 'update',
                     'args': [{'visible': parts_df.part_title == x,
-                             'name': parts_df.type}]}
+                              'name': parts_df.type}]}
                    for x in parts_df.part_title.unique()]
 
 dropdown_bydir = [{'label': x,
