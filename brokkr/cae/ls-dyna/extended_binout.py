@@ -7,7 +7,7 @@ class Extended_Binout(Binout):
         if args[0:2] == ('matsum', 'legend'):
             return self._matsum_legend_df()
         else:
-            super.read(*args)
+            return super().read(*args)
 
     def _matsum_legend_df(self):
         """reformat the `matsum` legend as a pandas `DataFrame`"""
