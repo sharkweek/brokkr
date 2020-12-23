@@ -46,7 +46,8 @@ class Extended_Binout(Binout):
                 plot_df = plot_df.append(
                     {"matsum_id": rec.index[0],
                      "pid": rec.pid.iloc[0],
-                     "part_title": rec.title.iloc[0],
+                     "part_title": rec.title.iloc[0]
+                                   + " (" + str(rec.pid.iloc[0]) + ")",
                      "type": field[:-7],
                      "trace": Scatter(
                          x=super().read('matsum', 'time'),
