@@ -35,51 +35,45 @@ class Extended_Binout(Binout):
 
         return self.read('ssstat', *args)
 
-    def as_df(self, *args):
-        """Return data as a pandas DataFrame."""
+    @property
+    def _matsum_legend(self):
+        """`matsum` legend as a pandas `DataFrame`"""
 
-        data = self.read(*args)
+        legend = super().read('matsum', 'legend')
+        return DataFrame({
+            'pid': super().read('matsum', 'ids'),
+            'title': [legend[i:i + 80].strip()
+                      for i in range(0, len(legend), 80)]
+        })
+
+    def df(self, *args):
+        """Read data as a pandas DataFrame.
+
+        See docs for `Binout.read().
+        """
+
+        if args == ('matsum', 'legend'):
+            return self._matsum_legend
+
+        data = super().read(*args)
 
         # validate time-based data
         if type(data) != ndarray:
-            raise ValueError("Not a time series")
-        elif data.shape[0] != self.read(args[0], 'time').shape[0]:
-            raise ValueError("Not a time series")
+            return super().read(*args)
+        elif data.shape[0] != super().read(args[0], 'time').shape[0]:
+            return super().read(*args)
         else:
-            time = Index(self.read(args[0], 'time'), name='time')
+            time = Index(super().read(args[0], 'time'), name='time')
 
         # create dataframe
         if data.ndim > 1:
             df = DataFrame(index=time)
-            for i, j in enumerate(self.read(args[0], 'ids')):
+            for i, j in enumerate(super().read(args[0], 'ids')):
                 df[str(j)] = data.T[i]
         else:
             df = Series(data, index=time, name=args[-1])
 
         return df
-
-    @property
-    def df(self):
-        return self._DF(self)
-
-    class _DF:
-        """Inner class containing methods to return data as `DataFrames`."""
-
-        def __init__(self, outer):
-            """Reference the outer object for inner methods."""
-
-            self.outer = outer
-
-        @property
-        def matsum_legend(self):
-            """`matsum` legend as a pandas `DataFrame`"""
-
-            legend = self.outer.read('matsum', 'legend')
-            return DataFrame({
-                'pid': self.outer.read('matsum', 'ids'),
-                'title': [legend[i:i + 80].strip()
-                          for i in range(0, len(legend), 80)]
-            })
 
     @property
     def plot(self):
@@ -104,7 +98,7 @@ class Extended_Binout(Binout):
             ]
 
             # create and populate dataframe with part data
-            legend = self.outer.df.matsum_legend
+            legend = self.outer._matsum_legend
             plot_df = DataFrame(columns=['matsum_id',
                                          'pid',
                                          'part_title',
@@ -116,8 +110,8 @@ class Extended_Binout(Binout):
                     plot_df = plot_df.append(
                         {"matsum_id": rec.index[0],
                          "pid": rec.pid.iloc[0],
-                         "part_title": rec.title.iloc[0]
-                                       + " (" + str(rec.pid.iloc[0]) + ")",
+                         "part_title": (rec.title.iloc[0]
+                                        + " (" + str(rec.pid.iloc[0]) + ")"),
                          "type": field[:-7],
                          "trace": Scatter(
                             x=self.outer.read('matsum', 'time'),
@@ -168,8 +162,8 @@ class Extended_Binout(Binout):
             dropdown_bypart = [{'label': x,
                                 'method': 'update',
                                 'args': [{'visible': plot_df.part_title == x,
-                                        'name': plot_df.type}]}
-                                        for x in plot_df.part_title.unique()]
+                                          'name': plot_df.type}]}
+                               for x in plot_df.part_title.unique()]
 
             dropdown_bydir = [{'label': x,
                                'method': 'update',
