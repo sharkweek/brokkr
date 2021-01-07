@@ -1,52 +1,62 @@
-from pandas import DataFrame
+from pandas import DataFrame, Index, Series
+from numpy import ndarray
 from lasso.dyna import Binout
+from plotly.graph_objects import (
+    Figure,
+    Scatter,
+    Layout
+)
 
 
 class Extended_Binout(Binout):
-    @property
-    def glstat(self, key=None):
+
+    def glstat(self, *args):
         """`glstat` fields."""
 
-        if 'glstat' in self.read():
-            return sorted(self.read('glstat'))
-        else:
-            raise ValueError("No 'glstat' data in `binout`")
+        return self.read('glstat', *args)
 
-    @property
-    def matsum(self, key=None):
+    def matsum(self, *args):
         """`matsum` fields."""
 
-        if 'matsum' in self.read():
-            return sorted(self.read('matsum'))
-        else:
-            raise ValueError("No 'matsum' data in `binout`")
+        return self.read('matsum', *args)
 
-    @property
-    def nodfor(self, key=None):
+    def nodfor(self, *args):
         """`nodfor` fields."""
 
-        if 'nodfor' in self.read():
-            return sorted(self.read('nodfor'))
-        else:
-            raise ValueError("No 'nodfor' data in `binout`")
+        return self.read('nodfor', *args)
 
-    @property
-    def rbdout(self, key=None):
+    def rbdout(self, *args):
         """`rbdout` fields."""
 
-        if 'rbdout' in self.read():
-            return sorted(self.read('rbdout'))
-        else:
-            raise ValueError("No 'rbdout' data in `binout`")
+        return self.read('rbdout', *args)
 
-    @property
-    def ssstat(self, key=None):
+    def ssstat(self, *args):
         """`ssstat` fields."""
 
-        if 'ssstat' in self.read():
-            return sorted(self.read('ssstat'))
+        return self.read('ssstat', *args)
+
+    def as_df(self, *args):
+        """Return data as a pandas DataFrame."""
+
+        data = self.read(*args)
+
+        # validate time-based data
+        if type(data) != ndarray:
+            raise ValueError("Not a time series")
+        elif data.shape[0] != self.read(args[0], 'time').shape[0]:
+            raise ValueError("Not a time series")
         else:
-            raise ValueError("No 'ssstat' data in `binout`")
+            time = Index(self.read(args[0], 'time'), name='time')
+
+        # create dataframe
+        if data.ndim > 1:
+            df = DataFrame(index=time)
+            for i, j in enumerate(self.read(args[0], 'ids')):
+                df[str(j)] = data.T[i]
+        else:
+            df = Series(data, index=time, name=args[-1])
+
+        return df
 
     @property
     def df(self):
