@@ -10,68 +10,85 @@ from plotly.graph_objects import (
 
 class Extended_Binout(Binout):
 
-    def glstat(self, *args):
-        """`glstat` fields."""
+    def read(self, *args):
+        super().read.__doc__
 
-        return self.read('glstat', *args)
+        # automatically sort returned lists for readability
+        if type(super().read(*args)) == list:
+            return sorted(super().read(*args))
+        else:
+            return super().read(*args)
 
-    def matsum(self, *args):
-        """`matsum` fields."""
+    def legend(self, db):
+        """Legend as DataFrame
 
-        return self.read('matsum', *args)
+        Parameters
+        ----------
+        db : str
+            The database for the desired legend (e.g. 'matsum')
 
-    def nodfor(self, *args):
-        """`nodfor` fields."""
+        Returns
+        -------
+        DataFrame
+            Legend with ID and title pairs
 
-        return self.read('nodfor', *args)
+        """
 
-    def rbdout(self, *args):
-        """`rbdout` fields."""
+        if 'legend' not in super().read(db):
+            raise ValueError(db + " has no legend")
 
-        return self.read('rbdout', *args)
+        legend = super().read(db, 'legend')
 
-    def ssstat(self, *args):
-        """`ssstat` fields."""
+        if 'legend_ids' in super().read(db):
+            id = 'legend_ids'
+        else:
+            id = 'ids'
 
-        return self.read('ssstat', *args)
-
-    @property
-    def _matsum_legend(self):
-        """`matsum` legend as a pandas `DataFrame`"""
-
-        legend = super().read('matsum', 'legend')
-        return DataFrame({
-            'pid': super().read('matsum', 'ids'),
+        df = DataFrame({
+            'id': super().read(db, id),
             'title': [legend[i:i + 80].strip()
                       for i in range(0, len(legend), 80)]
         })
 
-    def df(self, *args):
+        return df
+
+    def as_df(self, *args) -> DataFrame:
         """Read data as a pandas DataFrame.
 
         See docs for `Binout.read().
         """
 
-        if args == ('matsum', 'legend'):
-            return self._matsum_legend
-
         data = super().read(*args)
 
         # validate time-based data
-        if type(data) != ndarray:
-            return super().read(*args)
-        elif data.shape[0] != super().read(args[0], 'time').shape[0]:
-            return super().read(*args)
-        else:
-            time = Index(super().read(args[0], 'time'), name='time')
+        if not isinstance(data, ndarray):
+            err_msg = "data is not a numpy array but has type '{0}'"
+            raise ValueError(err_msg.format(type(data)))
+
+        time_array = super().read(*args[:-1], 'time')
+        if data.shape[0] != time_array.shape[0]:
+            raise ValueError(
+                "data series length does not match time array length"
+            )
+
+        time_pdi = Index(time_array, name='time')
 
         # create dataframe
         if data.ndim > 1:
-            df = DataFrame(index=time)
-            for i, j in enumerate(super().read(args[0], 'ids')):
+            df = DataFrame(index=time_pdi)
+
+            if args[0] == 'rcforc':
+                ids = [(str(i) + 'm') if j else (str(i) + 's')
+                       for i, j in zip(super().read('rcforc', 'ids'),
+                                       super().read('rcforc', 'side'))]
+            else:
+                ids = super().read(*args[:-1], 'ids')
+
+            for i, j in enumerate(ids):
                 df[str(j)] = data.T[i]
+
         else:
-            df = Series(data, index=time, name=args[-1])
+            df = Series(data, index=time_pdi, name=args[-1])
 
         return df
 
